@@ -1,0 +1,24 @@
+image: asciidoctor/docker-asciidoctor:latest
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - asciidoctor silverbox-server.adoc
+  artifacts:
+    paths:
+      - silverbox-server.html
+
+pages:
+  stage: deploy
+  script:
+    - mkdir public
+    - cp silverbox-server.html public
+  artifacts:
+    paths:
+      - public
+    only:
+      - master
