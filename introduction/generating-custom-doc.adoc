@@ -21,17 +21,17 @@ git clone https://gitlab.com/kosheo/silverbox-server.git
 .. For HTML output:
 +
 ----
-docker run -it --rm -v ./silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor silverbox-server.adoc
+docker run -it --rm -v $(pwd)/silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor silverbox-server.adoc
 ----
 
 .. For PDF output:
 +
 ----
-docker run -it --rm -v ./silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor-pdf silverbox-server.adoc
+docker run -it --rm -v $(pwd)/silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor-pdf silverbox-server.adoc
 ----
 
-This should produce output file (`silverbox-server.html` or `silverbox-server.pdf`)
-where all the placeholders replaced with your values.
+This should produce output file (`silverbox-server.html` or `silverbox-server.pdf`) in the `silverbox-server`
+directory, where all the placeholders replaced with your values.
 
 Now you can mostly just copy-paste code snippets without having to manually edit them first.
 

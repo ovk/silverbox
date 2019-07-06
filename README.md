@@ -20,16 +20,19 @@ For example, to build HTML version:
 
 ```
 git clone https://gitlab.com/kosheo/silverbox-server.git
-docker run -it --rm -v ./silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor silverbox-server.adoc
+docker run -it --rm -v $(pwd)/silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor silverbox-server.adoc
 ```
 
 Or to build a PDF:
 
 ```
-docker run -it --rm -v ./silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor-pdf silverbox-server.adoc
+docker run -it --rm -v $(pwd)/silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor-pdf silverbox-server.adoc
 ```
 
-See [Generating Custom Document](https://kosheo.gitlab.io/silverbox-server.html#_generating_custom_document)
+This should produce output file (`silverbox-server.html` or `silverbox-server.pdf`) in the `silverbox-server`
+directory, where all the placeholders replaced with your values.
+
+See [Generating Custom Document](https://kosheo.gitlab.io/silverbox-server/#_generating_custom_document)
 section for more details.
 
 ## Customizing Document
