@@ -32,7 +32,7 @@ docker run -it --rm -v $(pwd)/silverbox-server:/documents asciidoctor/docker-asc
 This should produce output file (`silverbox-server.html` or `silverbox-server.pdf`) in the `silverbox-server`
 directory, where all the placeholders replaced with your values.
 
-See [Generating Custom Document](https://kosheo.gitlab.io/silverbox-server/#_generating_custom_document)
+See [Generating Custom Document](https://kosheo.gitlab.io/silverbox-server/#generating_custom_document)
 section for more details.
 
 ## Customizing Document
