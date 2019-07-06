@@ -1,0 +1,91 @@
+=== Keeping System Clean
+This section gives some ideas on how to keep the system clean
+and how to prevent accumulation of unnecessary or obsolete information.
+
+==== Cleaning System Packages
+To remove no longer required packages do:
+
+----
+sudo apt autoremove
+----
+
+==== Cleaning Docker
+To view how much space is used by Docker:
+
+----
+sudo docker system df
+----
+
+A lot of unused Docker images can accumulate after upgrades.
+To remove all dangling images do:
+
+----
+sudo docker image prune
+----
+
+This, however, only removes dangling images, but leaves images that are not dangling but can still be unused.
+All unused images can be removed with the `-a` flag,
+but this is dangerous as some images that are _not used_ at the moment
+can still be required later (for example, the `dns-updater` image).
+
+One solution is to remove all currently unused images semi-manually:
+
+----
+sudo docker rmi `sudo docker images -q nextcloud:*`
+sudo docker rmi `sudo docker images -q httpd:*`
+sudo docker rmi `sudo docker images -q postgres:*`
+sudo docker rmi `sudo docker images -q alpine:*`
+----
+
+NOTE: This will generate errors and skip deletion of images that are currently in use.
+
+To clean Docker build cache do:
+
+----
+sudo docker builder prune
+----
+
+==== Cleaning and Minimizing Logs
+
+===== Cleaning Old System Logs
+System logs will grow over time.
+To check size of all Journald logs:
+
+----
+journalctl --disk-usage
+----
+
+Journald logs can be easily cleaned by size:
+
+----
+sudo journalctl --vacuum-size=500M
+----
+
+or by time:
+
+----
+sudo journalctl --vacuum-time=2years
+----
+
+===== Adjusting Journald Configuration
+In the default Journald configuration in Ubuntu the Journald messages are also forwarded to syslog,
+which is unnecessary (unless you use specific tools that rely on that).
+This can be disabled by setting `ForwardToSyslog` parameter to `no` in the `/etc/systemd/journald.conf` file.
+
+Additionally, to potentially reduce writes to disk you can increase `SyncIntervalSec` parameter
+in the `/etc/systemd/journald.conf` file.
+This parameter controls how frequently Journald messages are synced to disk,
+so only increase it if the server is connected to reliable UPS and unexpected shutdowns are unlikely.
+
+==== Disabling Motd-News
+By default, Ubuntu will fetch news daily to show them in the message of the day (motd),
+which I find rather annoying and unnecessary flooding the logs.
+To disable it, edit the `/etc/default/motd-news` file and change `ENABLED` parameter to `0`.
+While this removes news from the motd, it doesn't stop `motd-news` timer.
+To stop and disable the timer, do:
+
+----
+sudo systemctl stop motd-news.timer
+sudo systemctl disable motd-news.timer
+----
+

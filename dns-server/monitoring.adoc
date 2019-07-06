@@ -1,0 +1,32 @@
+=== Monitoring
+The DNS server will be monitored with Monit, which should by now be configured.
+
+Create the `/etc/monit/conf.d/30-unbound` file with the following content:
+
+----
+check process unbound with pidfile /var/run/unbound.pid
+  if does not exist then alert
+  if cpu > 10% for 5 cycles then alert
+  if total memory > 200.0 MB for 5 cycles then alert
+  if failed port 53 type udp protocol dns then alert
+  if failed port 53 type tcp protocol dns then alert
+
+check program unbound_stats with path "/usr/sbin/unbound-control stats" every 5 cycles
+  if status != 0 then alert
+----
+
+This will make Monit to check that Unbound process is running and DNS server is accessible over TCP and UDP
+and not consuming suspicious amounts of CPU and RAM.
+In addition to that, it will grab the Unbound stats every 5 cycles
+(which is 5 minutes, if you set cycle duration to a minute).
+The Unbound stats are cleared each time `stats` command is executed, so in this case Monit will essentially
+show the stats for the last 5 minutes.
+
+Restart the Monit service:
+
+----
+sudo systemctl restart monit
+----
+
+Check Monit web interface and make sure that DNS monitoring is working.
+

@@ -1,0 +1,212 @@
+=== Certificate
+This section describes how to obtain and maintain publicly trusted SSL/TLS Certificate
+that will be used to setup HTTPS for the Nextcloud.
+
+The certificate will be issued by Let's Encrypt <<lets_encrypt>>
+and will be obtained and renewed using Certbot <<certbot>>.
+
+The certificate needs to be obtained before Nextcloud installation,
+since Nextcloud will only be reachable via HTTPS (not plain HTTP) and the web server won't start without certificate.
+
+==== Installing Certbot
+Certbot can be installed from the PPA maintained by the EFF team
+(the installation is described in more details in Certbot documentation
+footnote:[https://certbot.eff.org/lets-encrypt/ubuntubionic-other]):
+
+----
+sudo add-apt-repository ppa:certbot/certbot
+sudo apt install certbot
+----
+
+==== Preparing Domain Name
+While its possible to get certificate for the `{SB_SUBDOMAIN}` domain and use it to access the Nextcloud,
+it may be better to use a subdomain, like for example `nextcloud.silverbox.example.com`.
+This offers some extra flexibility and you can take advantage of the same origin policy.
+In this document, the subdomain for Nextcloud is referred as `{SB_NEXTCLOUD_DOMAIN}`.
+
+The first step is to create a CNAME DNS record to point `{SB_NEXTCLOUD_DOMAIN}` to `{SB_SUBDOMAIN}`.
+Thus, you won't have to also dynamically update host A record for the `{SB_NEXTCLOUD_DOMAIN}`,
+as it is already updated for the `{SB_SUBDOMAIN}`.
+
+The second step is to create a TXT DNS record for the `_acme-challenge.{SB_NEXTCLOUD_DOMAIN}` with any value
+(the value is just a placeholder and will be replaced with the actual DNS ACME challenge during
+domain validation).
+
+==== Preparing Certbot Scripts
+To confirm ownership of the domain (for certificate generation and renewal) a DNS challenge will be used.
+The reason is that HTTP(S) challenge is way to restrictive, in particular, it forces using the standard
+80 and 443 ports which is not always desirable.
+DNS challenge, however, only requires you to be able to create a TXT record with a given content,
+without enforcing any specific port numbers.
+
+At the moment of writing, Certbot did not support Namesilo API, which is why DNS challenge is done using manual hooks.
+
+Create a directory where all Certbot related scripts will reside:
+
+----
+sudo mkdir /root/silverbox/certbot
+sudo chmod 700 /root/silverbox/certbot
+----
+
+Inside it, create the `dns-challenge-auth.sh` file with the following content:
+
+./root/silverbox/certbot/dns-challenge-auth.sh
+[source,bash]
+----
+#!/bin/bash
+
+ACME_SUBDOMAIN="_acme-challenge"
+DOMAIN=`awk -F '.' '{print $(NF-1)"."$NF}' <<< "$CERTBOT_DOMAIN"` || exit 1
+NS=`dig "$DOMAIN" NS +short | head -1` || exit 2
+echo "Performing DNS Challenge for domain: $CERTBOT_DOMAIN in $DOMAIN with authoritative NS $NS"
+docker run --rm --network common --cpus="1" -v /root/silverbox/namesilo:/secrets dns-updater -k /secrets/api-key -a update-txt -d "$ACME_SUBDOMAIN.$CERTBOT_DOMAIN" -t "$CERTBOT_VALIDATION" || exit 3
+
+for i in {1..20}; do # <1>
+    echo "Checking if DNS updated, attempt $i..."
+    TXT=`dig "@$NS" "$ACME_SUBDOMAIN.$CERTBOT_DOMAIN" TXT +short | sed 's/"//g'`
+    if [ "$TXT" == "$CERTBOT_VALIDATION" ]; then
+        echo "Record updated. Waiting extra minute before returning."
+        sleep 60 <2>
+        exit 0
+    else
+        echo "Record still contains '$TXT'. Waiting for 1 minute..."
+        sleep 60 <3>
+    fi
+done
+
+exit 4
+----
+<1> 20 is the number of attempts to check if the TXT record has been updated.
+<2> Without this extra wait sometime Certbot won't pick up the updated TXT value.
+<3> How long to wait between attempts.
+
+Next, create the `dns-challenge-cleanup.sh` file with the following content:
+
+./root/silverbox/certbot/dns-challenge-cleanup.sh
+[source,bash]
+----
+#!/bin/bash
+
+ACME_SUBDOMAIN="_acme-challenge"
+DOMAIN=`awk -F '.' '{print $(NF-1)"."$NF}' <<< "$CERTBOT_DOMAIN"` || exit 1
+NS=`dig "$DOMAIN" NS +short | head -1` || exit 2
+echo "Performing DNS Challenge Cleanup for domain: $CERTBOT_DOMAIN in $DOMAIN with authoritive NS $NS"
+docker run --rm --network common --cpus="1" -v /root/silverbox/namesilo:/secrets dns-updater -k /secrets/api-key -a update-txt -d "$ACME_SUBDOMAIN.$CERTBOT_DOMAIN" -t "none" || exit 3 <1>
+echo "Record cleaned up"
+----
+<1> In this example, `none` value is used as the new TXT record value (since empty value is not allowed).
+
+Assign the following permissions to these files:
+
+----
+sudo chmod 770 /root/silverbox/certbot/dns-challenge-auth.sh
+sudo chmod 770 /root/silverbox/certbot/dns-challenge-cleanup.sh
+----
+
+The next step is to create renewal hooks that will stop Apache web server before renewal
+and start it once new certificate is obtained.
+
+To create directories for the renewal hooks run:
+
+----
+sudo certbot certificates
+----
+
+Create the `/etc/letsencrypt/renewal-hooks/pre/nextcloud-web-stop.sh` file with the following content:
+
+./etc/letsencrypt/renewal-hooks/pre/nextcloud-web-stop.sh
+[source,bash]
+----
+#!/bin/bash
+docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml stop nextcloud-web
+----
+
+Create the `/etc/letsencrypt/renewal-hooks/post/nextcloud-web-start.sh` file with the following content:
+
+./etc/letsencrypt/renewal-hooks/post/nextcloud-web-start.sh
+[source,bash]
+----
+#!/bin/bash
+docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml start nextcloud-web
+----
+
+And assign the following permissions to these files:
+
+----
+sudo chmod 770 /etc/letsencrypt/renewal-hooks/pre/nextcloud-web-stop.sh
+sudo chmod 770 /etc/letsencrypt/renewal-hooks/post/nextcloud-web-start.sh
+----
+
+Finally, install the `dnsutils` package which contains `dig` tool:
+
+----
+sudo apt install dnsutils
+----
+
+==== Test Certificate
+To test that domain validation and certificate renewal works, it is possible to use Let's Encrypt test server
+to generate test (not trusted) certificate.
+
+To get test certificate run:
+
+[subs="attributes+"]
+----
+sudo certbot certonly --test-cert \
+    --agree-tos \
+    -m {SB_EMAIL} \ # <1>
+    --manual \
+    --preferred-challenges=dns \
+    --manual-auth-hook /root/silverbox/certbot/dns-challenge-auth.sh \
+    --manual-cleanup-hook /root/silverbox/certbot/dns-challenge-cleanup.sh \
+    --must-staple \
+    -d {SB_NEXTCLOUD_DOMAIN} # <2>
+----
+<1> Replace `{SB_EMAIL}` with the email address you wish to use for certificate generation.
+<2> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual domain name.
+
+NOTE: This may take a while.
+
+To view information about the generated certificate:
+
+----
+sudo certbot certificates
+----
+
+To test certificate renewal:
+
+----
+sudo certbot renew --test-cert --dry-run
+----
+
+To revoke and delete the test certificate:
+
+[subs="attributes+"]
+----
+sudo certbot revoke --test-cert --cert-name {SB_NEXTCLOUD_DOMAIN}
+----
+
+==== Getting Real Certificate
+To get the real certificate run:
+
+[subs="attributes+"]
+----
+sudo certbot certonly \
+    --agree-tos \
+    -m {SB_EMAIL} \
+    --manual \
+    --preferred-challenges=dns \
+    --manual-auth-hook /root/silverbox/certbot/dns-challenge-auth.sh \
+    --manual-cleanup-hook /root/silverbox/certbot/dns-challenge-cleanup.sh \
+    --must-staple \
+    -d {SB_NEXTCLOUD_DOMAIN}
+----
+
+==== Automatic Certificate Renewal
+The certificate should be automatically renewed by the Certbot's Systemd service.
+The service should run automatically triggered by the corresponding timer.
+To check the status of the timer:
+
+----
+systemctl status certbot.timer
+----
+

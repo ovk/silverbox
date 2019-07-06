@@ -1,0 +1,50 @@
+=== Overview
+The Nextcloud will be deployed using Docker (more specifically - Docker Compose).
+Below is a diagram that shows high level overview of the Nextcloud deployment:
+
+----
+    Nextcloud Docker Network
+   ----------------------------------------------------------------------------------
+  |            ------------              -----------              ------------       |
+  |   HTTPS   |   Apache   |  9000/tcp  | Nextcloud |  5432/tcp  |            |      |
+------------->| Web Server |----------->|    PHP    |----------->| PostgreSQL |      |
+  |      _____|  (httpd)   |            |    FPM    |            |            |      |
+  |     |      ------------              -----------              ------------       |
+  |     |            |                     |   |  |                    |             |
+  |     |   {/usr/local/apache2/htdocs}    |   |  |                    |             |
+  |     |            |         {/var/www/html} |  |       {/var/lib/postgresql/data} |
+  |  {/certs}        |              |          |  |                    |             |
+  |     |            v              v     _____|  |                    v             |
+  |     |          /srv/nextcloud/html   |      {/data}        /srv/nextcloud/db     |
+  |     v                                |        |                                  |
+  | /etc/letsencrypt                 {/nfs/*}     v                                  |
+  |                                      |     /srv/nextcloud/data                   |
+  |                                      v                                           |
+  |                                  /srv/nfs/*                                      |
+   ----------------------------------------------------------------------------------
+----
+
+NOTE: In the diagram above, a path inside curly braces indicates a path as it seen inside Docker container,
+while path without curly braces indicates the real path on the host file system.
+
+As the diagram shows, the only external entry point to the Nextcloud system is over HTTPS
+via the container with Apache Web Server.
+
+NOTE: All Nextcloud services (web interface, WebDAV, CalDAV, CardDAV, Sync app) work over HTTPS.
+
+HTTP requests are handled in the following way:
+
+- If this is a request to a PHP file:
+  * The request is proxied to the Nextcloud PHP FPM container using `mod_proxy_fcgi` module.
+- Otherwise:
+  * The request is served directly by the Apache Web Server (statically).
+
+All containers are stateless (i.e. don't contain any important data), since all user data is stored
+on the host file system and mounted inside containers.
+This way containers can be safely deleted and re-deployed, which makes upgrades very easy.
+
+Having three separate containers (instead of just one big container) allows for stopping,
+restarting and upgrading containers independently, which is useful in many cases.
+It also allows every container to have its own logs and logs configuration.
+But more importantly, compromising or DoS-ing one container doesn't compromise the whole system.
+

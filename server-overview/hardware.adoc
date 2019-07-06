@@ -1,0 +1,34 @@
+[[hardware]]
+=== Hardware
+Originally, the server was placed on a shelf inside a small apartment, so the main criteria for the hardware were
+low noise (i.e. no fans, HDD or other moving parts), nice design (so no open PCBs or wires)
+and reasonable power consumption for 24/7 operation.
+
+Below is the list of hardware that was originally used for the server (just for the reference).
+
+==== Computer
+Intel NUC (Next Unit of Computing) BOXNUC6CAYH Barebone Systems.
+
+It uses Intel(R) Celeron(R) CPU J3455 (4 cores, up to 2.3 GHz).
+
+==== Storage
+Main disk: WD Blue 500Gb Sata SSD.
+
+External backup disk: Samsung T5 500Gb Portable SSD (USB 3.1 Gen2).
+
+==== Memory
+8GB 1600mhz DDR3L SODIMM KVR16LS11/8.
+
+==== UPS
+While strictly speaking this is not a part of the server, and technically not required, UPS is extremely recommended.
+
+The UPS that was used: Eaton 3S US550VA 5-15P (8) 5-15R 4-UPS.
+
+TIP: When choosing UPS, make sure you buy one that has decent Linux support.
+Compatibility with Network UPS Tools can be checked on the NUT hardware compatibility list <<nut_hcl>>.
+
+==== Additional Hardware
+You will also need a monitor, USB keyboard, patch cord and USB flash drive for the OS installation and initial configuration.
+Later on, you will probably want to have a separate keyboard attached to the server,
+to type LUKS password after reboots.
+

@@ -1,0 +1,46 @@
+// Local IP address of the server. Example: 192.168.1.100
+// To use specific IP address instead of the placeholder, replace the next line like so:
+// :SB_IP: 192.168.1.100
+:SB_IP: \{SERVER_IP_ADDR}
+// Subnet of the LAN where the server is deployed. Example: 192.168.1.0/24
+:SB_SUBNET: \{SERVER_SUBNET}
+// Default gateway address. Example: 192.168.1.1
+:SB_GW: \{SERVER_DEFAULT_GATEWAY}
+// Your user on the server. Example: john
+:SB_USER: \{SERVER_USER}
+// Email address to which deliver emails from the server. Example: john@somewhere.com
+:SB_EMAIL: \{YOUR_EMAIL_ADDR}
+// SMTP server address. Example: smtp.somewhere.com
+:SB_SMTP_ADDR: \{SMTP_SERVER_ADDR}
+// SMTP server port. Example: 25
+:SB_SMTP_PORT: \{SMTP_SERVER_PORT}
+// VPN Docker network. Example: 172.18.0.0/24
+:SB_VPN_SUBNET: \{DOCKER_VPN_NETWORK}
+// Port number on which VPN proxy container will listen for connections. Example: 12345
+:SB_VPN_PROXY_PORT: \{VPN_PROXY_PORT}
+// Desired IP address of the VPN proxy container (from the {DOCKER_VPN_NETWORK}). Example: 172.18.0.10
+:SB_VPN_PROXY_ADDR: \{VPN_PROXY_ADDR}
+// Domain name. Example: example.com
+:SB_DOMAIN_NAME: \{DOMAIN_NAME}
+// Server's FQDN. Example: silverbox.example.com
+:SB_SUBDOMAIN: \{SERVER_SUBDOMAIN}
+// Nextcloud FQDN. Example: nextcloud.silverbox.example.com
+:SB_NEXTCLOUD_DOMAIN: \{NEXTCLOUD_DOMAIN}
+// Common Docker network. Example: 172.19.0.0/24
+:SB_COMMON_SUBNET: \{DOCKER_COMMON_NETWORK}
+// Internal domain. Example: home.example.com
+:SB_INTERNAL_DOMAIN: \{INTERNAL_DOMAIN}
+// NFS share group. Example: nfsgroup
+:SB_NFS_GROUP: \{NFS_SHARE_GROUP}
+// Port number on which Transmission web UI will listen for connections. Example: 12345
+:SB_TRANSMISSION_PORT: \{TRANSMISSION_UI_PORT}
+// Desired IP address of the Transmission container (from the {DOCKER_VPN_NETWORK}). Example: 172.18.0.20
+:SB_TRANSMISSION_ADDR: \{TRANSMISSION_ADDR}
+// Nextcloud Docker network. Example: 172.18.0.0/24
+:SB_NEXTCLOUD_SUBNET: \{DOCKER_NEXTCLOUD_NETWORK}
+// Port number on which Nextcloud web server container fill listen for connections. Example: 12345
+:SB_NEXTCLOUD_PORT: \{NEXTCLOUD_PORT}
+
+// Latest Alpine Linux Docker image
+:SB_ALPINE_VERSION: 3.9.4
+

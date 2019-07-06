@@ -1,0 +1,90 @@
+=== Domain
+This section describes how to configure internal (local) domain for the LAN, that is required to configure
+Kerberos realm in the next step.
+
+The internal domain will be direct subdomain of your domain `{SB_DOMAIN_NAME}`
+and in the document will be referred as `{SB_INTERNAL_DOMAIN}`.
+For example, if your domain is `example.com`, the internal domain could be `home.example.com`.
+
+Before proceeding to creating local zone for the internal domain, create an address reservations
+on your DHCP server for all the client devices that will be in the domain (or configure static IP addresses).
+
+==== Configuring Local DNS Zone
+To create local DNS zone for your internal domain,
+edit the `/etc/unbound/unbound.conf.d/dns-config.conf` file
+and append the following content under the `server` section:
+
+./etc/unbound/unbound.conf.d/dns-config.conf
+[source,yaml,subs="attributes+"]
+----
+local-zone: "{SB_INTERNAL_DOMAIN}." static # <1>
+local-data: "silverbox.{SB_INTERNAL_DOMAIN}. IN A {SB_IP}" # <2>
+local-data: "client-pc.{SB_INTERNAL_DOMAIN}. IN A \{CLIENT_PC_IP_ADDR}" # <3>
+local-data-ptr: "{SB_IP} silverbox.{SB_INTERNAL_DOMAIN}" # <4>
+local-data-ptr: "\{CLIENT_PC_IP_ADDR} client-pc.{SB_INTERNAL_DOMAIN}" # <5>
+----
+<1> Replace `{SB_INTERNAL_DOMAIN}` with your internal domain name.
+Dot at the end is required.
+<2> This is forward DNS record for the server. It assumes the server FQDN in the internal domain is
+`silverbox.{SB_INTERNAL_DOMAIN}`, but you can change it of course.
+<3> This is an example forward record for the client PC.
+You can add as many records as you need, for each device you have.
+<4> This is reverse DNS record for the server.
+<5> This is an example reverse record for the client PC.
+
+Restart the DNS server:
+
+----
+sudo systemctl restart unbound.service
+----
+
+Make sure you can resolve all records that were added using FQDNS and IP addresses. For example:
+
+[subs="attributes+"]
+----
+nslookup silverbox.{SB_INTERNAL_DOMAIN}
+nslookup client-pc.{SB_INTERNAL_DOMAIN}
+nslookup {SB_IP}
+nslookup \{CLIENT_PC_IP_ADDR}
+----
+
+==== Configuring Server Domain and FQDN
+Since the server uses static network configuration, its domain needs to be configured manually.
+To do this, edit the `/etc/resolv.conf` file and add the following line:
+
+./etc/resolv.conf
+[subs="attributes+"]
+----
+search {SB_INTERNAL_DOMAIN}
+----
+
+Verify that resolution by host name only works:
+
+----
+nslookup silverbox
+nslookup client-pc
+----
+
+To configure server's FQDN edit the `/etc/hosts` file and insert FQDN before host name in the record for `127.0.1.1`.
+So the line for `127.0.1.1` should look something like this:
+
+./etc/hosts
+[subs="attributes+"]
+----
+127.0.1.1   silverbox.{SB_INTERNAL_DOMAIN} silverbox
+----
+
+To verify that FQDN is set correctly check the output of the `hostname -f` command: it should print FQDN.
+
+==== Configuring Client's Domain and FQDN
+If clients use DHCP, the domain can be easily configured on the DHCP server and thus it will be automatically
+pushed to the client devices.
+If static network configuration is used, then domain will have to be configured manually
+(the actual instructions will depend on the client OS).
+
+The FQDN configuration will also differ depending on the client OS, but for the Ubuntu 18.04 it is identical
+to FQDN configuration on the server.
+
+Once domain and FQDN configured on client PC, verify that it works (using `nslookup` or similar command)
+and that both client and server can resolve each other names (both short and FQDN).
+

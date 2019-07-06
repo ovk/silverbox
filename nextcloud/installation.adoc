@@ -1,0 +1,424 @@
+=== Installation
+This section describes how to install and run Nextcloud.
+
+==== Preparing Directory Structure
+The very first step is to create directories that will be mapped inside Nextcloud Docker containers:
+
+----
+sudo mkdir -p /srv/nextcloud/db
+sudo mkdir /srv/nextcloud/html
+sudo mkdir /srv/nextcloud/data
+sudo chown 82 /srv/nextcloud/data
+sudo chmod 750 -R /srv/nextcloud
+----
+
+All the Nextcloud data (including database, static files and user data)
+will be stored under the `/srv/nextcloud` directory in the following way:
+
+db::
+The `db` subdirectory will store PostgreSQL database files.
+html::
+The `html` subdirectory will store static HTML/PHP files.
+data::
+The `data` subdirectory will store user's data.
+
+NOTE: It is important to keep these directories owned by the root and have restrictive permissions
+since content inside them will be owned by the `www-data` (UID 82) user from the Docker containers.
+
+==== Preparing Images
+Create a directory for Nextcloud containers files:
+
+----
+sudo mkdir /root/silverbox/containers/nextcloud
+sudo chmod 700 /root/silverbox/containers/nextcloud
+----
+
+Inside it, create the `docker-compose.yml` file with the following content:
+
+./root/silverbox/containers/nextcloud/docker-compose.yml
+[source,yaml,subs="attributes+"]
+----
+version: '3.5'
+
+networks:
+  default:
+    name: nextcloud
+    driver: bridge
+    ipam:
+      config:
+        - subnet: {SB_NEXTCLOUD_SUBNET} # <1>
+
+services:
+  nextcloud-db:
+    container_name: nextcloud-db
+    image: postgres:11.3-alpine # <2>
+    restart: on-failure:5
+    shm_size: 256mb
+    logging:
+      driver: json-file
+      options:
+        max-size: 10mb
+        max-file: '3'
+    volumes:
+      - /srv/nextcloud/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=\{POSTGRES_PASSWORD} # <3>
+      - POSTGRES_DB=not_used # <4>
+      - POSTGRES_INITDB_ARGS="--data-checksums"
+
+  nextcloud-fpm:
+    container_name: nextcloud-fpm
+    build:
+      context: ./nextcloud-fpm
+      args:
+        version: '16.0.1-fpm-alpine' # <5>
+    restart: on-failure:5
+    logging:
+      driver: json-file
+      options:
+        max-size: 10mb
+        max-file: '3'
+    depends_on:
+      - nextcloud-db
+    volumes:
+      - /srv/nextcloud/html:/var/www/html
+      - /srv/nextcloud/data:/data
+    environment:
+      - POSTGRES_HOST=nextcloud-db
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=\{POSTGRES_PASSWORD} # <6>
+      - NEXTCLOUD_DATA_DIR=/data
+      - NEXTCLOUD_UPDATE=1
+      - NEXTCLOUD_TRUSTED_DOMAINS='{SB_NEXTCLOUD_DOMAIN}:{SB_NEXTCLOUD_PORT}' # <7>
+
+  nextcloud-web:
+    container_name: nextcloud-web
+    build:
+      context: ./httpd
+      args:
+        version: '2.4.39-alpine' # <8>
+    restart: on-failure:5
+    logging:
+      driver: json-file
+      options:
+        max-size: 10mb
+        max-file: '3'
+    depends_on:
+      - nextcloud-fpm
+    volumes:
+      - /srv/nextcloud/html:/usr/local/apache2/htdocs
+      - /etc/letsencrypt/live/{SB_NEXTCLOUD_DOMAIN}:/certs/live/{SB_NEXTCLOUD_DOMAIN} # <9>
+      - /etc/letsencrypt/archive/{SB_NEXTCLOUD_DOMAIN}:/certs/archive/{SB_NEXTCLOUD_DOMAIN} # <10>
+    ports:
+      - "{SB_IP}:{SB_NEXTCLOUD_PORT}:443" # <11>
+----
+<1> Replace `{SB_NEXTCLOUD_SUBNET}` with the actual subnet you want to use for the Nextcloud.
+<2> Replace `11.3-alpine ` with the actual latest `postgres` (Alpine) image version (can be checked at the Docker Hub).
+You can double check if this version is supported by the Nextcloud in the Nextcloud documentation.
+<3> Replace `\{POSTGRES_PASSWORD}` with some random password.
+<4> This is workaround for bug https://github.com/nextcloud/docker/issues/345.
+It may be unnecessary once the bug is fixed.
+<5> Replace `16.0.1-fpm-alpine` with the actual latest `nextcloud-fpm` (Alpine) image version (can be checked at the Docker Hub).
+<6> Replace `\{POSTGRES_PASSWORD}` with the same password as above.
+<7> Replace `{SB_NEXTCLOUD_DOMAIN}` with your Nextcloud domain name and
+`{SB_NEXTCLOUD_PORT}` with the port number you chose to use for the Nextcloud
+(the Nextcloud web server will listen on this port).
+<8> Replace `2.4.39-alpine` with the actual latest `httpd` (Alpine) image version (can be checked at the Docker Hub).
+<9> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual domain name for the Nextcloud.
+<10> Same as above.
+<11> Replace `{SB_IP}` and `{SB_NEXTCLOUD_PORT}` with the actual values.
+
+[[nextcloud_httpd_config]]
+===== HTTPD
+Create a directory for the customized Apache HTTPD image:
+
+----
+sudo mkdir /root/silverbox/containers/nextcloud/httpd
+sudo chmod 700 /root/silverbox/containers/nextcloud/httpd
+----
+
+Inside it, create the `Dockerfile` file with the following content:
+
+./root/silverbox/containers/nextcloud/httpd/Dockerfile
+[source,dockerfile]
+----
+ARG version=alpine
+
+FROM httpd:$version
+
+RUN [ `id -u www-data` -eq 82 ] || exit 1
+RUN [ `id -g www-data` -eq 82 ] || exit 1
+
+RUN apk --no-cache --no-progress upgrade && \
+    apk --no-cache --no-progress add openssl && \
+    openssl dhparam -out /etc/ssl/dhparam.pem 2048
+
+COPY httpd.conf /usr/local/apache2/conf/httpd.conf
+----
+
+Next, create the `httpd.conf` file with the following content:
+
+./root/silverbox/containers/nextcloud/httpd/httpd.conf
+[source,apache,subs="attributes+"]
+----
+ServerName {SB_NEXTCLOUD_DOMAIN}:{SB_NEXTCLOUD_PORT} # <1>
+ServerRoot "/usr/local/apache2"
+
+Listen 443
+
+LoadModule mpm_event_module modules/mod_mpm_event.so
+LoadModule authz_core_module modules/mod_authz_core.so
+LoadModule authz_host_module modules/mod_authz_host.so
+LoadModule mime_module modules/mod_mime.so
+LoadModule log_config_module modules/mod_log_config.so
+LoadModule env_module modules/mod_env.so
+LoadModule headers_module modules/mod_headers.so
+LoadModule setenvif_module modules/mod_setenvif.so
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_fcgi_module modules/mod_proxy_fcgi.so
+LoadModule unixd_module modules/mod_unixd.so
+LoadModule dir_module modules/mod_dir.so
+LoadModule rewrite_module modules/mod_rewrite.so
+LoadModule socache_shmcb_module modules/mod_socache_shmcb.so
+LoadModule ssl_module modules/mod_ssl.so
+LoadModule status_module modules/mod_status.so
+LoadModule http2_module modules/mod_http2.so
+
+User www-data
+Group www-data
+
+Protocols h2 http/1.1 # <2>
+
+SSLEngine On
+SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
+SSLHonorCipherOrder On
+SSLProtocol All -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+SSLUseStapling on
+SSLStaplingCache "shmcb:/usr/local/apache2/logs/ssl_stapling(128000)"
+SSLSessionTickets Off
+SSLSessionCache "shmcb:/usr/local/apache2/logs/ssl_scache(512000)"
+SSLSessionCacheTimeout 300
+SSLOpenSSLConfCmd DHParameters "/etc/ssl/dhparam.pem"
+SSLCertificateFile /certs/live/{SB_NEXTCLOUD_DOMAIN}/fullchain.pem # <3>
+SSLCertificateKeyFile /certs/live/{SB_NEXTCLOUD_DOMAIN}/privkey.pem # <4>
+
+<Directory />
+    AllowOverride none
+    Require all denied
+</Directory>
+
+DocumentRoot "/usr/local/apache2/htdocs"
+DirectoryIndex index.html
+
+<Directory "/usr/local/apache2/htdocs">
+    Options FollowSymLinks
+    AllowOverride All
+    Require all granted
+
+    <FilesMatch \.php$>
+        ProxyFCGISetEnvIf "true" SCRIPT_FILENAME "/var/www/html%{reqenv:SCRIPT_NAME}"
+        SetHandler proxy:fcgi://nextcloud-fpm:9000
+    </FilesMatch>
+
+    Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
+</Directory>
+
+<Location "/apache-server-status.html">
+    SetHandler server-status
+    Require ip {SB_IP} # <5>
+</Location>
+
+<Files ".ht*">
+    Require all denied
+</Files>
+
+ProxyTimeout 3600
+
+<Proxy "fcgi://nextcloud-fpm/">
+</Proxy>
+
+RewriteEngine on
+RewriteCond %\{QUERY_STRING} ^monit$ # <6>
+RewriteCond %\{REQUEST_METHOD} HEAD
+RewriteCond %\{REQUEST_URI} ^/$
+RewriteRule .* - [env=dont_log]
+
+SetEnvIf Request_URI "^/apache-server-status.html$" dont_log # <7>
+
+ErrorLog /proc/self/fd/2
+LogLevel warn
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%\{Referer}i\" \"%\{User-Agent}i\"" combined
+LogFormat "%h %l %u %t \"%r\" %>s %b" common
+CustomLog /proc/self/fd/1 common env=!dont_log
+
+TypesConfig conf/mime.types
+AddType application/x-compress .Z
+AddType application/x-gzip .gz .tgz
+
+Include conf/extra/httpd-mpm.conf
+
+RewriteEngine On
+RewriteCond %\{REQUEST_METHOD} ^TRACK
+RewriteRule .* - [F]
+
+RequestHeader unset Proxy early
+
+ServerTokens Prod
+TraceEnable off
+----
+<1> Replace `{SB_NEXTCLOUD_DOMAIN}` and `{SB_NEXTCLOUD_PORT}` with the actual values.
+<2> On some hardware, using HTTP2 seems to cause Apache httpd processes to crash with `Illegal instruction` error.
+If you experience random error messages while using Nextcloud check the `nextcloud-web` container logs,
+and if you see this error you can disable HTTP2 by replacing this line with `Protocols http/1.1`.
+Bug report for this issue: https://github.com/docker-library/httpd/issues/128.
+<3> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual value.
+<4> Same as above.
+<5> Replace `{SB_IP}` with the actual value.
+<6> This rewrite block matches HEAD requests to root with query string equal to "monit" and sets environment variable
+`dont_log` that is later used to filter such requests from the web server logs.
+This is useful to filter out requests done by Monit from log, as they will flood logs otherwise.
+For security reasons, you can replace "monit" string in the first `RewriteCond` with a random alphanumeric string,
+that you will also put in the Monit configuration for Nextcloud monitoring.
+<7> This rule is used to filter out requests to Apache server status page from logs, as it only used by Monit.
+
+NOTE: If you decide to customize this config file and add some extra modules, make sure you are not using
+modules that don't work well with Nextcloud.
+More info here: https://docs.nextcloud.com/server/stable/admin_manual/issues/general_troubleshooting.html#web-server-and-php-modules.
+
+===== Nextcloud PHP FPM
+Create a directory for the customized Nextcloud PHP FPM image:
+
+----
+sudo mkdir /root/silverbox/containers/nextcloud/nextcloud-fpm
+sudo chmod 700 /root/silverbox/containers/nextcloud/nextcloud-fpm
+----
+
+Inside it, create the `Dockerfile` file with the following content:
+
+./root/silverbox/containers/nextcloud/nextcloud-fpm/Dockerfile
+[source,dockerfile]
+----
+ARG version=fpm-alpine
+
+FROM nextcloud:$version
+
+ARG PHP_FPM_CONF=/usr/local/etc/php-fpm.d/www.conf
+ARG NFSSHARE_GID={GID} # <1>
+
+RUN [ `id -u www-data` -eq 82 ] || exit 1
+RUN [ `id -g www-data` -eq 82 ] || exit 1
+
+RUN apk add --no-cache supervisor shadow && \
+    mkdir /var/log/supervisord /var/run/supervisord && \
+    sed -i 's/-l\s\+\d/-l 5/' /cron.sh && \ # <2>
+    sed -i 's/^\(pm.max_children\s*=\)\s*\d\+/\1 20/' ${PHP_FPM_CONF} && \
+    sed -i 's/^\(pm.start_servers\s*=\)\s*\d\+/\1 5/' ${PHP_FPM_CONF} && \
+    sed -i 's/^\(pm.min_spare_servers\s*=\)\s*\d\+/\1 4/' ${PHP_FPM_CONF} && \
+    sed -i 's/^\(pm.max_spare_servers\s*=\)\s*\d\+/\1 10/' ${PHP_FPM_CONF} && \
+    addgroup -g ${NFSSHARE_GID} nfsshare && \
+    usermod www-data -aG nfsshare
+
+COPY supervisord.conf /etc/supervisor/supervisord.conf
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+----
+<1> Replace the `\{GID}` with the GID of your `{SB_NFS_GROUP}` group.
+This is so that Nextcloud can access files in the NFS directory owned by the `{SB_NFS_GROUP}`.
+<2> This is to reduce verbosity of the Cron logs to 5. Adjust if necessary.
+
+TIP: You can adjust PHP FPM configuration according to your needs.
+More information: https://docs.nextcloud.com/server/stable/admin_manual/installation/server_tuning.html#tune-php-fpm.
+
+Create the `supervisord.conf` file with the following content:
+
+./root/silverbox/containers/nextcloud/nextcloud-fpm/supervisord.conf
+[source,ini]
+----
+[supervisord]
+nodaemon=true
+logfile=/var/log/supervisord/supervisord.log
+pidfile=/var/run/supervisord/supervisord.pid
+childlogdir=/var/log/supervisord/
+logfile_maxbytes=10MB
+logfile_backups=0
+loglevel=info
+user=root
+
+[program:php-fpm]
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+command=php-fpm
+
+[program:cron]
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+command=/cron.sh
+----
+
+==== Adding Firewall Rule
+To add Firewall rule to allow accessing the Nextcloud do:
+
+[subs="attributes+"]
+----
+sudo ufw allow proto tcp to any port {SB_NEXTCLOUD_PORT} comment "Nextcloud"
+----
+
+==== Adding Port Forwarding Rule
+To access Nextcloud from the outside, add the port forwarding rule on your router,
+to forward port `{SB_NEXTCLOUD_PORT}` to `{SB_IP}:{SB_NEXTCLOUD_PORT}`.
+
+==== Running Nextcloud
+To pull/build all necessary images and run the containers do:
+
+----
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml up -d
+----
+
+Verify that all containers have started successfully and check logs for errors:
+
+----
+sudo docker ps
+sudo docker logs nextcloud-db
+sudo docker logs nextcloud-web
+sudo docker logs nextcloud-fpm
+----
+
+NOTE: There might be some errors in the PostgreSQL container logs, related to the unique constrain violation
+on the `lock_key_index`.
+This is due to the following bug in the Nextcloud: https://github.com/nextcloud/server/issues/6343.
+Hopefully, this bug will eventually be fixed.
+
+Open Nextcloud web interface `https://{SB_NEXTCLOUD_DOMAIN}:{SB_NEXTCLOUD_PORT}` and create admin account.
+
+==== Automatic Containers Startup
+To start containers automatically (in the correct order)
+on boot create the `/etc/systemd/system/nextcloud-start.service` file with the following content:
+
+./etc/systemd/system/nextcloud-start.service
+----
+[Unit]
+Description=Start Nextcloud
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml up -d
+
+[Install]
+WantedBy=multi-user.target
+----
+
+Enable the service, so that it will be started on system boot:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl enable nextcloud-start.service
+----
+

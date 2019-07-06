@@ -1,0 +1,213 @@
+=== NFS Client Configuration
+This section describes how to configure NFS client on the client PC (instructions are for Ubuntu 18.04 Desktop).
+
+==== Installing NFS Client
+To install NFS client do:
+
+----
+sudo apt install nfs-common
+----
+
+==== Enabling User ID Mapping
+IMPORTANT: It is not clear whether these steps are really required or not,
+as it seems like the ID translation works even without these module parameters.
+
+Create the `/etc/modprobe.d/nfs.conf` file with the following content:
+
+./etc/modprobe.d/nfs.conf
+----
+options nfs nfs4_disable_idmapping=0
+----
+
+Reboot the system, and verify that ID mapping is *not* disabled by executing:
+
+----
+sudo modprobe nfs
+cat /sys/module/nfs/parameters/nfs4_disable_idmapping
+----
+
+Which should return `N`.
+
+==== Creating Kerberos Principal
+First, add Kerberos principal on the server for the client machine,
+and save it to a separate keytab file (do these commands on the server):
+
+[subs="attributes+"]
+----
+sudo kadmin.local
+addprinc -randkey nfs/client-pc.{SB_INTERNAL_DOMAIN} # <1>
+ktadd -k /root/krb5.keytab nfs/client-pc.{SB_INTERNAL_DOMAIN} # <2>
+----
+<1> Replace `client-pc.{SB_INTERNAL_DOMAIN}` with your client PC FQDN.
+<2> Same as above.
+
+Then move the `/root/krb5.keytab` file to the client PC to `/etc/krb5.keytab`.
+
+On the client PC, assign proper ownership and permissions to the keytab file:
+
+----
+sudo chown root:root /etc/krb5.keytab
+sudo chmod 600 /etc/krb5.keytab
+----
+
+Next, on the client PC edit the `/etc/default/nfs-common` file and change/add the following lines:
+
+./etc/default/nfs-common
+----
+NEED_GSSD="yes"
+----
+
+Reboot the client PC and verify that the `rpc-gssd` service is now running:
+
+----
+sudo systemctl status rpc-gssd.service
+----
+
+==== Disabling Unused Services
+The `rpcbind` service will be running (and listening on some ports),
+even though it is not needed for NFSv4.
+To disable it do:
+
+----
+sudo systemctl stop rpcbind.service rpcbind.socket
+sudo systemctl disable rpcbind.service rpcbind.socket
+sudo systemctl mask rpcbind.service rpcbind.socket
+----
+
+Reboot the system and verify that the `rpcbind` service is not running anymore.
+
+==== Creating NFS Share Group
+Create the same `{SB_NFS_GROUP}` group on the client machine, and add your user into it:
+
+[subs="attributes+"]
+----
+sudo groupadd {SB_NFS_GROUP}
+sudo usermod -a -G {SB_NFS_GROUP} {SB_USER}
+----
+
+NOTE: There is no need to synchronize UID/GID for the user and group between server and client,
+because ID mapping process in NFSv4 is name based, rather than UID/GID based.
+It is important to make sure that the user and group have the same names on server and client.
+
+==== Performing Test Mount
+Create the `/mnt/nfs` directory:
+
+----
+sudo mkdir /mnt/nfs
+----
+
+To test that everything works, perform a test NFS mount with:
+
+[subs="attributes+"]
+----
+sudo mount -t nfs4 -o proto=tcp,port=2049,sec=krb5 silverbox.{SB_INTERNAL_DOMAIN}:/ /mnt/nfs -vvvv
+----
+
+The output should look something like this:
+
+----
+mount.nfs4: timeout set for ...
+mount.nfs4: trying text-based options 'proto=tcp,port=2049,sec=krb5,vers=4.2,addr=xxx.xxx.xxx.xxx,clientaddr=xxx.xxx.xxx.xxx'
+----
+
+Try accessing the mount as root user by doing `sudo ls /mnt/nfs`.
+You should see `Permission denied` message as the root
+user is mapped to `nobody:nogroup` and don't have permissions to access the share.
+
+Now try accessing the share as your user by doing `ls /mnt/nfs`.
+You should see either `Permission denied` or `Stale file handle` message, because your user don't have Kerberos ticket.
+
+Finally, do `kinit` to obtain the Kerberos ticket for your user and try accessing share again. It should work now.
+
+TIP: It is worth at this point to do some testing by creating files to make sure ID mapping works properly (both ways)
+and user/group ownership is assigned correctly.
+
+==== Automatic NFS Share Mount
+This section describes how to setup automatic mounting of the NFS share on your user login (without any interaction).
+
+The first step is to configure an automatic mount of the NFS share on boot.
+To do this, append the following line to the `/etc/fstab` file (on the client PC):
+
+./etc/fstab
+[subs="attributes+"]
+----
+silverbox.{SB_INTERNAL_DOMAIN}:/ /mnt/nfs nfs4 proto=tcp,port=2049,sec=krb5,lazytime,auto,_netdev,x-gvfs-show 0 0 # <1>
+----
+<1> Replace `silverbox.{SB_INTERNAL_DOMAIN}` with the actual server FQDN.
+
+NOTE: The `x-gvfs-show` option will make NFS share to appear in Nautilus file manager panel automatically.
+If you are not using Nautilus you can remove this option.
+
+With this change in the `fstab`, the share will be mounted on boot using credentials from the `/etc/krb5.keytab` file.
+However, since this keytab only contains machine key, it won't allow any access to the content of the share.
+
+The next step is to export your user's Kerberos key into a separate keytab file,
+and create a user Systemd service which will do `kinit` for your user automatically on login.
+Since this `kinit` will use key from the user's keytab file, no interaction (such as entering password)
+will be required.
+
+To export your principal's key, run the following commands on the server:
+
+[subs="attributes+"]
+----
+sudo kadmin.local
+ktadd -k /root/krb5.keytab {SB_USER}
+----
+
+Move the `/root/krb5.keytab` file from the server to the client PC, for example under your users home `.config`
+directory: `~/.config/krb5.keytab`.
+
+IMPORTANT: It is important to have either full disk encryption or at least user's home directory encryption,
+since the Kerberos principal key will be stored on disk.
+
+Change permission on this file so that only your user can read it:
+
+[subs="attributes+"]
+----
+chown {SB_USER}:{SB_USER} ~/.config/krb5.keytab
+chmod 400 ~/.config/krb5.keytab
+----
+
+Create directory (on the client PC) for user Systemd services, if it doesn't exist yet:
+
+----
+mkdir -p ~/.local/share/systemd/user/
+----
+
+Inside this directory, create `nfs-kinit.service` file with the following content:
+
+.~/.local/share/systemd/user/kinit.service
+----
+[Unit]
+Description=Perform kinit automatically
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "kinit -r 7d -k -t ~/.config/krb5.keytab $USER" # <1>
+
+[Install]
+WantedBy=default.target
+----
+<1> Replace `7d` with the value of the `max_renewable_life` option that you set in the `kdc.conf` file on the server.
+
+Enable this service, so it will start automatically on login:
+
+----
+systemctl --user daemon-reload
+systemctl --user enable kinit.service
+----
+
+Reboot the system and verify that you can access the content of the NFS share.
+
+NOTE: Since the service only started on login, if the user session will last longer than `max_renewable_life`,
+the Kerberos ticket will eventually expire.
+If you planning on having long user sessions, you can either increase `max_renewable_life` or make this service
+run periodically to obtain a new ticket before old one expires.
+
+NOTE: If user's home directory is encrypted, the Systemd service won't start on login.
+It appears that user Systemd services are scanned before home directory is mounted and thus Systemd won't see
+the service.
+The only workaround I found for this is to add `systemctl --user daemon-reload` and
+`systemctl --user start kinit.service` commands to the script that runs after user login
+(it will depend on your system, but in Gnome it can be set with "`Startup Applications`").
+

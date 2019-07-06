@@ -1,0 +1,145 @@
+=== Configuration
+Ubuntu 18.04 uses `systemd-resolved` as the default DNS server.
+
+To switch to Unbound, first `systemd-resolved` stub listener needs to be disabled.
+To do this, first edit the `/etc/systemd/resolved.conf` file and set the following parameter:
+
+./etc/systemd/resolved.conf
+----
+DNSStubListener=no
+----
+
+Then restart the `systemd-resolved` service:
+
+----
+sudo systemctl restart systemd-resolved
+----
+
+You can also verify that `systemd-resolved` is not listening on port 53 anymore by checking the output of:
+
+----
+sudo netstat -lnptu
+----
+
+To configure Unbound as a simple forwarding DNS server create the `/etc/unbound/unbound.conf.d/dns-config.conf` file
+with the following content:
+
+./etc/unbound/unbound.conf.d/dns-config.conf
+[source,yaml,subs="attributes+"]
+----
+server:
+  interface: 0.0.0.0
+  outgoing-interface: {SB_IP} # <1>
+  access-control: 127.0.0.0/8 allow
+  access-control: {SB_SUBNET} allow # <2>
+  do-ip4: yes
+  do-ip6: no
+  do-udp: yes
+  do-tcp: yes
+  minimal-responses: yes
+  prefetch: yes
+  qname-minimisation: yes
+  hide-identity: yes
+  hide-version: yes
+  use-caps-for-id: yes
+  private-address: 192.168.0.0/16
+  private-address: 172.16.0.0/12
+  private-address: 10.0.0.0/8
+  unwanted-reply-threshold: 10000
+  root-hints: /usr/share/dns/root.hints
+forward-zone:
+  name: "."
+#  tls-cert-bundle: /etc/ssl/certs/ca-certificates.crt # <3>
+  forward-ssl-upstream: yes
+  forward-addr: 1.1.1.1@853#one.one.one.one # <4>
+  forward-addr: 1.0.0.1@853#one.one.one.one # <5>
+remote-control:
+  control-interface: 127.0.0.1
+----
+<1> Replace this with your server address.
+<2> Replace this with your LAN subnet.
+<3> This line is commented because Unbound 1.6.7 (default Ubuntu 18.04 version at the moment of writing)
+does not support this parameter.
+Without it there is no validation, however, the queries are still encrypted.
+Uncomment this line once Ubuntu gets newer version of Unbound.
+<4> Primary DNS server address.
+<5> Secondary DNS server address.
+
+NOTE: This configuration uses Cloudflare's DNS servers <<cloudflare_dns>>, due to their reasonable privacy policy and support for
+DNS over TLS and DNSSEC. Feel free to replace with DNS server of your choice.
+
+NOTE: It is also possible to make Unbound to block DNS requests to certain known advertisement/analytics addresses
+(similarly to what Pi-hole does) but this is outside of the scope of this document.
+
+IMPORTANT: The configuration above is for Unbound 1.6.7. Some parameters were added/modified in more recent version,
+so this config may need to be updated once Ubuntu package is upgraded to more recent version.
+
+NOTE: The tls-cert-bundle because Unbound 1.6.7 (default Ubuntu 18.04 version at this moment) does not support this paremeter yet.
+Without it there won't be any authentication, but the queries still are encrypted.
+Uncomment this line once Ubuntu gets newer version of Unbound.
+
+Next, remove the `/etc/resolv.conf` file (which is a link to SystemD resolver's file):
+
+----
+sudo rm /etc/resolv.conf
+----
+
+The `systemd-resolved` should detect it automatically and stop generating `resolv.conf` contents.
+
+Now you can create a new `/etc/resolv.conf` file with the following content:
+
+[subs="attributes+"]
+----
+nameserver 127.0.0.1
+nameserver {SB_IP} # <1>
+----
+<1> Replace `{SB_IP}` with the actual server IP address.
+While it doesn't make sense to have this line together with `127.0.0.1`, it is needed for the Docker's embedded
+DNS to work properly.
+At the moment of writing, Docker incorrectly filters out all localhost records from the `resolv.conf`,
+so this record is necessary to force it to use host's DNS server.
+
+Restart the `systemd-resolved` and `unbound` services:
+
+----
+sudo systemctl restart systemd-resolved
+sudo systemctl restart unbound
+----
+
+Check that the DNS resolution is working on the server.
+
+To verify that DNSSEC is working you can check the output of the following command:
+
+[subs="macros+"]
+----
+dig weberdns.de
+pass:q[_..._]
+pass:q[_;; flags: qr rd ra *ad*; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1_]
+pass:q[_..._]
+----
+
+And verify that response has an `ad` flag present.
+
+To also verify that DNS queries are now encrypted check the output of:
+
+----
+sudo tcpdump -vv -x -X -s 1500 -i {NETWORK_INTERFACE} 'port 853'
+----
+
+While doing any DNS query.
+
+==== Adding Firewall Rule
+
+To allow incoming DNS requests from the LAN do:
+
+[subs="attributes+"]
+----
+sudo ufw allow proto tcp from {SB_SUBNET} to any port 53 comment "DNS TCP"
+sudo ufw allow proto udp from {SB_SUBNET} to any port 53 comment "DNS UDP"
+----
+
+=== Updating DHCP Server Configuration
+
+Now you can change your router's DHCP settings and set your server address as your DNS server.
+Thus all devices on the LAN will switch to using this DNS server automatically.
+

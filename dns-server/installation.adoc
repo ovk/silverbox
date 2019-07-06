@@ -1,0 +1,9 @@
+=== Installation
+Unbound <<unbound>> is used as the DNS server.
+
+It can be installed directly from the repositories with:
+
+----
+sudo apt install unbound
+----
+

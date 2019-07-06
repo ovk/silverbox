@@ -1,0 +1,41 @@
+=== Monitoring
+To monitor Nextcloud status with Monit create the `/etc/monit/conf.d/70-nextcloud` file with the following content:
+
+./etc/monit/conf.d/70-nextcloud
+[subs="attributes+"]
+----
+# Containers status
+check program nextcloud_web with path "/usr/local/etc/monit/scripts/container_status.sh nextcloud-web .State.Status running"
+  if status != 0 for 5 cycles then alert
+
+check program nextcloud_fpm with path "/usr/local/etc/monit/scripts/container_status.sh nextcloud-fpm .State.Status running"
+  if status != 0 for 5 cycles then alert
+
+check program nextcloud_db with path "/usr/local/etc/monit/scripts/container_status.sh nextcloud-db .State.Status running"
+  if status != 0 for 5 cycles then alert
+
+# HTTPS & Certificate check
+check host nextcloud with address {SB_NEXTCLOUD_DOMAIN} every 5 cycles # <1>
+  if failed port {SB_NEXTCLOUD_PORT} protocol https request /?monit and certificate valid > 15 days for 2 cycles then alert # <2>
+
+# Apache status
+check host nextcloud_local with address {SB_IP} every 5 cycles # <3>
+  if failed port {SB_NEXTCLOUD_PORT} protocol apache-status path /apache-server-status.html # <4>
+    replylimit > 50% or
+    requestlimit > 50% or
+    closelimit > 50% or
+    gracefullimit > 50% or
+    waitlimit < 20%
+    with ssl options {verify: disable}
+    for 2 cycles
+  then alert
+----
+<1> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual Nextcloud domain name.
+<2> Replace `{SB_NEXTCLOUD_PORT}` with the actual value.
+Also, if you changed query parameter in rewrite condition for filtering Monit logs in the <<nextcloud_httpd_config>> section
+to some random string, replace `monit` in the `request /?monit` part with the exact same string.
+<3> Replace `{SB_IP}` with the actual value.
+<4> Replace `{SB_NEXTCLOUD_PORT}` with the actual value.
+
+Restart Monit and verify that Nextcloud monitoring is working.
+

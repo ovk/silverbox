@@ -1,0 +1,11 @@
+== Maintenance
+This section describes some basic maintenance procedures that will hopefully help to keep the server up to date,
+healthy and running.
+However, don't consider this to be a complete checklist.
+
+include::keeping-system-up-to-date.adoc[]
+
+include::monitoring.adoc[]
+
+include::keeping-system-clean.adoc[]
+

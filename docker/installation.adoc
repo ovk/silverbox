@@ -1,0 +1,46 @@
+=== Installation
+
+==== Docker CE
+To install Docker CE engine follow the instructions from the docker documentation:
+https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-docker-ce.
+
+IMPORTANT: For security reasons, it may be good idea not to add your user to the `docker` group.
+Membership in the `docker` group essentially grants user the `root` permissions, without requiring to enter
+password for privilege elevation (unlike `sudo`).
+
+[[docker_compose_install]]
+==== Docker Compose
+Docker Compose <<docker_compose>> is a useful tool for deploying and managing multi-container workloads.
+
+At the moment of writing, the preferred method of installation for Ubuntu was simply grabbing
+the latest binary from the GitHub releases page.
+The downside is that there won't be any automatic upgrades and newer versions of Docker Compose will
+have to be installed manually.
+
+To find the latest Docker Compose version number, visit the GitHub releases page at:
+https://github.com/docker/compose/releases.
+
+Next, download the `docker-compose` binary:
+
+----
+sudo curl -L "https://github.com/docker/compose/releases/download/{COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose # <1>
+----
+<1> Replace `\{COMPOSE_VERSION}` with the actual latest Docker Compose version.
+
+And mark it as executable:
+
+----
+sudo chmod +x /usr/local/bin/docker-compose
+----
+
+Verify that Docker Compose works by doing:
+
+----
+docker-compose version
+----
+
+NOTE: If you see an error similar to this:
+`error while loading shared libraries: libz.so.1: failed to map segment from shared object`
+then remove `noexec` option from the `/tmp` partition.
+See <<mounting_tmp_as_tmpfs>> for more details.
+

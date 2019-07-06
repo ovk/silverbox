@@ -1,0 +1,270 @@
+=== Monit
+This section describes Monit installation and configuration for monitoring basic system parameters (such as
+CPU and RAM utilization, temperatures, etc.).
+Monitoring of specific services (e.g. DNS server, Docker, Nextcloud) is described in the corresponding sections.
+For example, section on DNS server setup describes how to add DNS server monitoring to Monit.
+
+==== Installation
+Monit can be installed directly from the repositories:
+
+----
+sudo apt install monit
+----
+
+This will create and start Systemd service for Monit. Its status can be checked with:
+
+----
+systemctl status monit
+----
+
+After installation, create a directory where custom scripts for Monit will be stored:
+
+----
+sudo mkdir -p /usr/local/etc/monit/scripts
+----
+
+==== Configuration
+The main Monit configuration file is located at `/etc/monit/monitrc`.
+The defaults there are pretty sensible, but of course you can adjust them if you need to.
+For example, to set check interval and startup delay to one minute:
+
+----
+set daemon 60
+  with start delay 60
+----
+
+===== CPU Temperature Script
+System temperatures can be read directly from `procfs`, but using `lm-sensors` package makes it more convenient to parse.
+To install the `lm-sensors` package:
+
+----
+sudo apt install lm-sensors
+----
+
+As `root` user, create CPU temperature monitoring script `/usr/local/etc/monit/scripts/cpu_temp.sh` with the following content:
+
+./usr/local/etc/monit/scripts/cpu_temp.sh
+[source, bash]
+----
+#!/bin/sh
+RET=`sensors -Au 2> /dev/null | sed -n 's/_input//p' | sed 's/.\+:\s\+\([0-9]\+\).\+/\1/' | sort -n | tail -1`
+exit $RET
+----
+
+And mark it as executable:
+----
+sudo chmod u+x /usr/local/etc/monit/scripts/cpu_temp.sh
+----
+
+This script simply finds the maximum temperature reported by all temperature sensors and returns it as exit code.
+If you using different hardware, you may need to modify this script.
+
+===== Disk Temperature Script
+As `root` user, create disk temperature monitoring script `/usr/local/etc/monit/scripts/disk_temp.sh` with the following content:
+
+./usr/local/etc/monit/scripts/disk_temp.sh
+[source, bash]
+----
+#!/bin/sh
+UUID="$1"
+DEV=$(readlink -f /dev/disk/by-uuid/"$UUID")
+RET=`hddtemp -n SATA:"$DEV" 2> /dev/null`
+exit $RET
+----
+
+And mark it as executable:
+
+----
+sudo chmod u+x /usr/local/etc/monit/scripts/disk_temp.sh
+----
+
+Similarly to previous script, this one also reads the temperature and returns it as the exit code.
+
+NOTE: For some SSDs (notably for Samsung EVO ones), the temperature data is returned in different smart field.
+Some extra configuration may be required for `hddtemp` to read temperature data from such drives.
+More details can be found in the Arch Wiki article on `hddtemp` <<arch_wiki_hddtemp>>.
+
+===== UPS Battery Charge Script
+As `root` user, create UPS battery monitoring script `/usr/local/etc/monit/scripts/ups_charge.sh` with the following content:
+
+./usr/local/etc/monit/scripts/ups_charge.sh
+[source,bash]
+----
+#!/bin/sh
+RET=`upsc eaton3s battery.charge 2> /dev/null` # <1>
+exit $RET
+----
+<1> Replace `eaton3s` with your UPS name, exactly as it was configured in NUT.
+
+And mark it as executable:
+
+----
+sudo chmod u+x /usr/local/etc/monit/scripts/ups_charge.sh
+----
+
+This script simply returns UPS battery charge value (in percents) as the exit code.
+
+[[basic_system_monitoring]]
+===== Basic System Monitoring
+To configure basic system monitoring with Monit, as `root` user create `/etc/monit/conf.d/10-system` file
+and set its permissions to 600, so that only `root` can read and edit it:
+
+----
+sudo touch /etc/monit/conf.d/10-system
+sudo chmod 600 /etc/monit/conf.d/10-system
+----
+
+Below is a working example of what you can put in this file to establish basic system monitoring with Monit.
+Read this file carefully, replace placeholders with the actual values and tweak the parameters as you need:
+
+./etc/monit/conf.d/10-system
+[subs="attributes+"]
+----
+# Log to syslog instead of monit.log
+set log syslog
+
+# Set global SSL options
+set ssl {
+    verify     : enable,
+    selfsigned : reject
+}
+
+# Listen only locally
+set httpd
+    port \{MONIT_PORT} # <1>
+    use address 127.0.0.1
+    allow localhost
+
+# Email address to receive alerts. Ignore trivial alerts.
+set alert {SB_EMAIL} not on { instance, action } # <2>
+
+# Set email format
+set mail-format {
+  from:    Monit <monit@$HOST>
+  subject: $EVENT: $SERVICE
+  message: $EVENT: $SERVICE
+           Date:        $DATE
+           Action:      $ACTION
+           Host:        $HOST
+           Description: $DESCRIPTION
+}
+
+# Set mail server
+set mailserver {SB_SMTP_ADDR} port {SB_SMTP_PORT} # <3>
+    using tls
+
+# System performance
+check system $HOST
+    if loadavg (1min) > 20 then alert
+    if loadavg (5min) > 10 then alert
+    if loadavg (15min) > 5 then alert
+    if memory usage > 70% for 5 cycles then alert
+    if swap usage > 5% then alert
+    if cpu usage > 70% for 5 cycles then alert
+
+# Filesystem
+check filesystem rootfs with path /
+    if space usage > 80% then alert
+    if inode usage > 70% then alert
+    if read rate > 2 MB/s for 10 cycles then alert
+    if write rate > 1 MB/s for 10 cycles then alert
+
+# Network
+check network wired with interface \{NET_INTERFACE_NAME} # <4>
+    if saturation > 90% for 5 cycles then alert
+    if total uploaded > 10 GB in last day then alert
+    if total downloaded > 10 GB in last day then alert
+
+# CPU Temperature
+check program cpu_temp with path "/usr/local/etc/monit/scripts/cpu_temp.sh"
+    if status > 70 then alert
+    if status < 15 then alert
+
+# Disk temperature
+check program disk_temp with path "/usr/local/etc/monit/scripts/disk_temp.sh \{PART_UUID}" # <5>
+    if status > 60 then alert
+    if status < 15 then alert
+
+# UPS battery
+check program ups_charge with path "/usr/local/etc/monit/scripts/ups_charge.sh"
+    if status < 95 then alert
+----
+<1> Replace `\{MONIT_PORT}` with the port number on which you want Monit to listen for web interface connections.
+<2> Replace `{SB_EMAIL}` with email address to which Monit will deliver notifications.
+<3> Replace `{SB_SMTP_ADDR}` and `{SB_SMTP_PORT}` with SMTP server address and port respectively.
+Usually you can get relaying SMTP server address/port from your ISP.
+<4> Replace `\{NET_INTERFACE_NAME}` with your network interface name.
+<5> Replace `\{PART_UUID}` with UUID of your `/boot` partition (can be copied from the `/etc/fstab` file).
+This is needed in order not to rely on disk device names (e.g. `/dev/sda`) as they can change.
+
+Restart Monit service for the changes to take effect:
+
+----
+sudo systemctl restart monit
+----
+
+NOTE: You may notice that after running Monit,
+the default Message of the Day complains about presence of the zombie processes.
+At the moment of writing, when Monit invokes other programs (such as in `check program` instruction)
+in creates zombie processes by design.
+This zombie processes are handled correctly and don't grow over time.
+There is an open bug about this issue and hopefully it will be improved in the future releases of Monit.
+
+==== Accessing Monit
+Monit can be accessed via command line or web interface.
+
+===== Command Line Interface
+To see Monit information in command line try:
+
+----
+sudo monit status
+----
+
+or
+
+----
+sudo monit summary
+----
+
+Do `sudo monit -h` to see all available options.
+
+===== Web Interface
+In this configuration, Monit only listens for local connections on `127.0.0.1:\{MONIT_PORT}`.
+This is done deliberately for security reasons.
+
+One way to access Monit web interface from the outside is to do it through SSH tunnel.
+For example, from the client PC establish a SSH tunnel:
+
+[subs="attributes+"]
+----
+ssh {SB_USER}@{SB_IP} -N -L 127.0.0.1:\{LOCAL_PORT}:127.0.0.1:\{MONIT_PORT}
+----
+
+Here `\{LOCAL_PORT}` is port on which SSH will be listening on the client PC.
+Web interface now can be accessed on the client pc at `http://127.0.0.1:\{LOCAL_PORT}`.
+
+To create this tunnel in more convenient way, you can add the following entry to your SSH config file `~/.ssh/config`:
+
+.~/.ssh/config
+[subs="attributes+"]
+----
+host silverbox-monit-ui-tunnel
+    HostName {SB_IP} # <1>
+    IdentityFile ~/.ssh/silverbox-key
+    LocalForward 127.0.0.1:\{LOCAL_PORT} 127.0.0.1:\{MONIT_PORT}
+----
+<1> IP can be replaced with the host name here after domain is configured.
+
+Now the tunnel can be established simply with:
+
+----
+ssh -N silverbox-monit-ui-tunnel
+----
+
+==== Useful References
+Some useful sources of information about Monit:
+
+- Monit documentation: https://mmonit.com/monit/documentation/monit.html
+- Monit wiki: https://mmonit.com/wiki
+- Arch Wiki article on Monit: https://wiki.archlinux.org/index.php/Monit
+

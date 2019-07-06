@@ -1,0 +1,17 @@
+[[nfs_server]]
+== NFS Server
+This section describes how to install and configure NFS (version 4 only) server with Kerberos authentication
+(and optional encryption and integrity validation).
+It also provides an example configuration for an automatic NFS share mounting on the client PC.
+
+This section assumes that DNS server and domain name have been configured as described in the
+<<dns_server>> and <<domain_name>> sections.
+
+include::domain.adoc[]
+
+include::kerberos.adoc[]
+
+include::nfs-server-configuration.adoc[]
+
+include::nfs-client-configuration.adoc[]
+

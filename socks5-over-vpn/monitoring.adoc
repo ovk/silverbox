@@ -1,0 +1,41 @@
+=== Monitoring
+The status of the VPN proxy container is monitored by Monit.
+
+First, create the `/usr/local/etc/monit/scripts/container_status.sh` file with the following content:
+
+./usr/local/etc/monit/scripts/container_status.sh
+[source,bash]
+----
+#!/bin/sh
+STATUS=$(docker inspect --format="{{$2}}. Started: {{.State.StartedAt}}. Restarts: {{.RestartCount}}." "$1")
+echo $STATUS
+case "$STATUS" in
+  "$3"*) exit 0 ;;
+  *) exit 1 ;;
+esac
+----
+
+And mark it as executable:
+
+----
+sudo chmod u+x /usr/local/etc/monit/scripts/container_status.sh
+----
+
+This script checks given Docker container status field and compares it against desired value.
+
+Next, create the `/etc/monit/conf.d/40-docker-vpn-proxy` file with the following content:
+
+./etc/monit/conf.d/40-docker-vpn-proxy
+----
+check program vpn_proxy with path "/usr/local/etc/monit/scripts/container_status.sh vpn-proxy .State.Health.Status healthy"
+  if status != 0 for 10 cycles then alert
+----
+
+Restart Monit service:
+
+----
+sudo systemctl restart monit
+----
+
+Check Monit web interface and make sure that VPN proxy monitoring is working.
+

@@ -1,0 +1,16 @@
+== Backup
+This section describes how to configure secure automatic backup of valuable files
+from the server to external drive and to the cloud.
+
+include::overview.adoc[]
+
+include::disk-preparation.adoc[]
+
+include::configuration.adoc[]
+
+include::monitoring.adoc[]
+
+include::restore.adoc[]
+
+include::references.adoc[]
+

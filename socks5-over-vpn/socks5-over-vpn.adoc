@@ -1,0 +1,47 @@
+[[socks5_over_vpn]]
+== SOCKS5 Over VPN
+This section describes how to setup a SOCKS5 proxy on the server,
+such that it will redirect all traffic through the VPN connection.
+
+The reason it may be useful (as opposed to just running everything over VPN connection on the client PC)
+is to allow more granular control over what application's traffic goes through VPN connection.
+For example, one may choose to direct all web browser traffic over a VPN connection,
+while Steam and music streaming apps will access the internet directly.
+
+The way it is achieved is by running an OpenVPN client inside a docker container together with SOCKS5 server
+in such a way that traffic received by the SOCKS5 server will be forwarded via the VPN tunnel and vice versa.
+
+Since SOCKS5 protocol offers very weak authentication and no encryption,
+it will be additionally encapsulated in SSH tunnel.
+
+Below is a diagram that demonstrates the idea:
+
+----
+ Client PC
+ -----------------
+|                 |                                 Silverbox Server
+|  -------------  |                                 ------------------------------
+| | Application | |                                |                              |
+|  -------------  |                                |    Container                 |
+|        | SOCKS5 |                                |    ------------------------  |
+|        v        |     /--------------------\     |   |                        | |
+|  127.0.0.1:XXXX ------      SSH Tunnel      -----------SOCKS5 Server          | | Internet
+ -----------------      \--------------------/     |   |      |          --<VPN>-------->
+                                                   |   |      \ routing /       | |
+                                                   |   |        -------         | |
+                                                   |    ------------------------  |
+                                                    ------------------------------
+----
+
+The prerequisites to this section are having Docker installed
+and having a VPN provider that supports OpenVPN and can provide OpenVPN profiles
+(or information on how to create them).
+
+include::image.adoc[]
+
+include::container.adoc[]
+
+include::monitoring.adoc[]
+
+include::client-configuration.adoc[]
+

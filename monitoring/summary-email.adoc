@@ -1,0 +1,177 @@
+=== Summary Email
+The summary email is just an email that is delivered automatically at regular intervals (weekly) and contains
+some system information.
+
+While there are tools that do similar job (for example _logcheck_ and _logwatch_),
+I found them quite obsolete and noisy, with almost no documentation.
+
+[[email_content_generation]]
+==== Email Content Generation
+The email content is generated with a script, which is invoked by a Systemd timer.
+Here is a working example of such script (modify it to suit your needs):
+
+./usr/local/sbin/system-summary.sh
+[source,bash]
+----
+#!/bin/sh
+
+if [ $# -lt 1 ]; then
+    PERIOD="week"
+else
+    PERIOD="$1"
+fi
+
+case $PERIOD in
+    day | week | month)
+        ;;
+    *)
+        echo "Unknown time period: $PERIOD. Defaulting to week." 1>&2
+        PERIOD="week"
+        ;;
+esac
+
+SINCE_DATE=`date --date="1 $PERIOD ago" +"%F %T"`
+
+MAIN_DISK=$(readlink -f "/dev/disk/by-uuid/{PART_UUID}") # <1>
+
+echo "Subject: System Summary Report ($PERIOD)"
+echo ""
+echo "Report Period:    $PERIOD"
+echo "Report Generated: $(date)"
+echo "Uptime:          $(uptime)"
+echo "Memory Usage:     RAM: $(free -m | grep Mem | awk '{print $3/$2 * 100}')%, Swap: $(free -m | grep Swap | awk '{print $3/$2 * 100}')%"
+echo "Disk (main):      Temp: $(hddtemp -n SATA:"$MAIN_DISK"), Health: $(smartctl -H "$MAIN_DISK" | grep overall-health | sed 's/^.\+:\s\+//')"
+
+echo "--------------------------------------------------------------------------------"
+df -h
+
+echo "--------------------------------------------------------------------------------"
+echo "Temperatures:"
+sensors -A
+
+echo "--------------------------------------------------------------------------------"
+echo "Top CPU:"
+ps -eo pid,user,%cpu,%mem,cmd --sort=-%cpu | head
+
+echo "--------------------------------------------------------------------------------"
+echo "Top RAM:"
+ps -eo pid,user,%cpu,%mem,cmd --sort=-%mem | head
+
+echo "--------------------------------------------------------------------------------"
+echo "SSH logins during this $PERIOD:"
+last -s "$SINCE_DATE"
+
+echo "--------------------------------------------------------------------------------"
+echo "Last user logins:"
+lastlog | grep -iv "Never logged in"
+
+echo "--------------------------------------------------------------------------------"
+echo "Logged errors:"
+journalctl --since "$SINCE_DATE" -p err --no-pager
+----
+<1> Replace `\{PART_UUID}` with UUID of your `/boot` partition (can be copied from the `/etc/fstab` file).
+
+NOTE: When this script is called without arguments it will generate weekly summary.
+It can also be called with an argument, such as: `day`, `week` or `month`, to generate summary for the specific period.
+
+Save this file as `/usr/local/sbin/system-summary.sh` and mark is as executable:
+
+----
+sudo chmod u+x /usr/local/sbin/system-summary.sh
+----
+
+To verify that it works do `sudo system-summary.sh` and check the output.
+
+==== Email Delivery
+To send emails the `ssmtp` program is used.
+This is extremely lightweight tool with minimum dependencies, that sends mail to a configured mail server.
+
+NOTE: Since `ssmtp` is not an actual mail server (or MTA), you will need some SMTP server to send mail.
+You can use one provided by your ISP or any of free ones; however, the security and privacy of such setup is
+at best - questionable. This is why `ssmtp` only used in this guide for non-sensitive mail, such as monitoring
+emails and system status emails.
+
+To install `ssmtp` do:
+
+----
+sudo apt install ssmtp
+----
+
+Edit the `/etc/ssmtp/ssmtp.conf` file, set `root` option to your desired email address,
+`mailhub` to your SMTP server address and enable the use of TLS and STARTTLS:
+
+./etc/ssmtp/ssmtp.conf
+[subs="attributes+"]
+----
+root={SB_EMAIL} # <1>
+
+mailhub={SB_SMTP_ADDR}:{SB_SMTP_PORT} # <2>
+
+UseTLS=Yes
+UseSTARTTLS=Yes
+----
+<1> This email address will receive all mail for UIDs < 1000.
+<2> Set this to your SMTP server address and port.
+
+There are other parameters that may need to be configured (for example, if your SMTP server requires authentication).
+The Arch Wiki article on `ssmtp` is a good source of information on this topic -
+https://wiki.archlinux.org/index.php/SSMTP.
+
+To test that email delivery works try: `echo "test" | ssmtp root`.
+
+NOTE: If this command is successful but email is not delivered, it was probably filtered.
+You can run `ssmtp` with `-v` argument to get more verbose output, but I found no good solution to troubleshoot
+filtering issues. Sometimes changing sender address, subject, content and hostname helps to avoid filtering.
+
+As root user, create `/etc/systemd/system/system-summary-report.service` file with the following content:
+
+./etc/systemd/system/system-summary-report.service
+[subs="attributes+"]
+----
+[Unit]
+Description=Email system summary report
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c '/usr/local/sbin/system-summary.sh | ssmtp root'
+----
+
+You can run this service manually and verify that you get the email:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl start system-summary-report.service
+----
+
+As root user, create `/etc/systemd/system/system-summary-report.timer` file with the following content:
+
+./etc/systemd/system/system-summary-report.timer
+----
+[Unit]
+Description=Email system summary report
+
+[Timer]
+OnCalendar=Fri 18:00 # <1>
+AccuracySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+----
+<1> Adjust this as needed, especially if using period other than week.
+
+Enable and start the timer:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl enable system-summary-report.timer
+sudo systemctl start system-summary-report.timer
+----
+
+To check timer status and time until next activation use:
+
+----
+sudo systemctl list-timers
+----
+

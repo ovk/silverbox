@@ -1,0 +1,9 @@
+[[docker]]
+== Docker
+This section describes how to setup Docker CE engine and Docker Compose.
+Docker will be required to run some workloads (such as Nextcloud, or Transmission) inside containers.
+
+include::installation.adoc[]
+
+include::monitoring.adoc[]
+

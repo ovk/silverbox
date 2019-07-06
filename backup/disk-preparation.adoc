@@ -1,0 +1,72 @@
+=== Disk Preparation
+The first step is to partition and format the external drive in `ext4` filesystem.
+There are plenty of excellent guides available online so these steps are out of scope of this document.
+
+NOTE: Setting up `dmcrypt`, `ecryptfs` or other encryption solutions on this drive is not necessary,
+since backup files will be already encrypted. But you may still do it if you want.
+
+==== Automatic Disk Mount
+Once partitioned and formatted, connect the disk to the server.
+
+Identify what name was assigned to the disk and partition by either looking at `dmesg | tail`
+output right after the disk was connected, or by looking at the output of `lsblk` command.
+
+For example, the following output indicates that the device name is `sdb` and partition name is `sdb1`:
+
+[subs="attributes+,macros+"]
+----
+$ lsblk
+pass:q[_sdb                        8:00   0 465.8G  0 disk_]
+pass:q[_└─sdb1                     8:00   0 442.4G  0 part_]
+----
+
+The next step is to get the UUID of the partition from the output of `blkid` command:
+
+[subs="attributes+,macros+"]
+----
+> sudo blkid /dev/sdb1 # <1>
+pass:q[_/defv/sdb1: LABEL="label" UUID="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" TYPE="ext4" PARTUUID="XXXXXXX"_]
+----
+<1> Replace `/dev/sdb1` with the partition device name from the previous step.
+
+Create a directory where the partition will be mounted:
+
+----
+sudo mkdir /mnt/backup
+----
+
+Finally, add the following line to the `/etc/fstab` file:
+
+----
+UUID=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX /mnt/backup ext4 auto,lazytime,nodev,nofail,errors=remount-ro 0 2 # <1>
+----
+<1> Replace `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX` with the actual UUID value.
+
+NOTE: In this example, mount options include `lazytime` option, which is not necessary if you use HDD drive
+instead of SSD and can be removed in this case.
+
+Reboot the system and confirm that the backup partition was automatically mounted under `/mnt/backup`:
+
+[subs="attributes+,macros+"]
+----
+> lsblk
+pass:q[_sda                        8:0    0 465.8G  0 disk_]
+pass:q[_└─sda1                     8:1    0 442.4G  0 part  /mnt/backup_]
+----
+
+NOTE: The device name (i.e. `/dev/sda`) can be different after reboot.
+
+==== TRIM
+While TRIM should automatically work on all mounted drives that support it (thanks to default `fstrim.service`),
+it most likely will not work on drives connected via USB due to issues with USB <> SATA commands translation.
+
+If your drive supports TRIM you can check whether it works by doing `sudo fstrim /mnt/backup`,
+but most likely you'll see:
+
+----
+fstrim: /mnt/backup: the discard operation is not supported
+----
+
+Unfortunately, it looks like there is no way to fix this issue at the moment.
+However, TRIM support is not critical for backup drive as maximum write performance is not very important in this case.
+

@@ -1,0 +1,35 @@
+[[domain_name]]
+== Domain Name
+Having own domain name can be useful for a variety of reasons.
+In this guide, it is used for the following purposes:
+
+1. To configure proper domain for Kerberos (instead of doing domain hijacking).
+2. To access the server from the outside (from the internet) without having a static IP address.
+3. To obtain certificates for Nextcloud (to use HTTPS).
+
+A domain name needs to be registered in order to proceed with this section of the document.
+
+TIP: Domain name registration and payment process may take a few days, so it is better to start it in advance.
+
+The main requirement to the domain name registrar is to provide an API that allows changing DNS records
+(at least host A and TXT records).
+After evaluating a few options, NameSilo <<name_silo>> was chosen as the domain name registrar,
+so this document provides DNS records update script for its API.
+If you decide to use different domain name registrar, you'll have to write similar script by yourself.
+
+In this document, the domain name is referred as `{SB_DOMAIN_NAME}` (an example of domain name is `example.com`).
+However, this domain name itself is not used directly.
+Instead, a subdomain is used, which referred as `{SB_SUBDOMAIN}` (an example would be `silverbox.example.com`).
+So the FQDN of the server as it seen from the internet is `{SB_SUBDOMAIN}`.
+This approach offers some flexibility, for example, the domain name itself (e.g. `example.com`)
+can be used for different purposes (like hosting some website), while subdomain (e.g. `silverbox.example.com`)
+is used to access the server over SSH.
+
+IMPORTANT: Some scripts listed in this document have one limitation: only domain names that consists of two components
+(i.e. one subdomain after TLD) are supported. For example, domain name `example.com` is supported while
+`example.co.uk` is not.
+
+include::dynamic-dns-update.adoc[]
+
+include::monitoring.adoc[]
+

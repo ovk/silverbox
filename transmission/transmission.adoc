@@ -1,0 +1,17 @@
+== Transmission
+This section describes hot to setup Transmission <<transmission>> BitTorrent client on the server.
+Similarly to how SOCKS5 proxy server was deployed (as described in the <<socks5_over_vpn>> section),
+the Transmission will be running inside a Docker container together with the OpenVPN,
+such that all Transmission traffic will be tunneled though the VPN.
+Transmission will be managed using web user interface, that will be exposed outside of the container.
+
+This section assumes that <<socks5_over_vpn>> and <<nfs_server>> sections were completed.
+
+include::image.adoc[]
+
+include::container.adoc[]
+
+include::monitoring.adoc[]
+
+include::user-interface.adoc[]
+

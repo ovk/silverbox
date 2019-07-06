@@ -1,0 +1,10 @@
+=== Restore Procedure
+The exact restore procedures depend on the type of failure that occurred.
+
+To get files from the cloud, use `rclone` tool or download files manually.
+
+To extract particular backup from the Borg repository use `borg extract` command.
+
+Normally, the restored files can be just copied over lost or damaged files.
+For more details, please refer to references section below.
+

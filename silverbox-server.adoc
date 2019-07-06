@@ -1,0 +1,42 @@
+= Silverbox: Linux Home Server
+https://gitlab.com/kosheo/silverbox-server
+v0.1.0, July 6, 2019
+:doctype: article
+:reproducible:
+:sectnums:
+:prewrap!:
+:attribute-missing: warn
+:source-highlighter: pygments
+:icons: font
+:toc:
+
+include::parameters.adoc[]
+
+include::introduction/introduction.adoc[]
+
+include::server-overview/server-overview.adoc[]
+
+include::basic-configuration/basic-configuration.adoc[]
+
+include::monitoring/monitoring.adoc[]
+
+include::dns-server/dns-server.adoc[]
+
+include::docker/docker.adoc[]
+
+include::socks5-over-vpn/socks5-over-vpn.adoc[]
+
+include::domain-name/domain-name.adoc[]
+
+include::nfs-server/nfs-server.adoc[]
+
+include::transmission/transmission.adoc[]
+
+include::nextcloud/nextcloud.adoc[]
+
+include::backup/backup.adoc[]
+
+include::maintenance/maintenance.adoc[]
+
+include::references.adoc[]
+

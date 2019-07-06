@@ -1,0 +1,30 @@
+== Monitoring
+A monitoring system is needed to monitor server's hardware, system, environment, services
+and send notifications if something goes wrong or looks suspicious.
+As mentioned in the <<server_overview_goals>> section, the server needs to be as automated as possible,
+so the monitoring systems needs to be as autonomous as possible, and not require any supervision or maintenance.
+
+A number of solutions was considered for the server monitoring (and quite few of them I tried),
+but most of them were discarded due to being too complicated to install and configure (and thus being an overkill for a home server),
+or due to having too many dependencies and bloat, or being outdated and not well supported,
+or the opposite - changing at insane pace.
+Some of the solutions that were considered are: Nagios, Zabbix, Netdata, Munin, Cacti
+and some combination of Prometheus/Grafana/Collectd/Graphite/Telegraf/InfluxDB.
+
+Eventually, Monit was chosen as the main monitoring tool.
+While it may seem very limited at the first glance, it is actually quite powerful tool to monitor wide range of parameters
+and react to specific conditions.
+Monit is easy to extend and customize, it is well maintained, lightweight, with minimum dependencies and very low
+runtime overhead.
+The only significant downside is that it has no support for time series, and thus it is not possible to see
+historical data, graphs or analyze trends.
+
+In addition to Monit, a simple script was created to generate and deliver regular emails
+with system summary information.
+
+include::monit.adoc[]
+
+include::summary-email.adoc[]
+
+include::login-notification.adoc[]
+

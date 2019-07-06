@@ -1,0 +1,13 @@
+[[dns_server]]
+== DNS Server
+This section describes how to install and configure a DNS server, which will serve clients on the local network.
+Client devices in the LAN will use this DNS server as the default DNS server (can be announced by the DHCP server),
+and the DNS server will forward queries securely (using DNS over TLS and DNSSEC) to the DNS server of your choice
+(this configuration uses Cloudflare's DNS server).
+
+include::installation.adoc[]
+
+include::configuration.adoc[]
+
+include::monitoring.adoc[]
+

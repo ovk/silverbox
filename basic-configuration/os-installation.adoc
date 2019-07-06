@@ -1,0 +1,35 @@
+=== OS Installation
+Ubuntu Server 18.04 was chosen as an operating system for the server.
+The reasoning behind this choice is that it is pretty mature and stable server OS,
+with lot of software and documentation available due to its popularity.
+
+The Ubuntu installation itself is pretty straightforward, and there are many excellent guides available,
+so it is not described in details in this document. Only some important points described here.
+
+IMPORTANT: At the moment of writing, the default Ubuntu image was using new installer
+that was missing quite a few important features, including full disk encryption.
+As a workaround, don't download default Ubuntu Server installer,
+and instead follow to the releases page and download _"Alternative Ubuntu Server installer"_.
+This installer should have full support for LVM and disk encryption.
+Hopefully, the new installer will be updated eventually and missing features will be added.
+It's a good idea to first try it on the virtual machine before installing on the real server.
+
+TIP: While internet is not required during installation, it makes it a bit easier and more convenient.
+So make sure you plug the server to the working internet connection.
+
+Roughly, the installation process looks like this:
+
+. Create a bootable USB flash drive with Ubuntu installer image.
+. Connect server to power, monitor, network, keyboard, insert USB stick and power it on. Ubuntu installation will begin.
+. Partition disk manually according to your needs. For example, the following partitioning scheme was used:
+    - Bootable EFI system partition
+    - 2GB `ext4` partition for `/boot` (to have some extra space for old kernels)
+    - `dm-crypt` partition with LVM on it in the following configuration:
+        * One volume group (VG) with:
+            .. Root logical volume (LV) for `/` with `ext4` file system
+            .. Swap logical volume (LV). The size needs to be greater than size of RAM if you need hibernation support.
+    - Some unallocated (free) space to (hopefully) prolong life of SSD.
+. Make sure you enable automatic security updates during installation.
+
+No additional software packages were chosen during installation.
+

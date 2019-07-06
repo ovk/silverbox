@@ -1,0 +1,29 @@
+=== High Level Overview
+The diagram below shows the server place in the home network:
+
+----
+                            LAN
+                           ---------------------------------
+          --------        |                   -----------   |
+   WAN   |  WiFi  |       |   -----------    | Client PC |  |
+<------->| Router |<----->|  | Silverbox |    -----------   |
+          --------        |   -----------     -----------   |
+          - DHCP          |   - DNS          | Client PC |  |
+                          |   - ...           -----------   |
+                          |                   -----------   |
+                          |                  |   .....   |  |
+                          |                   -----------   |
+                           ---------------------------------
+----
+
+The server is on the Local Area Network (together with regular clients such as PCs, smartphones etc.) and
+it acts as DNS server (apart from all the other services and programs it runs).
+It is separated from the internet by the router (and thus sits behind NAT).
+
+Of course, this is just one of the options (but probably one of the most common ones) and it can be adjusted to suit
+your needs.
+
+NOTE: In my case, all the clients are also Linux-based. This is not a requirement, and you may have clients running
+Windows, MacOS or other OS, but in such case client configuration will obviously be different.
+In come parts of this document it is assumed that your client is x86 64-bit PC running Desktop Ubuntu Linux 18.04.
+

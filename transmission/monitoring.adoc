@@ -1,0 +1,19 @@
+=== Monitoring
+The status of the Transmission container is monitored by Monit.
+
+Create the `/etc/monit/conf.d/60-docker-transmission` file with the following content:
+
+./etc/monit/conf.d/60-docker-transmission
+----
+check program transmission with path "/usr/local/etc/monit/scripts/container_status.sh transmission .State.Health.Status healthy"
+  if status != 0 for 10 cycles then alert
+----
+
+Restart Monit service:
+
+----
+sudo systemctl restart monit
+----
+
+Check Monit web interface and make sure that Transmission monitoring is working.
+

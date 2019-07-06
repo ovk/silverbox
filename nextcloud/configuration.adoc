@@ -1,0 +1,162 @@
+=== Configuration
+This section only describes some generic post-install configuration
+as your configuration will highly depend on the use case.
+
+==== Fixing Security and Setup Warnings
+Navigate to _Settings -> Overview_ page and check the "`Security & setup warnings`" section.
+
+Most likely you'll see at least one warning here: `Some columns in the database are missing a conversion to big int`.
+To fix it, run the following commands:
+
+----
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ maintenance:mode --on
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ db:convert-filecache-bigint --no-interaction
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ maintenance:mode --off
+----
+
+Verify that warning disappeared.
+
+If there are any other warnings, refer to the Nextcloud Admin Guide for resolutions.
+
+==== Editing Nextcloud Config File
+Edit the `/srv/nextcloud/html/config/config.php` file and add/modify the following parameters:
+
+./srv/nextcloud/html/config/config.php
+[subs="attributes+"]
+----
+'loglevel' => 1, # <1>
+'overwrite.cli.url' => 'https://{SB_NEXTCLOUD_DOMAIN}:{SB_NEXTCLOUD_PORT}', # <2>
+'htaccess.RewriteBase' => '/', # <3>
+'default_language' => 'en',
+'default_locale' => 'en_CA',
+'knowledgebaseenabled' => false <4>
+----
+<1> Sets log level to _info_.
+<2> This and the next line will enable pretty URLs (essentially eliminating `index.php` from the URLs).
+More info: https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#pretty-urls.
+<3> Same as above.
+<4> This line disables arguably useless knowledge base page.
+
+Next, run the following command:
+
+----
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ maintenance:update:htaccess
+----
+
+And restart Nextcloud:
+
+----
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml restart
+----
+
+Refresh the Nextcloud page and verify that pretty URLs work.
+
+==== Background Jobs, Maximum Upload Size, Email Delivery
+Navigate to _Settings -> Basic settings_ page.
+
+Make sure Background Jobs scheduling is set to *Cron* and last run was within 15 minutes.
+
+You can optionally increase Maximum Upload Size.
+
+NOTE: It appears that the maximum upload size setting disappeared in the latest versions of Nextcloud.
+
+Also, on this page you can configure Email server parameters and test email delivery.
+
+==== Access to NFS Share
+It may be convenient to be able to access some directories that are shared with NFS from the Nextcloud.
+It can be done with the "`External storage support`" Nextcloud app,
+that allows mounting local directories inside the Nextcloud.
+
+However, since Nextcloud is running inside a container, it is isolated from the host file system
+and won't be able to access the NFS directories unless they are explicitly mounted inside the container.
+
+To mount some directories into the Nextcloud container,
+edit the `/root/silverbox/containers/nextcloud/docker-compose.yml` file and append the directories to the
+`volumes` list of the `nextcloud-fpm` service. For example:
+
+./root/silverbox/containers/nextcloud/docker-compose.yml
+----
+...
+nextcloud-fpm:
+  ...
+  volumes:
+    ...
+    - /srv/nfs/videos:/nfs/videos
+    - /srv/nfs/photos:/nfs/photos
+...
+----
+
+To apply changes do:
+
+----
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml stop
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml kill nextcloud-fpm
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml up -d
+----
+
+To add these directories to Nextcloud navigate to _Settings -> External Storages_ and add two
+"`Local`" storage entries for `/nfs/videos` and `/nfs/photos`.
+
+===== Permissions
+There are some permissions issues when accessing files created via NFS from the Nextcloud and vice versa.
+
+In particular, files created inside NFS directories from the Nextcloud will be owned by `www-data:www-data` (`82:82`)
+and with default `umask` will only allow modifications by the owner.
+Thus, users accessing these files over NFS won't be able to modify them.
+
+The permissions/ownership for such files can be adjusted with the following command:
+
+[subs="attributes+"]
+----
+sudo find /srv/nfs -uid 82 -exec chown {SB_USER}:{SB_NFS_GROUP} \{} \; -exec chmod g+w {} \; -exec echo {} \;
+----
+
+This example command changes ownership for all files under `/srv/nfs` directory that are currently owned by UID 82,
+to be owned by your user and `{SB_NFS_GROUP}` group, and also adds write permissions to the group.
+
+There is a similar issue with the files created via NFS and accessed via Nextcloud.
+Such files by default will have ownership `{SB_USER}:{SB_USER}` and won't be modifiable by the Nextcloud
+(unless your `umask` allows modification by everyone).
+One way to allow modifications from the Nextcloud is to set ownership to `{SB_USER}:{SB_NFS_GROUP}`,
+which can be done with the following command:
+
+[subs="attributes+"]
+----
+sudo find /srv/nfs -user $USER -group $USER -exec chgrp {SB_NFS_GROUP} {} \; -exec echo {} \;
+----
+
+IMPORTANT: When creating files from outside of the Nextcloud (e.g. over NFS), the files won't be immediately visible
+in the Nextcloud. Similarly, the changed permissions on such files won't be immediately noticed by the Nextcloud.
+To force Nextcloud to rescan the files use the following command:
+`sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ files:scan admin`
+
+If desired, the permission correction can be automated with `inotify-tools` or similar tools
+
+==== Security Scanning
+It may be useful to run some security scanners against the Nextcluod.
+Here are some example:
+
+Nextcloud Security Scanner::
+https://scan.nextcloud.com.
+SSL Labs Scanner::
+https://www.ssllabs.com/ssltest. Note that it only works over default HTTPS port 443, so to use it
+you can temporary change port forwarding rule to forward from external port 443 to internal port `{SB_NEXTCLOUD_PORT}`.
+SSL Decoder Scanner::
+https://ssldecoder.org.
+
+==== Reduce Autovacuum Frequency
+This is completely optional step, but it may help to minimize disk writes.
+In the default configuration, PostgreSQL autovacuum runs every minute,
+which I find extremely excessive for my limited Nextcloud use.
+Running it so frequently produces excessive disk writes by the `postgres: stats collector` process.
+
+To reduce autovaccum frequency, edit the `/srv/nextcloud/db/postgresql.conf` file and change the
+`autovacuum_naptime` parameter to desired value, for example:
+
+./srv/nextcloud/db/postgresql.conf
+----
+autovacuum_naptime = 15min
+----
+
+Restart the Nextcloud database for the setting to take effect.
+

@@ -1,0 +1,33 @@
+=== User Interface
+Transmission has web based user interface that is exposed outside of the Docker container.
+However, it is exposed on the localhost only, so it is not accessible from the outside.
+
+To access Transmission web UI securely first SSH tunnel needs to be created (similarly to how Monit UI is accessed).
+For example, from the client PC establish a SSH tunnel:
+
+[subs="attributes+"]
+----
+ssh {SB_USER}@{SB_IP} -N -L 127.0.0.1:\{LOCAL_PORT}:127.0.0.1:{SB_TRANSMISSION_PORT}
+----
+
+Here `\{LOCAL_PORT}` is port on which SSH will be listening on the client PC.
+Web interface now can be accessed on the client pc at `http://127.0.0.1:\{LOCAL_PORT}`.
+
+To create this tunnel in more convenient way, you can add the following entry to your SSH config file `~/.ssh/config`:
+
+.~/.ssh/config
+[subs="attributes+"]
+----
+host silverbox-transmission-ui-tunnel
+    HostName {SB_IP} # <1>
+    IdentityFile ~/.ssh/silverbox-key
+    LocalForward 127.0.0.1:\{LOCAL_PORT} 127.0.0.1:{SB_TRANSMISSION_PORT}
+----
+<1> IP can be replaced with the server FQDN.
+
+Now the tunnel can be established simply with:
+
+----
+ssh -N silverbox-transmission-ui-tunnel
+----
+

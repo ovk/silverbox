@@ -1,0 +1,208 @@
+=== Dynamic DNS Update
+This section describes how to setup automatic DNS host A record update with the current public address of the server.
+This way the server can be accessed from the internet by its FQDN, even if its public IP address is dynamic.
+
+The dynamic DNS record update is initiated by Systemd timer, that runs Docker container with a python script
+that uses NameSilo API to make an update.
+The Docker container is used for convenience, isolation and resource limiting
+(NameSilo API uses XML which can exhaust system resources while parsing malformed or maliciously constructed XML).
+
+==== Prerequisites
+First, login to your NameSilo account and generate API key, which will be used to authenticate to the NameSilo API.
+
+TIP: Keep the API key secure, as it grants complete access to your NameSilo account.
+
+Then create a host A DNS record for the `{SB_SUBDOMAIN}` with any content.
+This entry needs to be created manually because the DNS update script only updates existing record
+but doesn't create it.
+
+==== Creating Docker Network
+First, create a separate Docker network that will be used to run containers other than VPN-related containers:
+
+[subs="attributes+"]
+----
+sudo docker network create --driver=bridge --subnet={SB_COMMON_SUBNET} common # <1>
+----
+<1> Replace `{SB_COMMON_SUBNET}` with the some subnet for the common Docker network. For example: `172.19.0.0/24`.
+
+==== Preparing Image Files
+This section assumes that all steps from the <<socks5_over_vpn>> section have been completed.
+
+Create a directory for the DNS records updater container:
+
+----
+sudo mkdir /root/silverbox/containers/dns-updater
+sudo chmod 700 /root/silverbox/containers/dns-updater
+----
+
+Inside the `dns-updater` directory, create a file named `Dockerfile` with the following content:
+
+./root/silverbox/containers/dns-updater/Dockerfile
+[source,dockerfile,subs="attributes+"]
+----
+FROM alpine:{SB_ALPINE_VERSION} # <1>
+
+RUN apk --no-cache --no-progress upgrade && \
+    apk --no-cache --no-progress add python3
+
+COPY update-dns.py /usr/local/bin/
+
+VOLUME /secrets # <2>
+
+ENTRYPOINT [ "python3", "/usr/local/bin/update-dns.py" ]
+----
+<1> Replace `{SB_ALPINE_VERSION}` with the actual latest `alpine` image version (can be checked at the Docker Hub).
+<2> For the lack of better option, the API key is passed inside the container in a file on a mapped volume.
+
+Next, create the `update-dns.py` file with the following content:
+
+./root/silverbox/containers/dns-updater/update-dns.py
+[source,python,subs="attributes+"]
+----
+#!/usr/bin/env python3
+import json
+import argparse
+import urllib.request
+import urllib.parse
+from xml.dom import minidom
+
+DEFAULT_HEADERS={ 'User-Agent': 'curl/7.58.0' } # <1>
+
+def namesilo_url(operation, api_key):
+    return 'https://www.namesilo.com/api/' + operation + '?version=1&type=xml&key=' + api_key
+
+def check_reply_code(doc, code):
+    actual=doc.getElementsByTagName('reply')[0].getElementsByTagName('code')[0].firstChild.nodeValue
+    if actual != str(code):
+        raise BaseException('Expecting code {} got {}'.format(code, actual))
+
+def get_dns_record(rec_type, subdomain, domain, api_key):
+    response=urllib.request.urlopen(urllib.request.Request(url=(namesilo_url('dnsListRecords', api_key) + '&domain=' + domain), headers=DEFAULT_HEADERS), timeout=30)
+    doc=minidom.parseString(response.read())
+    check_reply_code(doc, 300)
+    for e in doc.getElementsByTagName('reply')[0].getElementsByTagName('resource_record'):
+        if e.getElementsByTagName('host')[0].firstChild.nodeValue == subdomain and e.getElementsByTagName('type')[0].firstChild.nodeValue == rec_type:
+            return { 'val': e.getElementsByTagName('value')[0].firstChild.nodeValue,
+                     'id':  e.getElementsByTagName('record_id')[0].firstChild.nodeValue,
+                     'ttl': e.getElementsByTagName('ttl')[0].firstChild.nodeValue }
+    raise BaseException('DNS {} record for {} not found'.format(rec_type, subdomain))
+
+def update_dns_record(rec_type, subdomain, domain, rec_id, val, ttl, api_key):
+    params='&domain={}&rrid={}&rrhost={}&rrvalue={}&rrttl={}'.format(domain, rec_id, '.'.join(subdomain.split('.')[:-2]), val, ttl)
+    response=urllib.request.urlopen(urllib.request.Request(url=(namesilo_url('dnsUpdateRecord', api_key) + params), headers=DEFAULT_HEADERS), timeout=30)
+    check_reply_code(minidom.parseString(response.read()), 300)
+
+def main(rec_type, val, subdomain, domain, api_key, force, verbose):
+    if rec_type == 'A':
+        val=json.loads(urllib.request.urlopen(url='https://api.ipify.org?format=json', timeout=30).read())['ip'] # <2>
+        if verbose:
+            print('Current external IP address: {}'.format(val))
+
+    current_record=get_dns_record(rec_type, subdomain, domain, api_key)
+    if verbose:
+        print('Current DNS {} record for {}: "{}"'.format(rec_type, subdomain, current_record))
+
+    if val != current_record['val'] or force:
+        update_dns_record(rec_type, subdomain, domain, current_record['id'], val, current_record['ttl'], api_key)
+        print('{} record for {} updated: "{}" -> "{}"'.format(rec_type, subdomain, current_record['val'], val))
+
+if __name__ == '__main__':
+    parser=argparse.ArgumentParser()
+    parser.add_argument('-v', '--verbose', help='verbose output', action='store_true')
+    parser.add_argument('-f', '--force', help='force DNS record update (even if it contains the same value)', action='store_true')
+    parser.add_argument('-d', '--domain', help='fully qualified domain name for which to update a record (i.e. server.example.com)', required=True)
+    parser.add_argument('-a', '--action', help='action to perform: update host A record with the current external IP or update TXT record with a given value', required=True, choices=[ 'update-ip', 'update-txt' ])
+    parser.add_argument('-t', '--txt', help='content of the TXT record', default='')
+    parser.add_argument('-k', '--key', help='file name of the file containing API key', required=True)
+    args=parser.parse_args()
+
+    with open(args.key) as f:
+        api_key=f.readline().strip()
+
+    main('A' if args.action == 'update-ip' else 'TXT', args.txt, args.domain, '.'.join(args.domain.split('.')[-2:]), api_key, args.force, args.verbose)
+----
+<1> Default `urllib` user agent has to be overwritten since NameSilo rejects it for some reason.
+<2> This script uses `https://www.ipify.org` service to get public IP.
+Feel free to replace it with different service if you want.
+
+==== Storing API Key
+The API key will be stored on disk (only readable by root) and passed inside the container via mapped volume.
+
+Create a directory that will be mapped as a volume:
+
+----
+sudo mkdir /root/silverbox/namesilo
+----
+
+Create a file `/root/silverbox/namesilo/api-key` and write the NameSilo API key into it.
+
+Assign the following permissions to the directory and file:
+
+----
+sudo chown root:root /root/silverbox/namesilo/api-key
+sudo chmod 400 /root/silverbox/namesilo/api-key
+sudo chmod 500 /root/silverbox/namesilo
+----
+
+==== Building Container Image
+To build the container image run the following command:
+
+----
+sudo docker build -t dns-updater --network common /root/silverbox/containers/dns-updater
+----
+
+==== Automatic DNS Record Update
+To keep DNS record updated, a Systemd timer will periodically run disposable container
+from the image that was just built.
+
+Create the `/etc/systemd/system/update-dns-record.service` file with the following content:
+
+./etc/systemd/system/update-dns-record.service
+[subs="attributes+"]
+----
+[Unit]
+Description=Update DNS Host A record with the current external IP address
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker run --rm --name dns-updater --network common --cpus="1" -v /root/silverbox/namesilo:/secrets dns-updater -k /secrets/api-key -a update-ip -d {SB_SUBDOMAIN} # <1>
+----
+<1> Replace `{SB_SUBDOMAIN}` with your actual server public FQDN.
+
+You can run the service once to verify that it runs successfully:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl start update-dns-record.service
+----
+
+Next, create the `/etc/systemd/system/update-dns-record.timer` file with the following content:
+
+./etc/systemd/system/update-dns-record.timer
+----
+[Unit]
+Description=Update DNS Host A record with the current external IP address
+
+[Timer]
+OnBootSec=5min # <1>
+OnUnitInactiveSec=30min # <2>
+
+[Install]
+WantedBy=timers.target
+----
+<1> First time the timer runs 5 minutes after boot.
+<2> After first run, the timer will run every 30 minutes.
+You can adjust this value depending on how volatile your public IP is.
+
+Enable and start the timer:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl enable update-dns-record.timer
+sudo systemctl start update-dns-record.timer
+----
+
+You can do `sudo systemctl list-timers` to verify that the timer appears in the output and to check the time till next activation.
+

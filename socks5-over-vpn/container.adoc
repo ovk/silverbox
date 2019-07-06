@@ -1,0 +1,99 @@
+=== Container
+This section describes how to run the VPN proxy container.
+
+==== Running Container
+To build the image and run the container do:
+
+----
+sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml up -d
+----
+
+NOTE: When you run container that exposes some ports to the host interface,
+by default Docker will automatically add netfilter rules to allow forwarding for these ports.
+That's why there's no need to add UFW rule for the proxy tunnel.
+
+When started this way, container will be automatically restarted in case of failure (up to 15 consecutive restarts).
+
+==== Automatic Container Startup
+To start container automatically on boot create the `/etc/systemd/system/vpn-proxy-start.service` file
+with the following content:
+
+./etc/systemd/system/vpn-proxy-start.service
+----
+[Unit]
+Description=Start VPN proxy container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker start vpn-proxy
+
+[Install]
+WantedBy=multi-user.target
+----
+
+Enable the service, so that it will be started on system boot:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl enable vpn-proxy-start.service
+----
+
+==== Automatic VPN Server Rotation
+The idea of VPN server rotation is to restart VPN proxy container periodically,
+so that every time it starts it will pick up new random VPN profile and thus switch to a new VPN server.
+This may be useful for privacy and security reasons, however, this step is optional.
+
+The rotation is achieved by creating a simple Systemd timer, that, when triggered, will restart VPN proxy container.
+
+Create the `/etc/systemd/system/vpn-proxy-restart.service` file with the following content:
+
+./etc/systemd/system/vpn-proxy-restart.service
+----
+[Unit]
+Description=Restart VPN proxy container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker restart vpn-proxy
+----
+
+You can run the service once to verify that it works and restarts the container:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl start vpn-proxy-restart.service
+----
+
+Netx, create the `/etc/systemd/system/vpn-proxy-restart.timer` file with the following content:
+
+./etc/systemd/system/vpn-proxy-restart.timer
+----
+[Unit]
+Description=Restart VPN proxy container
+
+[Timer]
+OnCalendar=*-*-* 01:00:00
+AccuracySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+----
+
+In this configuration, the timer will be activated every day at 1am.
+
+Enable and start the timer:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl enable vpn-proxy-restart.timer
+sudo systemctl start vpn-proxy-restart.timer
+----
+
+You can do `systemctl list-timers` to verify that the timer appears in the output
+and to check the time till next activation.
+

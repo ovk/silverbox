@@ -1,0 +1,82 @@
+=== UPS Configuration
+For a graceful server shutdown in case of power outage, the server needs to be able to communicate to the UPS
+to get its status.
+Usually, UPS is connected to the server by USB and Network UPS Tools (NUT) is used to get UPS status.
+
+==== Network UPS Tools (NUT) Installation
+NUT can be easily installed by doing:
+
+----
+sudo apt install nut
+----
+
+==== NUT Configuration
+The NUT configuration consists of three different parts:
+
+. Configuring the _driver_ (talks to UPS)
+. Configuring the _server_ (`upsd` daemon, talks to the driver)
+. Configuring the _monitor_ (`upsmon`, monitors the server and takes action based on the received information)
+
+===== Configuring NUT Driver
+The driver type for NUT can be checked on the NUT Compatibility Page <<nut_hcl>>.
+In the case of Eaton 3S UPS the driver is `usbhid-ups`.
+
+Edit the `/etc/nut/ups.conf` file and append section for your UPS, for example:
+
+./etc/nut/ups.conf
+----
+[eaton3s]
+    driver=usbhid-ups
+    port=auto
+----
+
+Start the driver:
+
+----
+sudo upsdrvctl start
+----
+
+===== Configuring NUT Server
+General `upsd` configuration is done by editing the `/etc/nut/upsd.conf` file, if necessary.
+
+Edit the `/etc/nut/nut.conf` file and change `MODE` to `standalone`:
+
+./etc/nut/nut.conf
+----
+MODE=standalone
+----
+
+A user for the monitor needs to be added to the `/etc/nut/upsd.users` file (replace `\{SOME_PASSWORD}` with some random password):
+
+./etc/nut/upsd.users
+----
+[upsmon]
+    password = {SOME_PASSWORD}
+    upsmon master
+----
+
+The `upsd` server can now be started with `sudo systemctl start nut-server` command.
+Once started successfully, the UPS info can be queried with:
+
+----
+upsc eaton3s
+----
+
+===== Configuring NUT Monitor
+Change the `MONITOR` value in the `/etc/nut/upsmon.conf` file like so (use the same password you used in the previous step):
+
+./etc/nut/upsmon.conf
+----
+MONITOR eaton3s@localhost 1 upsmon {SOME_PASSWORD} master
+----
+
+Start the monitor service with `sudo systemctl start nut-monitor` command.
+
+At this point system should be configured to do graceful shutdown when UPS is on battery and battery reaches `battery.charge.low` level.
+The `battery.charge.low` value can be obtained with `upsc eaton3s | grep 'battery.charge.low'`.
+
+==== Useful References
+Some useful information to read about NUT:
+
+- Arch Wiki article about NUT: https://wiki.archlinux.org/index.php/Network_UPS_Tools
+- NUT Documentation: https://networkupstools.org/docs/user-manual.chunked/ar01s06.html

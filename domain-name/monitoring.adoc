@@ -1,0 +1,42 @@
+=== Monitoring
+The status of the DNS updater Systemd service is monitored by Monit.
+
+First, create the `/usr/local/etc/monit/scripts/is_systemd_unit_failed.sh` file with the following content:
+
+./usr/local/etc/monit/scripts/is_systemd_unit_failed.sh
+[source,bash]
+----
+#!/bin/sh
+systemctl show $1 -p ExecMainStartTimestamp --value
+systemctl is-failed --quiet $1
+if [ $? -eq 0 ]; then
+    exit 1
+else
+    exit 0
+fi
+----
+
+And mark it as executable:
+
+----
+sudo chmod u+x /usr/local/etc/monit/scripts/is_systemd_unit_failed.sh
+----
+
+This script checks whether the given Systemd unit had failed and prints last time it was executed.
+
+Next, create the `/etc/monit/conf.d/50-dns-updater` file with the following content:
+
+./etc/monit/conf.d/50-dns-updater
+----
+check program dns_updater with path "/usr/local/etc/monit/scripts/is_systemd_unit_failed.sh update-dns-record.service" every 30 cycles
+  if status != 0 for 2 cycles then alert
+----
+
+Restart Monit service:
+
+----
+sudo systemctl restart monit
+----
+
+Check Monit web interface and make sure that DNS updater monitoring is working.
+

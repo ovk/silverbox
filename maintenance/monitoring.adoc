@@ -1,0 +1,110 @@
+=== Monitoring
+This section gives some ideas on how to monitor system health and overall status.
+
+==== Monit
+Monit has a lot of useful information about the system and running services,
+and it worth checking it from time to time.
+
+This information can either be viewed in the Monit web interface, or via the `sudo monit status` command.
+
+==== Logs
+Logs from the system and different services can provide a lot of useful information
+and should be checked periodically for anomalies and errors.
+
+===== System Logs
+Ubuntu collects system logs with Systemd Journald service, so most of the logs can be viewed using `journalctl` tool.
+
+For example, to view all log messages since system boot with priority level warning or above do:
+
+----
+journalctl -p warning -b
+----
+
+For more examples on how to use `journalctl` to view logs refer to `journalctl` documentation.
+
+Some logs are also written into files under `/var/log` directory
+and can be viewed with any text editor or with `cat`/`tail` commands.
+
+===== Systemd Service Logs
+Logs from Systemd services can be viewed with the `journalctl` command as well.
+For example, to view Docker service logs do:
+
+----
+journalctl -u docker.service
+----
+
+===== Docker Logs
+By convention, processes running inside Docker containers write log output to the standard output stream.
+These logs then collected by the Docker engine and can be viewed with `docker logs` command.
+For example, to view Nextcloud's PostgreSQL container logs do:
+
+----
+sudo docker logs nextcloud-db
+----
+
+===== Nextcloud Logs
+Apart from the Nextcloud containers logs,
+Nextcloud maintains its own log that can be viewed on the _Settings -> Logging_ page.
+
+==== Disk Health
+Monitoring disk status and health is crucial in preventing data loss and diagnosing performance issues.
+It is especially important for SSDs since every SSD cell have limited number of times it can be erased and written.
+
+Some information about disks and file systems is available in Monit.
+
+To view how much data was read/written to the disk since system boot you can use `vmstat -d` command.
+The output of this command is in sectors rather than bytes.
+To find sector size check the output of `sudo fdisk -l` command.
+
+NOTE: It appears that the system counts discarded blocks
+(i.e. free blocks reported to SSD when `fstrim` is done, by default once a week) as writes,
+thus inflating total sectors written count as reported by the `vmstat -d` command.
+This means that the `vmstat -d` output will only be accurate since reboot until the first `fstrim` run.
+
+To view what processes are utilizing the disk you can use `iotop` tool, for example:
+
+----
+sudo iotop -aoP
+----
+
+To install `iotop` do: `sudo apt install iotop`.
+
+To retrieve SMART (Self-Monitoring, Analysis and Reporting Technology) data from the disk you can use `smartctl` tool
+from the `smartmontools` package.
+
+To read SMART data from the disk do:
+
+----
+sudo smartctl -a /dev/sda # <1>
+----
+<1> Replace `/dev/sda` with the actual disk device.
+
+The actual output of this command will depend on the disk model and manufacturer.
+Usually it has a lot of useful information such as total number of blocks written, media wearout, errors, etc.
+
+However, the output from `smartctl` is only accurate if the disk is present in the `smartctl` database so that
+SMART fields can be decoded and interpreted correctly.
+Usually the database has most of the consumer SSDs, however, Ubuntu uses extremely outdated version of this database
+so there is a good chance you disk won't be there.
+If in the `smartctl` output you see line similar to this: `Device is: Not in smartctl database`,
+this means your disk is not in the current database and you cannot really trust the output.
+
+Normally the `smartctl` database can be easily updated using `update-smart-drivedb` script, however,
+for dubious reasons Ubuntu package maintainers decided not to include this script in the `smartmontools` package.
+Fortunately, this database is just a single file that can be downloaded from the `smartmontools` GitHub mirror:
+
+----
+wget https://github.com/mirror/smartmontools/raw/master/drivedb.h
+----
+
+This new database file can then be passed to `smartctl` like so:
+
+----
+sudo smartctl -a /dev/sda -B drivedb.h
+----
+
+It is very important to monitor SSD media wearout and quickly find and diagnose abnormally high write rates
+to prevent possible unexpected data loss and disk failure.
+Even though modern SSDs are quite durable and smart about wear leveling,
+one service writing tons of logs non stop could be enough to wear the disk prematurely.
+

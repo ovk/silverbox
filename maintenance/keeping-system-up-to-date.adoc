@@ -1,0 +1,218 @@
+=== Keeping System Up to Date
+This section describes how to keep the system and services running on it up-to-date.
+
+==== Ubuntu
+Ubuntu will install security updates automatically, but other updates have to be installed manually.
+
+To update package information database do:
+
+----
+sudo apt update
+----
+
+To install all available upgrades do:
+
+----
+sudo apt upgrade
+----
+
+NOTE: Some upgrades may require system reboot.
+To check if system reboot is required, check if the file `/var/run/reboot-required` exists,
+for example with `ls /var/run/reboot-required` command.
+
+==== Docker & Docker Compose
+Docker engine will be updated as part of the regular Ubuntu packages update.
+
+To update Docker Compose, first check what is the current installed version:
+
+----
+docker-compose -v
+----
+
+Next, check what is the latest release version:
+
+----
+curl --silent https://api.github.com/repos/docker/compose/releases/latest | grep tag_name
+----
+
+If newer version available, it can be installed the same way as described in the <<docker_compose_install>> section.
+
+==== Docker Images
+The first step is to check if newer Docker images (including base images) are available.
+Unfortunately, at the moment of writing Docker didn't have such functionality out of the box.
+One workaround would be to use 3rd party tools that can do the job, such as Watchtower <<watchtower>>,
+but I decided not to use it due to lack of flexibility and security considerations
+(as it requires access to the Docker engine).
+
+While available Docker image versions can be checked on the Docker Hub website,
+it is not very convenient way to do this if you have to check multiple images.
+Arguably better solution is to use the script below that checks image version locally
+and compares it against image versions fetched from the Docker Hub.
+It then presents sorted lists of local and remote image tags (versions)
+in a format that makes it easy to identify what (if any) newer images are available.
+This is not the best solution,
+as ideally I would like this script to simply give an answer if a newer version is available or not,
+but at the moment I found no easy way to do this via Docker registry API.
+
+Since the script uses `jq` tool to parse JSON, it needs to be installed first:
+
+----
+sudo apt install jq
+----
+
+To create this script, create the `/usr/local/sbin/check-docker-tags.sh` file with the following content:
+
+./usr/local/sbin/check-docker-tags.sh
+[source,bash]
+----
+#!/bin/sh
+
+# List of images to check
+IMAGES="alpine httpd postgres" # <1>
+
+for IMAGE in $IMAGES; do
+    echo "> Checking Image: $IMAGE"
+    LOCAL_TAGS=`sudo docker images $IMAGE --format="{{.Tag}}" | sort -V -r`
+
+    if [ -z "$LOCAL_TAGS" ]; then
+        echo "> No image tags found locally"
+    else
+        echo "> Local Tags:"
+        for LOCAL_TAG in $LOCAL_TAGS; do
+            echo "      $LOCAL_TAG"
+        done
+
+        REMOTE_TAGS=`curl -s https://registry.hub.docker.com/v2/repositories/library/$IMAGE/tags/?page=1\&page_size=25 | jq .results[].name | sort -V -r | xargs`
+
+        echo "> Remote Tags:"
+        for REMOTE_TAG in $REMOTE_TAGS; do
+            FOUND=0
+            for LOCAL_TAG in $LOCAL_TAGS; do
+                if [ "$LOCAL_TAG" = "$REMOTE_TAG" ]; then
+                    FOUND=1
+                    break
+                fi
+            done
+            [ $FOUND -eq 1 ] && echo -n "    > "
+            [ $FOUND -eq 0 ] && echo -n "      "
+            echo "$REMOTE_TAG"
+        done
+    fi
+    echo ""
+done
+----
+<1> Set this variable to the list of images that you want to check.
+
+Assign the following permissions to the file:
+
+----
+sudo chmod 755 /usr/local/sbin/check-docker-tags.sh
+----
+
+To run the script simply do `check-docker-tags.sh`.
+
+The sections below describe how to update Docker images when new image or new base image version is available.
+
+===== Updating SOCKS5 Proxy Image
+Edit the `/root/silverbox/containers/vpn-proxy/docker-compose.yaml` file
+and update the alpine image version in the build arguments:
+
+./root/silverbox/containers/vpn-proxy/docker-compose.yaml
+[source,yaml]
+----
+args:
+  version: '3.9.4'
+----
+
+Stop the container, rebuild the image and start new container from the new image:
+
+----
+sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml down
+sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml build --pull
+sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml up -d
+----
+
+Since the SSH host identity key is stored outside of the container on disk, proxy should reconnect seamlessly.
+
+===== Updating DNS Updater Image
+Edit the `/root/silverbox/containers/dns-updater/Dockerfile` file and update the alpine image version:
+
+./root/silverbox/containers/dns-updater/Dockerfile
+[source,docker]
+----
+FROM alpine:3.9.4
+----
+
+Build the new image:
+
+----
+sudo docker build -t dns-updater --network common /root/silverbox/containers/dns-updater
+----
+
+Since the image is only used in a disposable container,
+the new image will be picked up automatically next time the service runs.
+
+===== Updating Transmission Image
+Edit the `/root/silverbox/containers/transmission/docker-compose.yaml` file
+and update the alpine image version in the build arguments:
+
+./root/silverbox/containers/transmission/docker-compose.yaml
+[source,yaml]
+----
+args:
+  version: '3.9.4'
+----
+
+Stop the container, rebuild the image and start new container from the new image:
+
+----
+sudo docker-compose -f /root/silverbox/containers/transmission/docker-compose.yaml down
+sudo docker-compose -f /root/silverbox/containers/transmission/docker-compose.yaml build --pull
+sudo docker-compose -f /root/silverbox/containers/transmission/docker-compose.yaml up -d
+----
+
+==== Nextcloud
+By default, Nextcloud will automatically show notification when new version is available.
+This can also be checked on the _Settings -> Overview_ page.
+
+The upgrade procedures for Nextcloud are described in the Nextcloud admin guide
+(https://docs.nextcloud.com/server/stable/admin_manual/maintenance/upgrade.html)
+and in the Nextcloud Docker images repository readme (https://github.com/nextcloud/docker#update-to-a-newer-version).
+
+NOTE: While Nextcloud supports skipping point releases (e.g. upgrading from 15.0.1 to 15.0.3 while skipping 15.0.2),
+the admin guide recommends installing all point releases.
+
+Before upgrading, it is good idea to consult changelog (https://nextcloud.com/changelog)
+to see what is new in the new release and check if any extra steps are required during an upgrade.
+
+To upgrade Nextcloud, first tear down the existing containers:
+
+----
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml down
+----
+
+Edit the `/root/silverbox/containers/nextcloud/docker-compose.yml` file
+and update Docker image version for `nextcloud-fpm`.
+You can also update images for the Postgres database (`nextcloud-db`)
+and the Apache httpd web server (`nextcloud-web`), if newer versions are available.
+If upgrading Postgres image, make sure that the new version is supported by the Nextcloud
+and check the Postgres documentation to see if any extra upgrade steps are required.
+
+Pull and build new images:
+
+----
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml pull
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml build --pull
+----
+
+Start Nextcloud:
+
+----
+sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml up -d
+----
+
+Open the Nextcloud UI and upgrade prompt should appear. Upgrade can be initiated from this prompt.
+
+After upgrade, navigate to the _Settings -> Overview_ page and see if any new warnings have appeared.
+If you see any warnings, consult Nextcloud admin guide on how to fix them.
+

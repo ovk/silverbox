@@ -1,0 +1,30 @@
+=== Overview
+Below is a diagram that describes the general backup strategy for the server:
+
+----
+    Silverbox
+  --------------             On-Site Backup         Off-Site Backup
+ |  ----------  |              ----------           ----------------
+ | | Internal | | Borg Backup | External | Rclone  |  Cloud (OVH)   |
+ | |  Drive   |-------------->|  Drive   |-------->| Object Storage |
+ |  ----------  |    (1)       ----------    (2)    ----------------
+  --------------
+----
+
+As this diagram shows, the backup process consists of two steps:
+
+1. In the first step all valuable information backed up using Borg Backup <<borgbackup>>
+to an external drive that is connected via USB.
+This step includes de-duplication, compression and encryption.
+2. In the second step backup is synced from the external drive to the OVH cloud object storage <<ovh_object_storage>>
+using Rclone tool <<rclone>>.
+
+NOTE: While this guide uses OVH cloud, it is possible to use any other cloud that is supported by the Rclone tool.
+The only difference will be in Rclone configuration but the main process will be the same.
+
+In this model, data leaves the server already encrypted
+and thus can be safely stored on an unencrypted external disk and in public cloud.
+
+In the case of main drive failure, the data can be restored from the external drive.
+In the case of total failure of main and external drives simultaneously, the data can be restored from the cloud.
+

@@ -1,0 +1,62 @@
+=== Client Configuration
+On the client PC, create an entry in the `~/.ssh/config` file (to simplify tunnel creation):
+
+.~/.ssh/config
+[subs="attributes+"]
+----
+host silverbox-proxy-tunnel
+  HostName {SB_IP} # <1>
+  Port {SB_VPN_PROXY_PORT} # <2>
+  User proxytunnel
+  IdentityFile ~/.ssh/silverbox-proxy-tunnel
+  DynamicForward 127.0.0.1:{SB_VPN_PROXY_PORT} # <3>
+----
+<1> Replace with your server address.
+<2> Replace with the VPN proxy port number.
+<3> Replace with the VPN proxy port number.
+
+Establish the tunnel manually for testing:
+
+----
+ssh -N silverbox-proxy-tunnel
+----
+
+To verify that proxy works over VPN, you can run the following commands and verify that returned IPs are different:
+
+[subs="attributes+"]
+----
+curl -v -x socks5://127.0.0.1:{SB_VPN_PROXY_PORT} http://api.ipify.org?format=json
+curl -v http://api.ipify.org?format=json
+----
+
+==== Automatic Tunnel Creation
+This section describes how to establish tunnel automatically on user login into the Gnome session on Ubuntu 18.04.
+
+Create a script `vpn-proxy-tunnel.sh` somewhere with the following content:
+
+.vpn-proxy-tunnel.sh
+[source,bash]
+----
+#!/bin/bash
+
+while true; do
+    ssh -N silverbox-proxy-tunnel &>/dev/null
+    notify-send --urgency=normal -i error "VPN proxy tunnel disconnected. Retrying in 20 seconds."
+    sleep 20s
+done
+----
+
+Mark it as executable:
+
+----
+chmod a+x vpn-proxy-tunnel.sh
+----
+
+Add this script to your client PC auto start.
+On Ubuntu 18.04 it can be added using the "`Startup Applications`" GUI tool.
+
+Reboot the client PC and verify that script is running and tunnel works.
+
+Now for all applications that you wish to use VPN (for example web browser),
+you can configure use of SOCKS5 proxy server `127.0.0.1:{SB_VPN_PROXY_PORT}`.
+

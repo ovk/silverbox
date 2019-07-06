@@ -1,0 +1,16 @@
+== Nextcloud
+This section describes how to install and configure Nextcloud <<nextcloud>> on the server,
+in such a way that it can be accessed from the internet securely over HTTPS.
+
+This section depends on the following sections: <<docker>>, <<domain_name>>, <<nfs_server>>.
+
+include::overview.adoc[]
+
+include::certificate.adoc[]
+
+include::installation.adoc[]
+
+include::configuration.adoc[]
+
+include::monitoring.adoc[]
+

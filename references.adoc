@@ -1,0 +1,20 @@
+[bibliography]
+== References
+
+- [[[nut_hcl, 1]]] "`Network UPS Tools: Hardware compatibility list`": https://networkupstools.org/stable-hcl.html
+- [[[arch_wiki_ssd, 2]]] "`Arch Wiki: Solid state drive`": https://wiki.archlinux.org/index.php/Solid_state_drive
+- [[[ssh_audit, 3]]] "`ssh-audit script`": https://github.com/arthepsy/ssh-audit
+- [[[arch_wiki_hddtemp, 4]]] "`Arch Wiki: Hddtemp`": https://wiki.archlinux.org/index.php/Hddtemp
+- [[[unbound, 5]]] "`Unbound DNS Server`": https://nlnetlabs.nl/projects/unbound
+- [[[cloudflare_dns, 6]]] "`Cloudflare DNS Server`": https://www.cloudflare.com/learning/dns/what-is-1.1.1.1
+- [[[docker_compose, 7]]] "`Docker Compose`": https://docs.docker.com/compose
+- [[[name_silo, 8]]] "`NameSilo`": https://namesilo.com
+- [[[transmission, 9]]] "`Transmission`": https://transmissionbt.com
+- [[[nextcloud, 10]]] "`Nextcloud`": https://nextcloud.com
+- [[[lets_encrypt, 11]]] "`Let's Encrypt`": https://letsencrypt.org
+- [[[certbot, 12]]] "`Certbot`": https://certbot.eff.org
+- [[[borgbackup, 13]]] "`Borg Backup`": https://www.borgbackup.org
+- [[[ovh_object_storage, 14]]] "`OVH Object Storage`": https://www.ovh.com/world/public-cloud/storage/object-storage
+- [[[rclone, 15]]] "`Rclone`": https://rclone.org
+- [[[watchtower, 16]]] "`Watchtower`": https://containrrr.github.io/watchtower
+

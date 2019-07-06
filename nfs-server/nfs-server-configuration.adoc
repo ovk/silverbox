@@ -1,0 +1,177 @@
+=== NFS Server Configuration
+This section describes how to install and configure NFSv4 (and only version 4) server to share files in the LAN.
+
+==== Installing NFS Server
+To install the NFS server do:
+
+----
+sudo apt install nfs-kernel-server
+----
+
+==== Preparing NFS Share
+First, create a new group `{SB_NFS_GROUP}` that will be used to control the access to the NFS share contents.
+This is of course just one way to manage the share access and you don't have to do it exactly this way.
+
+[subs="attributes+"]
+----
+sudo groupadd {SB_NFS_GROUP}
+----
+
+Members of this group will be able to access NFS share directory (and subdirectories, where permitted) on the server.
+
+Add your user to this group:
+
+[subs="attributes+"]
+----
+sudo usermod -a -G {SB_NFS_GROUP} {SB_USER}
+----
+
+NOTE: You'll need to re-login or start a new session to apply group membership.
+
+Create the `/srv/nfs` directory, set its group ownership to `{SB_NFS_GROUP}` and set following access mask:
+
+[subs="attributes+"]
+----
+sudo mkdir -p /srv/nfs
+sudo chown root:{SB_NFS_GROUP} /srv/nfs
+sudo chmod 770 /srv/nfs
+----
+
+Contents of the `/srv/nfs` directory will be shared using NFS server.
+To share other directories you can bind-mount them under the `/srv/nfs`.
+
+Next, create the `/etc/exports` file with the following content:
+
+./etc/exports
+[subs="attributes+"]
+----
+/srv/nfs {SB_SUBNET}(rw,sync,crossmnt,no_subtree_check,root_squash,fsid=0,sec=krb5) # <1>
+----
+<1> Replace `{SB_SUBNET}` with the actual LAN subnet.
+
+NOTE: This configuration uses `sec=krb5` parameter, which will use Kerberos for authentication only.
+Other possible options are: `sec=krb5i` for authentication and integrity validation,
+`sec=krb5p` for authentication, integrity validation and encryption.
+However, encryption may add performance penalty and may be unnecessary in certain scenarios.
+
+==== Fixing `nfsdcltrack` Issue
+Restart the NFS server:
+
+----
+sudo systemctl restart nfs-server
+----
+
+Most likely you'll find the following message in the `/var/log/syslog`:
+
+----
+nfsdcltrack Failed to init database: -13
+----
+
+This is due to the bug in the `nfsdcltrack` which will hopefully be fixed in the future.
+
+The workaround is to initialize `nfsdcltrack` database manually:
+
+----
+sudo mkdir -p /var/lib/nfs/nfsdcltrack
+sudo nfsdcltrack init
+----
+
+Restart the NFS server again and make sure the error is now gone from the logs.
+
+==== Configuring NFS Protocol Versions
+First, check the output of:
+
+----
+sudo cat /proc/fs/nfsd/versions
+----
+
+Most likely it will be: `-2 +3 +4 +4.1 +4.2`.
+This shows while NFSv4 is enabled, NFSv3 is enabled as well.
+
+To disable all NFS versions except 4 (and also to enable `svcgssd` needed for Kerberos),
+edit the `/etc/default/nfs-kernel-server` file and change/add the following lines:
+
+./etc/default/nfs-kernel-server
+----
+RPCMOUNTDOPTS="--manage-gids -N2 -N3 -V4 --no-udp"
+NEED_SVCGSSD="yes"
+RPCNFSDOPTS="-N2 -N3 -V4 --no-udp"
+----
+
+Restart the NFS server with `sudo systemctl restart nfs-server`
+and check the output of `sudo cat /proc/fs/nfsd/versions` again.
+Now it should be `-2 -3 +4 +4.1 +4.2` indicating that only NFSv4 is now enabled.
+
+==== Disabling Unused Services
+The `rpcbind` and `rpc-gssd` services will be running (and even listening on some ports),
+even though they are not needed for pure NFSv4 server.
+To disable them, run the following commands:
+
+----
+sudo systemctl stop {rpcbind,rpc-gssd}.service rpcbind.socket
+sudo systemctl disable {rpcbind,rpc-gssd}.service rpcbind.socket
+sudo systemctl mask {rpcbind,rpc-gssd}.service rpcbind.socket
+----
+
+Reboot the system and verify that `rpcbind` and `rpc-gssd` are not running.
+
+==== Checking for Listening Ports
+At this point all legacy services (services not related to NFSv4) should be disabled
+and only NFS kernel server should be listening only on TCP port 2049.
+Verify this by checking the output of:
+
+----
+sudo netstat -lnptu
+----
+
+NOTE: Most likely process name won't be shown for the NFS server as socket is opened from the kernel.
+
+==== Adding Firewall Rule
+Add firewall rule to allow NFS traffic from the LAN:
+
+[subs="attributes+"]
+----
+sudo ufw allow proto tcp from {SB_SUBNET} to any port 2049 comment 'NFSv4 Server' # <1>
+----
+<1> Replace `{SB_SUBNET}` with the actual LAN subnet.
+
+==== Enabling User ID Mapping
+IMPORTANT: It is not clear whether these steps are really required or not,
+as it seems like the ID translation works even without these module parameters.
+
+Create the `/etc/modprobe.d/nfsd.conf` file with the following content:
+
+./etc/modprobe.d/nfsd.conf
+----
+options nfsd nfs4_disable_idmapping=0
+----
+
+Reboot the system, and verify that ID mapping is *not* disabled by executing:
+
+----
+cat /sys/module/nfsd/parameters/nfs4_disable_idmapping
+----
+
+Which should return `N`.
+
+==== Creating Kerberos Principal
+Run `sudo kadmin.local` and add NFS service principal:
+
+[subs="attributes+"]
+----
+addprinc -randkey nfs/silverbox.{SB_INTERNAL_DOMAIN} # <1>
+ktadd nfs/silverbox.{SB_INTERNAL_DOMAIN} # <2>
+----
+<1> Replace `{SB_INTERNAL_DOMAIN}` with the actual internal domain name.
+<2> Same as above.
+
+This will create keytab file (in the default location `/etc/krb5.keytab`)
+containing principal's key and add principal to the Kerberos database.
+
+Creation of default keytab file should trigger `rpc-svcgssd` service.
+Reboot the server and verify that `rpc-svcgssd` service is now automatically started (is enabled and active):
+
+----
+sudo systemctl status rpc-svcgssd.service
+----
+

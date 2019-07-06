@@ -1,0 +1,136 @@
+=== Post-Installation Configuration
+
+==== Set Correct Timezone
+If for whatever reason the correct time zone was not set during installation, set it now with:
+
+----
+sudo timedatectl set-timezone {YOUR_TIMEZONE}
+----
+
+Where `\{YOUR_TIMEZONE}` is your desired timezone (for example, `Europe/Athens`).
+The list of available time zones can be obtained with:
+
+----
+timedatectl list-timezones
+----
+
+==== Disable Unused Hardware
+Optionally, you can disable hardware that you are not planning to use for security, privacy,
+boot speed, power saving and other reasons. Some examples of what you can disable below.
+
+===== WiFi
+Wireless adapter can be easily disabled in BIOS.
+
+WARNING: After disabling wireless adapter your wired adapter name will likely change
+(due to the way Linux enumerates devices).
+In this case, network connectivity can be fixed by editing the file `/etc/netplan/01-netcfg.yaml`
+and updating wired interface name there.
+
+===== Bluetooth
+Disabling Bluetooth adapter wasn't possible with default NUC BIOS and required BIOS update.
+After the update Bluetooth can be disabled in the bios.
+
+===== Digital Microphone
+Microphone can be disabled in the BIOS as well.
+
+==== Disable IPv6
+Unless you are planning on using IPv6, it is good idea to disable it for security reasons.
+The rest of this document assumes IPv6 is disabled and thus all configuration is for IPv4 only.
+
+To disable IPv6 edit the file `/etc/default/grub` and add (or set) the following parameters:
+
+./etc/default/grub
+[source,ini]
+----
+GRUB_CMDLINE_LINUX="ipv6.disable=1"
+GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1"
+----
+
+Update Grub configuration:
+
+----
+sudo update-grub
+----
+
+And then reboot the system.
+
+To check that IPv6 is disabled you can grep for _IPv6_ in the `dmesg` output:
+
+[subs="attributes+,macros+"]
+----
+dmesg | grep IPv6
+pass:q[_IPv6: Loaded, but administratively disabled, reboot required to enable_]
+----
+
+==== Configure Static IP
+To make lot of things easier and more predictable, a static network configuration is used for the server instead of DHCP.
+This also helps to prevent DHPC server from accidentally changing network configuration (especially DNS).
+
+From now on in this document when talking about the server network configuration the following conventions will be used:
+
+- Server IP address: `{SB_IP}`
+- Default gateway: `{SB_GW}`
+
+First, choose an IP address (`{SB_IP}`) and create a DHCP reservation on the DHCP server (most likely router) for it.
+
+To update network configuration, edit the `/etc/netplan/01-netcfg.yaml` file and update
+the `ethernets` section in it so that it matches desired network configuration:
+
+./etc/netplan/01-netcfg.yaml
+[source,yaml,subs=attributes+]
+----
+ethernets:
+  enp2s0: # <1>
+    addresses: [ {SB_IP}/24 ] # <2>
+    gateway4: {SB_GW}
+    nameservers:
+      addresses: [ 127.0.0.1 ] # <3>
+    dhcp4: no
+----
+<1> This is the wired interface name, it may be different on your system.
+To find out what name to use check the `ifconfig` command output.
+<2> Replace this with your actual server IP address and your subnet size in bits (most likely 24).
+<3> Put your actual DNS server address here.
+This is temporary, and will be set back to `127.0.0.1` once DNS server is configured.
+
+To apply new configuration do:
+
+----
+sudo netplan apply
+----
+
+You can also reboot the system to double check that everything works.
+
+==== Disable ICMP Redirects and Source Routing
+To disable ICMP redirects and IP source routing (for security reasons), edit the `/etc/sysctl.conf` file
+and uncomment the following lines:
+
+./etc/sysctl.conf
+----
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.all.accept_source_route = 0
+----
+
+The changes will be applied after reboot.
+
+==== Remove Unneeded Software
+Now is a good time to remove or disable any software that you are not planning to use.
+
+==== Uninstall Snap
+There are many, many issues with Snap (aka `snapd`) which I'm not going to describe here.
+
+Unless you really need it, you can remove it with:
+
+----
+sudo apt autoremove --purge snapd
+----
+
+==== Uninstall LXC/LXD
+Unless you are planning to use it, you can also remove LXC/LXD to free up some system resources:
+
+----
+sudo apt autoremove --purge lxd lxcfs liblxc-common lxd-client
+----
+
+It can always be installed later on if required.

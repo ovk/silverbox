@@ -1,0 +1,73 @@
+=== Overview
+This document describes how to setup small, energy efficient, Linux based home server
+with quite a few different services hosted on it (see <<server_overview>> for more details about these services).
+It describes initial setup, configuration, monitoring, maintenance and backup.
+
+This is _not_ an exhaustive guide that deeply explores all different options and possibilities,
+and explains every single step great in detail.
+Think of this document more like of a collection of ideas, notes and code/configuration snippets,
+that when put together will allow anyone to replicate similar setup.
+
+While many choices were influenced by the used hardware (see <<hardware>> section), where possible,
+this document tries to stay as hardware agnostic as possible.
+
+==== Required Knowledge
+This document is intended for people with some Linux experience
+and assumes reader has at least some knowledge in the following areas:
+
+- Be comfortable in the Linux terminal and using SSH.
+- Understand simple shell scripting (e.g. `bash` scripts).
+- Be familiar with basic GNU/Linux command line utilities, such as: `find`, `grep`, `sed`, `awk` etc.
+- Be familiar with `man` pages and be able to explore them on your own.
+- Be at least somewhat familiar with Docker.
+- Be at least somewhat familiar with Systemd.
+
+==== Structure
+The document is split into few top-level chapters, where each chapter (with a few exceptions) represents a separate,
+standalone feature, for example: NFS Server, NextCloud, Torrent Client etc.
+While it is possible to skip some chapters, some may have a dependency on another chapters.
+
+The document is structured in the order of the configuration.
+
+==== Formatting and Naming Conventions
+In this document, parts of the sentence that require extra attention are marked with *bold* font.
+
+Inline system commands, arguments and file names are formatted with `monospace` font.
+
+Commands that need to be executed in a shell are formatted in monospace blocks.
+Command output is formatted as italic (if it is present).
+
+For example:
+[subs="attributes+,macros+"]
+----
+some-command --with --some --arguments
+pass:q[_example command output_]
+----
+
+When a file needs to be edited, the file content is formatted in a similar monospace block.
+However, in this case the block will also have header with a file name, indicating what file is edited:
+
+.example-file.txt
+----
+File content goes here
+----
+
+By default, all parameters that are specific to the concrete setup are displayed as placeholders in a curly braces,
+for example: `{SB_IP}` is what you should replace with your server IP address.
+However, you can generate version of this document where all such placeholders replaced with the actual values you want,
+more on this in next section.
+
+There are also few blocks that are used to draw attention to a specific statement:
+
+NOTE: This is a note.
+
+TIP: This is some useful tip.
+
+IMPORTANT: This is very important point.
+
+WARNING: This is a warning.
+
+In the document, the server itself is referred as either _"the server"_ or _"silverbox"_.
+footnote:[The name _"silverbox"_ originates from some Intel NUCs visual appearance - literally a little silver box. ]
+When discussing client(s) that communicate to the server, the client device is usually referred as _"client PC"_,
+even though it could be laptop, tablet, smartphone or any other device.

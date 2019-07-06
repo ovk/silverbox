@@ -1,0 +1,97 @@
+=== OpenSSH Server Configuration
+To access the server over SSH, an OpenSSH server needs to be installed and configured.
+
+IMPORTANT: It is important to make sure that server is on isolated network or directly connected to the PC
+from which it will be accessed.
+It is important to keep the server isolated until it is properly hardened and secured.
+
+==== OpenSSH Server Installation
+OpenSSH server can be installed with:
+
+----
+sudo apt install openssh-server
+----
+
+==== Generating and Copying Key
+Only key authentication will be enabled for SSH server (with password and other authentication methods disabled).
+However, it is convenient to copy the access key over SSH while password authentication still enabled.
+The following steps need to be performed on the client PC.
+
+Generate key:
+
+----
+ssh-keygen -t ed25519 -f ~/.ssh/silverbox-key -C "Silverbox key"
+----
+
+Copy generated key to the server (`{SB_USER}` assumed to be your used on the server):
+
+[subs="attributes+,macros+"]
+----
+ssh-copy-id -i ~/.ssh/silverbox-key {SB_USER}@{SB_IP}
+----
+
+==== SSH Server Configuration & Security Hardening
+The next step is to perform some basic configuration and security hardening for the SSH server.
+
+SSH server is configured by modifying the `/etc/ssh/sshd_config` file.
+Change (or add, if not present) the following parameters in this file:
+
+./etc/ssh/sshd_config
+[subs="attributes+"]
+----
+AddressFamily inet
+Protocol 2
+
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_rsa_key
+
+KexAlgorithms curve25519-sha256@libssh.org
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+
+LogLevel VERBOSE
+
+LoginGraceTime 1m
+PermitRootLogin no
+MaxAuthTries 4
+MaxSessions 5
+
+ClientAliveCountMax 2
+ClientAliveInterval 60
+TCPKeepAlive no
+
+AuthenticationMethods publickey
+
+PubkeyAuthentication yes
+
+HostbasedAuthentication no
+IgnoreRhosts yes
+
+PasswordAuthentication no
+PermitEmptyPasswords no
+
+ChallengeResponseAuthentication no
+
+X11Forwarding no
+AllowAgentForwarding no
+AllowTcpForwarding local
+
+Banner none
+DebianBanner none
+
+AllowUsers {SB_USER}
+----
+
+Restart SSH server service for the changes to take effect:
+
+----
+sudo systemctl restart sshd
+----
+
+==== Additional Resources
+Below are some useful resources related to SSH server configuration:
+
+- Mozilla SSH server configuration guide: https://infosec.mozilla.org/guidelines/openssh
+- Good overview of SSH server cryptography: https://stribika.github.io/2015/01/04/secure-secure-shell.html
+
+Additionally, you can run SSH audit script <<ssh_audit>> against your SSH server. It haven't been updated since 2016 though.

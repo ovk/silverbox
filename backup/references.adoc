@@ -1,0 +1,9 @@
+=== References
+
+- Borg documentation: https://borgbackup.readthedocs.io/en/stable/index.html
+- Rclone documentation: https://rclone.org/docs
+- Article on configuring Rclone with OVH object storage: https://docs.ovh.com/ca/en/storage/sync-rclone-object-storage
+- Article on using Borg and Rclone for backup: https://opensource.com/article/17/10/backing-your-machines-borg
+- Nextcloud documentation on restoring from backup: https://docs.nextcloud.com/server/16/admin_manual/maintenance/restore.html
+- USB disks supported by `smartctl`: https://www.smartmontools.org/wiki/Supported_USB-Devices
+

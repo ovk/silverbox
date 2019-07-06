@@ -1,0 +1,122 @@
+=== Kerberos
+Kerberos will be used for secure NFS authentication, and optionally integrity validation and encryption.
+
+[[nfs_kerberos_configuring_kdc]]
+==== Configuring KDC
+Install MIT Kerberos KDC (key distribution center):
+
+----
+sudo apt install krb5-kdc
+----
+
+During installation, you will be prompted for the following parameters:
+
+Realm::
+Enter fully capitalized internal domain name (`{SB_INTERNAL_DOMAIN}`)
+Kerberos servers for your realm::
+Enter the server internal FQDN (e.g. `silverbox.{SB_INTERNAL_DOMAIN}`)
+Administrative server for your Kerberos realm::
+Enter the server internal FQDN (e.g. `silverbox.{SB_INTERNAL_DOMAIN}`)
+
+Then, edit the `/etc/krb5kdc/kdc.conf` file and add/change the following parameters:
+
+./etc/krb5kdc/kdc.conf
+[subs="attributes+"]
+----
+[kdcdefaults]
+    kdc_ports = 88
+
+[realms]
+    {SB_INTERNAL_DOMAIN} = { # <1>
+        kdc_ports = 88
+        max_life = 24h 0m 0s
+        max_renewable_life = 7d 0h 0m 0s # <2>
+        master_key_type = aes256-cts
+        supported_enctypes = aes256-cts:normal aes128-cts:normal
+    }
+----
+<1> The internal domain `{SB_INTERNAL_DOMAIN}` here must be fully capitalized (since it is realm).
+<2> The `max_renewable_life` parameter effectively controls maximum ticket lifetime.
+You can adjust this parameter if you need to.
+
+Next, create new Kerberos database (you'll be prompted to create Kerberos DB master password):
+
+----
+sudo kdb5_util create -s
+----
+
+Overwrite the `/etc/krb5.conf` file with the following content:
+
+./etc/krb5.conf
+[subs="attributes+"]
+----
+[libdefaults]
+    default_realm = {SB_INTERNAL_DOMAIN} # <1>
+    allow_weak_crypto = false
+    ccache_type = 4
+    kdc_timesync = 1
+[realms]
+    {SB_INTERNAL_DOMAIN} = { # <2>
+        kdc = silverbox.{SB_INTERNAL_DOMAIN} <3>
+        admin_server = silverbox.{SB_INTERNAL_DOMAIN} <4>
+    }
+----
+<1> The internal domain `{SB_INTERNAL_DOMAIN}` here must be fully capitalized (since it is realm).
+<2> Same as above.
+<3> The `kdc` should be set to the server FQDN.
+<4> The `admin_server` should be set to the server FQDN.
+
+Start the KDC service and verify that it starts successfully:
+
+----
+sudo systemctl start krb5-kdc
+----
+
+Install the `krb5-admin-server` package which is (weirdly enough) needed to use the `kadmin.local` tool:
+
+----
+sudo apt install krb5-admin-server
+----
+
+Unless you are planning to use remote `kadmin`, the admin service can be disabled:
+
+----
+sudo systemctl disable krb5-admin-server.service
+----
+
+Finally, to add Kerberos principal for your user run `sudo kadmin.local` and then type:
+
+[subs="attributes+"]
+----
+addprinc {SB_USER} <1>
+----
+<1> Replace `{SB_USER}` with your actual user name.
+
+==== Adding Firewall Rules
+To allow access to the KDC from the LAN, add the firewall rules:
+
+[subs="attributes+"]
+----
+sudo ufw allow proto tcp from {SB_SUBNET} to any port 88 comment 'Kerberos TCP' # <1>
+sudo ufw allow proto udp from {SB_SUBNET} to any port 88 comment 'Kerberos UDP' # <2>
+----
+<1> Replace `{SB_SUBNET}` with the actual LAN subnet.
+<2> Same as above.
+
+==== Configuring Kerberos on the Client
+First, install the MIT Kerberos user package:
+
+----
+sudo apt install krb5-user
+----
+
+When prompted, set the same parameters as described in the <<nfs_kerberos_configuring_kdc>> section.
+
+Next, overwrite the `/etc/krb5.conf` file with the same content as described in the
+<<nfs_kerberos_configuring_kdc>> section.
+
+Verify that Kerberos authentication works by doing `kinit` as your user,
+and typing your principal's password (same password as was used during principal creation).
+The `kinit` command should succeed and no error message should appear.
+Do `klist` to see the ticket, and then `kdestroy` to destroy it.
+

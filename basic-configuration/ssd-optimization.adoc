@@ -1,0 +1,172 @@
+=== SSD Optimization
+Since the server is equipped with SSD, some configuration needs to be done in order to optimize SSD performance
+and minimize the number of writes (thus prolonging SSD life).
+
+A lot of useful information about SSD-related configuration in Linux
+can be found in the Arch Wiki article about SSD <<arch_wiki_ssd>>.
+
+==== TRIM
+A TRIM command informs an SSD about what blocks are no longer used and can be recycled.
+Doing TRIM can improve SSD write performance.
+
+First make sure that your SSD supports TRIM.
+One way to do it is to check the output of the following command (replace `/dev/sda` with your disk device):
+
+[subs="attributes+,macros+"]
+----
+sudo hdparm -I /dev/sda | grep TRIM
+pass:q[_* Data Set Management TRIM supported (limit 8 blocks)_]
+----
+
+NOTE: If your disk doesn't support TRIM, you can skip the rest of this section.
+
+TRIM needs to be enabled on all abstraction layers,
+which in the case of the silverbox server means on the file system level, LVM level and dm-crypt level.
+
+===== Enabling TRIM on File System Level
+Periodic file system TRIM should be enabled by default in Ubuntu 18.04.
+There should be Systemd timer that performs `fstrim` every week.
+
+To check its status, do:
+
+----
+systemctl status fstrim.timer
+----
+
+Logs from previous runs can be viewed with:
+
+----
+journalctl -u fstrim.service
+----
+
+You can run the service manually and inspect the logs to make sure it works.
+To run the service:
+
+----
+sudo systemctl start fstrim.service
+----
+
+===== Enabling TRIM on LVM Level
+Edit the `/etc/lvm/lvm.conf` file and set `issue_discards` parameter to 1 (it should be under the `devices` section):
+
+./etc/lvm/lvm.conf
+----
+...
+devices {
+    ...
+    issue_discards = 1
+    ...
+}
+...
+----
+
+Most likely it will already be there and set to 1 so you just need to double check.
+
+Note that the `issue_discards` parameter here only controls whether to send discards during operations on LVM volumes,
+such as resizing or removing.
+Discards for deleted files should be passed through by default.
+
+===== Enabling TRIM on dm-crypt Level
+Edit the `/etc/crypttab` file and add `discard` option to options for your device.
+Below is an example for `sda3`:
+
+./etc/crypttab
+----
+sda3_crypt UUID=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX none luks,discard
+----
+
+Most likely it will already be there so you just need to double check.
+
+===== Verifying that TRIM Works
+A procedure for TRIM verification is described in this excellent StackOverflow answer:
+https://unix.stackexchange.com/questions/85865/trim-with-lvm-and-dm-crypt/85880#85880.
+
+==== Write Caching
+Write caching can greatly improve performance and minimize writes on SSD.
+It should be enabled by default.
+
+To check if write caching is enabled, check the output of:
+
+[subs="attributes+,macros+"]
+----
+sudo hdparm -W /dev/sda # <1>
+pass:q[_/dev/sda:_]
+pass:q[ _write-caching =  1 (on)_]
+----
+<1> Replace `/dev/sda` with your disk device.
+
+Or alternatively:
+
+[subs="attributes+,macros+"]
+----
+sudo hdparm -i /dev/sda | grep WriteCache # <1>
+pass:q[_... WriteCache=enabled ..._]
+----
+<1> Replace `/dev/sda` with your disk device.
+
+==== Swappiness
+Lowering system swappiness can increase the threshold of when memory pages will be swapped to disk,
+and thus potentially limit the number of writes to the SSD.
+More about swapiness here: https://en.wikipedia.org/wiki/Paging#Swappiness.
+
+Current (default) system swappiness can be checked with:
+
+[subs="attributes+,macros+"]
+----
+sysctl vm.swappiness
+pass:q[_vm.swappiness = 60_]
+----
+
+If you decide to change it, this can be done by editing the `/etc/sysctl.conf` file and adding (or chanigng)
+parameter `vm.swappiness`, for example:
+
+./etc/sysctl.conf
+----
+...
+vm.swappiness = 40
+...
+----
+
+Change will be in effect after reboot.
+
+[[mounting_tmp_as_tmpfs]]
+==== Mounting /tmp as tmpfs
+To minimize writes to SSD even further, the `/tmp` directory can be mounted as `tmpfs` (aka RAM file system) mount.
+This can be either done with Systemd `tmp.mount` unit or by editing `fstab`.
+According to the Systemd documentation (at least at the moment of writing), using the `fstab` is the preferred approach.
+
+To automatically mount `/tmp` as `tmpfs`, add the following line to the `/etc/fstab` file:
+
+./etc/fstab
+----
+tmpfs /tmp tmpfs defaults,noatime,nosuid,nodev,noexec,mode=1777,size=2G 0 0
+----
+
+In this example, its size is limited to 2G, but you can adjust if if needed.
+
+IMPORTANT: A `noexec` option can sometime cause issues with programs that put something under `/tmp` and then try to execute it.
+If this happens, you can remove this option.
+
+Reboot the system and verify the output of `df -h` to make sure `/tmp` is now mounted as `tmpfs` with the limit you've set.
+It should contain line similar to this:
+
+----
+tmpfs    2.0G  0  2.0G   0% /tmp
+----
+
+==== Monitoring Tools
+There are some tools that are useful for SSD monitoring, and will be used in the next sections.
+
+The first one is `hddtemp`, that is used to monitor disk temperature.
+To install it do:
+
+----
+sudo apt install hddtemp
+----
+
+The second one is `smartmontools`, that is used to monitor SSD wear (and other parameters) via SMART.
+To install it do:
+
+----
+sudo apt install smartmontools --no-install-recommends
+----

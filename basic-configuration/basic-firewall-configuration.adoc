@@ -1,0 +1,34 @@
+=== Basic Firewall Configuration
+By default, Ubuntu will already have Uncomplicated Firewall (UFW) installed, but it will be disabled (inactive).
+
+Its status can be checked with:
+
+----
+sudo ufw status verbose
+----
+
+Before activating firewall, first enable rate limiting for SSH (so that the server can be accessed over SSH).
+Rate limiting will allow access over the port, but will limit connection attempts to 6 attempts within 30 seconds.
+For more flexible configuration (e.g. different number of attempts or duration) the `iptables` have to be used directly,
+as  UFW doesn't allow this kind of flexibility.
+
+To enable SSH access with rate limiting do:
+
+----
+sudo ufw limit ssh comment "SSH Access"
+----
+
+You can optionally disable UFW logs (sometimes they can flood syslog if you have some service discovery protocols running):
+
+----
+sudo ufw logging off
+----
+
+Now UFW can be enabled with:
+
+----
+sudo ufw enable
+----
+
+In this configuration UFW will startup automatically and block all incoming connections (by default) but allow (rate limited) SSH.
+All outgoing connections are allowed.

@@ -1,0 +1,20 @@
+=== Monitoring
+To setup basic monitoring of the Docker daemon with Monit,
+create the `/etc/monit/conf.d/20-docker` file with the following content:
+
+./etc/monit/conf.d/20-docker
+----
+check process docker with pidfile /var/run/docker.pid
+  if does not exist then alert
+  if cpu > 30% for 10 cycles then alert
+  if total memory > 300.0 MB for 5 cycles then alert
+----
+
+Restart Monit service:
+
+----
+sudo systemctl restart monit
+----
+
+Check Monit web interface and verify that Docker monitoring is working.
+

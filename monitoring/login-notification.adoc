@@ -1,0 +1,49 @@
+=== Login Notification
+If you want to get an email notification for each login to the server,
+create the `/usr/local/sbin/login-notify.sh` file with the following content:
+
+./usr/local/sbin/login-notify.sh
+[source,bash]
+----
+#!/bin/sh
+TRUSTED_HOSTS="" # <1>
+
+[ "$PAM_TYPE" = "open_session" ] || exit 0
+
+for i in $TRUSTED_HOSTS; do
+    if [ "$i" = "$PAM_RHOST" ]; then
+        exit 0
+    fi
+done
+
+MSG="Subject: Login Notification\n\n\
+Date: `date`\n\
+User: $PAM_USER\n\
+Ruser: $PAM_RUSER\n\
+Rhost: $PAM_RHOST\n\
+Service: $PAM_SERVICE\n\
+TTY: $PAM_TTY\n"
+
+echo "$MSG" | ssmtp root
+----
+<1> You can set `TRUSTED_HOSTS` variable to a space-delimited list of addresses
+for logins from which you don't want to generate notifications.
+
+Mark this file as executable:
+
+----
+sudo chmod u+x /usr/local/sbin/login-notify.sh
+----
+
+Edit the `/etc/pam.d/common-session` file and append the following line to it:
+
+./etc/pam.d/common-session
+----
+session    optional     pam_exec.so /usr/local/sbin/login-notify.sh
+----
+
+For some reason, the `common-session` file is not included in `/etc/pam.d/sudo`
+(even though the relevant Debian bug was closed footnote:[https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=519700]).
+So if you also want to get notifications for `sudo` command, you will need to append the same line
+to the `/etc/pam.d/sudo` file as well.
+

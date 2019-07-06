@@ -1,0 +1,14 @@
+== Basic Configuration
+
+include::os-installation.adoc[]
+
+include::post-install-configuration.adoc[]
+
+include::ssd-optimization.adoc[]
+
+include::ups-configuration.adoc[]
+
+include::openssh-server-configuration.adoc[]
+
+include::basic-firewall-configuration.adoc[]
+

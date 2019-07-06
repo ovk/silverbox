@@ -1,0 +1,81 @@
+=== Container
+This section describes how to run the container from the Transmission image.
+
+==== Running Container
+To build the image and run the container do:
+
+----
+sudo docker-compose -f /root/silverbox/containers/transmission/docker-compose.yaml up -d
+----
+
+==== Automatic Container Startup
+To start container automatically on boot create the `/etc/systemd/system/transmission-start.service` file
+with the following content:
+
+./etc/systemd/system/transmission-start.service
+----
+[Unit]
+Description=Start Transmission container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker start transmission
+
+[Install]
+WantedBy=multi-user.target
+----
+
+Enable the service, so that it will be started on system boot:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl enable transmission-start.service
+----
+
+==== Automatic VPN Server Rotation
+VPN server rotation is configured in the similar way to SOCKS5 proxy VPN server rotation.
+
+Create the `/etc/systemd/system/transmission-restart.service` file with the following content:
+
+./etc/systemd/system/transmission-restart.service
+----
+[Unit]
+Description=Restart Transmission container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker restart transmission
+----
+
+Create the `/etc/systemd/system/transmission-restart.timer` file with the following content:
+
+./etc/systemd/system/transmission-restart.timer
+----
+[Unit]
+Description=Restart Transmission container
+
+[Timer]
+OnCalendar=Fri *-*-* 01:00:00 # <1>
+AccuracySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+----
+<1> In this configuration timer is activated every Friday at 1am. Feel free to adjust this.
+
+Enable and start the timer:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl enable transmission-restart.timer
+sudo systemctl start transmission-restart.timer
+----
+
+You can do `systemctl list-timers` to verify that the timer appears in the output
+and to check the time till next activation.
+

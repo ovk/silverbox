@@ -1,0 +1,69 @@
+=== Monitoring
+The monitoring for backups consists of three parts: monitoring backup disk status (space use, temperature, health),
+monitoring Borg service status and monitoring Rclone service status.
+
+==== Backup Disk Monitoring
+The backup disk monitoring can be done exactly the same way as the main disk monitoring,
+as described in <<basic_system_monitoring>> section (assuming your disk has temperature sensor).
+However, my disk wasn't in the `hddtemp` database so it had to be added manually.
+
+First check if the disk is supported by `smartctl` and if any extra parameters has to be added
+(in the case of my disk the `-d sat` extra parameter has to be passed to `smartctl`).
+For the list of USB disks supported by `smartctl` see the references section.
+
+To find in what field disk reports temperature check the output of:
+
+----
+sudo smartctl -a -d sat /dev/sda # <1>
+----
+<1> Replace `/dev/sda` with your backup disk device.
+
+Then append the following line to the `/etc/hddtemp.db` file:
+
+./etc/hddtemp.db
+----
+"Samsung Portable SSD T5" 190 C "Samsung Portable SSD T5 500GB" # <1>
+----
+<1> Replace disk name with the name as it was reported by `smartctl`
+and replace `190` with the temperature field number.
+
+To monitor backup disk with Monit, append the following to the `/etc/monit/conf.d/10-system` file:
+
+./etc/monit/conf.d/10-system
+----
+# Backup Filesystem
+check filesystem backupfs with path /mnt/backup
+    if space usage > 70% then alert
+    if inode usage > 60% then alert
+    if read rate > 2 MB/s for 10 cycles then alert
+    if write rate > 1 MB/s for 30 cycles then alert
+
+# Backup disk temperature
+check program backup_disk_temp with path "/usr/local/etc/monit/scripts/disk_temp.sh {PART_UUID}" # <1>
+    if status > 60 then alert
+    if status < 15 then alert
+----
+<1> Replace `\{PART_UUID}` with your backup partition UUID.
+
+Restart Monit with `sudo systemctl restart monit` and verify that monitoring works.
+
+Additionally, you can add backup disk temperature and health status reporting to the summary email
+(see <<email_content_generation>> section).
+Copy the lines for main disk status reporting and replace UUID with your backup disk UUID.
+Don't forget to add extra parameters to `smartctl` command if needed (e.g. `-d sat`).
+
+==== Borg & Rclone Monitoring
+To monitor status of Borg and Rclone services,
+create the `/etc/monit/conf.d/80-backup` file with the following content:
+
+./etc/monit/conf.d/80-backup
+----
+check program borg_backup with path "/usr/local/etc/monit/scripts/is_systemd_unit_failed.sh borg-backup.service" every 60 cycles
+  if status != 0 for 2 cycles then alert
+
+check program sync_backup with path "/usr/local/etc/monit/scripts/is_systemd_unit_failed.sh sync-backup.service" every 60 cycles
+  if status != 0 for 2 cycles then alert
+----
+
+Restart Monit to update the rules and verify that monitoring works.
+
