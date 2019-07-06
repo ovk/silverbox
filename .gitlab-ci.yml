@@ -16,7 +16,7 @@ pages:
   stage: deploy
   script:
     - mkdir public
-    - cp silverbox-server.html public
+    - cp silverbox-server.html public/index.html
   artifacts:
     paths:
       - public
