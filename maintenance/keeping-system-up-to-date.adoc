@@ -118,10 +118,10 @@ Edit the `/root/silverbox/containers/vpn-proxy/docker-compose.yaml` file
 and update the alpine image version in the build arguments:
 
 ./root/silverbox/containers/vpn-proxy/docker-compose.yaml
-[source,yaml]
+[source,yaml,subs="attributes+"]
 ----
 args:
-  version: '3.9.4'
+  version: '{SB_ALPINE_VERSION}'
 ----
 
 Stop the container, rebuild the image and start new container from the new image:
@@ -138,9 +138,9 @@ Since the SSH host identity key is stored outside of the container on disk, prox
 Edit the `/root/silverbox/containers/dns-updater/Dockerfile` file and update the alpine image version:
 
 ./root/silverbox/containers/dns-updater/Dockerfile
-[source,docker]
+[source,docker,subs="attributes+"]
 ----
-FROM alpine:3.9.4
+FROM alpine:{SB_ALPINE_VERSION}
 ----
 
 Build the new image:
@@ -157,10 +157,10 @@ Edit the `/root/silverbox/containers/transmission/docker-compose.yaml` file
 and update the alpine image version in the build arguments:
 
 ./root/silverbox/containers/transmission/docker-compose.yaml
-[source,yaml]
+[source,yaml,subs="attributes+"]
 ----
 args:
-  version: '3.9.4'
+  version: '{SB_ALPINE_VERSION}'
 ----
 
 Stop the container, rebuild the image and start new container from the new image:

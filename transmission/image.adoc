@@ -55,7 +55,7 @@ version: '3.5'
 
 networks:
   default:
-    name: {SB_VPN_SUBNET} # <1>
+    name: vpn
     external: true
 
 services:
@@ -63,18 +63,19 @@ services:
     container_name: transmission
     build:
       context: /root/silverbox/containers/transmission
+      network: vpn
       args:
-        version: '{SB_ALPINE_VERSION}' # <2>
+        version: '{SB_ALPINE_VERSION}' # <1>
     restart: on-failure:15
     logging:
       driver: json-file
       options:
         max-size: 10mb
     ports:
-      - 127.0.0.1:{SB_TRANSMISSION_PORT}:{SB_TRANSMISSION_PORT}/tcp # <3>
+      - 127.0.0.1:{SB_TRANSMISSION_PORT}:{SB_TRANSMISSION_PORT}/tcp # <2>
     networks:
       default:
-        ipv4_address: {SB_TRANSMISSION_ADDR} # <4>
+        ipv4_address: {SB_TRANSMISSION_ADDR} # <3>
     devices:
       - /dev/net/tun
     cap_add:
@@ -84,11 +85,10 @@ services:
       - /root/silverbox/vpn/transmission:/vpn-profiles
       - /root/silverbox/vpn/auth:/vpn-credentials
 ----
-<1> Replace `{SB_VPN_SUBNET}` with the subnet for the Docker VPN network.
-<2> Replace `{SB_ALPINE_VERSION}` with the actual latest `alpine` image version (can be checked at the Docker Hub).
+<1> Replace `{SB_ALPINE_VERSION}` with the actual latest `alpine` image version (can be checked at the Docker Hub).
 Note that this is not the Transmission version.
-<3> Replace `{SB_TRANSMISSION_PORT}` with the actual port number.
-<4> Replace `{SB_TRANSMISSION_ADDR}` with the actual address.
+<2> Replace `{SB_TRANSMISSION_PORT}` with the actual port number.
+<3> Replace `{SB_TRANSMISSION_ADDR}` with the actual address.
 
 Next, create a file named `Dockerfile` with the following content:
 
