@@ -1,3 +1,10 @@
+## [0.1.1] - 2019-07-14
+
+- Added power consumption information. [6a793e0e]
+- Fixed invalid Docker network names in Docker Compose files.
+  Added attributes for all Docker images versions.
+  Bumped Docker images versions to current versions. [0da6c15d]
 
 ## [0.1.0] - 2019-07-06
 Initial version published.
+
