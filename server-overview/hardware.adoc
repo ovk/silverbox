@@ -32,3 +32,9 @@ You will also need a monitor, USB keyboard, patch cord and USB flash drive for t
 Later on, you will probably want to have a separate keyboard attached to the server,
 to type LUKS password after reboots.
 
+==== Power Consumption
+Since the server doesn't have power-hungry devices attached (such as HDDs or monitors), it is fairly low power.
+I didn't measure power consumption precisely, but based on the rate of UPS battery discharge
+my guess was around 8-12W at idle.
+However, as reported by a Reddit user with a similar hardware, the power consumption at idle is around 6W.
+
