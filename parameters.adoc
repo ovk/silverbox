@@ -41,6 +41,14 @@
 // Port number on which Nextcloud web server container fill listen for connections. Example: 12345
 :SB_NEXTCLOUD_PORT: \{NEXTCLOUD_PORT}
 
-// Latest Alpine Linux Docker image
-:SB_ALPINE_VERSION: 3.9.4
+// Attributes for latest Docker images versions (for convenience)
+
+// Alpine Linux
+:SB_ALPINE_VERSION: 3.10.1
+// PostgreSQL
+:SB_POSTGRES_VERSION: 11.4-alpine
+// Nextcloud FPM
+:SB_NEXTCLOUD_FPM_VERSION: 16.0.3-fpm-alpine
+// HTTPD
+:SB_HTTPD_FPM_VERSION: 2.4.39-alpine
 

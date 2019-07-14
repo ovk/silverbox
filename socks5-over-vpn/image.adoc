@@ -103,7 +103,7 @@ version: '3.5'
 
 networks:
   default:
-    name: {SB_VPN_SUBNET} # <1>
+    name: vpn
     external: true
 
 services:
@@ -111,18 +111,19 @@ services:
     container_name: vpn-proxy
     build:
       context: /root/silverbox/containers/vpn-proxy
+      network: vpn
       args:
-        version: '{SB_ALPINE_VERSION}' # <2>
+        version: '{SB_ALPINE_VERSION}' # <1>
     restart: on-failure:15
     logging:
       driver: json-file
       options:
         max-size: 10mb
     ports:
-      - {SB_IP}:{SB_VPN_PROXY_PORT}:{SB_VPN_PROXY_PORT}/tcp # <3>
+      - {SB_IP}:{SB_VPN_PROXY_PORT}:{SB_VPN_PROXY_PORT}/tcp # <2>
     networks:
       default:
-        ipv4_address: {SB_VPN_PROXY_ADDR} # <4>
+        ipv4_address: {SB_VPN_PROXY_ADDR} # <3>
     devices:
       - /dev/net/tun
     cap_add:
@@ -132,11 +133,10 @@ services:
       - /root/silverbox/vpn/auth:/vpn-credentials
       - /root/silverbox/containers/vpn-proxy/host-key:/ssh-host-key
 ----
-<1> Replace `{SB_VPN_SUBNET}` with the subnet for the Docker VPN network.
-<2> Replace `{SB_ALPINE_VERSION}` with the actual latest `alpine` image version (can be checked at the Docker Hub).
+<1> Replace `{SB_ALPINE_VERSION}` with the actual latest `alpine` image version (can be checked at the Docker Hub).
 Don't use `latest` here as it makes setup non-deterministic and makes it harder to maintain and upgrade.
-<3> Replace `{SB_IP}` and `{SB_VPN_PROXY_PORT}` with the actual values.
-<4> Replace `{SB_VPN_PROXY_ADDR}` with desired VPN proxy container address.
+<2> Replace `{SB_IP}` and `{SB_VPN_PROXY_PORT}` with the actual values.
+<3> Replace `{SB_VPN_PROXY_ADDR}` with desired VPN proxy container address.
 
 Next, create a file named `Dockerfile` with the following content:
 

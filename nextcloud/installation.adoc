@@ -51,7 +51,7 @@ networks:
 services:
   nextcloud-db:
     container_name: nextcloud-db
-    image: postgres:11.3-alpine # <2>
+    image: postgres:{SB_POSTGRES_VERSION} # <2>
     restart: on-failure:5
     shm_size: 256mb
     logging:
@@ -71,8 +71,9 @@ services:
     container_name: nextcloud-fpm
     build:
       context: ./nextcloud-fpm
+      network: common <5>
       args:
-        version: '16.0.1-fpm-alpine' # <5>
+        version: '{SB_NEXTCLOUD_FPM_VERSION}' # <6>
     restart: on-failure:5
     logging:
       driver: json-file
@@ -88,17 +89,18 @@ services:
       - POSTGRES_HOST=nextcloud-db
       - POSTGRES_DB=nextcloud
       - POSTGRES_USER=nextcloud
-      - POSTGRES_PASSWORD=\{POSTGRES_PASSWORD} # <6>
+      - POSTGRES_PASSWORD=\{POSTGRES_PASSWORD} # <7>
       - NEXTCLOUD_DATA_DIR=/data
       - NEXTCLOUD_UPDATE=1
-      - NEXTCLOUD_TRUSTED_DOMAINS='{SB_NEXTCLOUD_DOMAIN}:{SB_NEXTCLOUD_PORT}' # <7>
+      - NEXTCLOUD_TRUSTED_DOMAINS='{SB_NEXTCLOUD_DOMAIN}:{SB_NEXTCLOUD_PORT}' # <8>
 
   nextcloud-web:
     container_name: nextcloud-web
     build:
       context: ./httpd
+      network: common
       args:
-        version: '2.4.39-alpine' # <8>
+        version: '{SB_HTTPD_FPM_VERSION}' # <9>
     restart: on-failure:5
     logging:
       driver: json-file
@@ -109,10 +111,10 @@ services:
       - nextcloud-fpm
     volumes:
       - /srv/nextcloud/html:/usr/local/apache2/htdocs
-      - /etc/letsencrypt/live/{SB_NEXTCLOUD_DOMAIN}:/certs/live/{SB_NEXTCLOUD_DOMAIN} # <9>
-      - /etc/letsencrypt/archive/{SB_NEXTCLOUD_DOMAIN}:/certs/archive/{SB_NEXTCLOUD_DOMAIN} # <10>
+      - /etc/letsencrypt/live/{SB_NEXTCLOUD_DOMAIN}:/certs/live/{SB_NEXTCLOUD_DOMAIN} # <10>
+      - /etc/letsencrypt/archive/{SB_NEXTCLOUD_DOMAIN}:/certs/archive/{SB_NEXTCLOUD_DOMAIN} # <11>
     ports:
-      - "{SB_IP}:{SB_NEXTCLOUD_PORT}:443" # <11>
+      - "{SB_IP}:{SB_NEXTCLOUD_PORT}:443" # <12>
 ----
 <1> Replace `{SB_NEXTCLOUD_SUBNET}` with the actual subnet you want to use for the Nextcloud.
 <2> Replace `11.3-alpine ` with the actual latest `postgres` (Alpine) image version (can be checked at the Docker Hub).
@@ -120,15 +122,17 @@ You can double check if this version is supported by the Nextcloud in the Nextcl
 <3> Replace `\{POSTGRES_PASSWORD}` with some random password.
 <4> This is workaround for bug https://github.com/nextcloud/docker/issues/345.
 It may be unnecessary once the bug is fixed.
-<5> Replace `16.0.1-fpm-alpine` with the actual latest `nextcloud-fpm` (Alpine) image version (can be checked at the Docker Hub).
-<6> Replace `\{POSTGRES_PASSWORD}` with the same password as above.
-<7> Replace `{SB_NEXTCLOUD_DOMAIN}` with your Nextcloud domain name and
+<5> To build `nextcloud-fpm` image (same as for `nextcloud-web` image), `common` docker network is used.
+If you skipped over <<domain_name>> section where this network is created, create it now as described in that section.
+<6> Replace `16.0.1-fpm-alpine` with the actual latest `nextcloud-fpm` (Alpine) image version (can be checked at the Docker Hub).
+<7> Replace `\{POSTGRES_PASSWORD}` with the same password as above.
+<8> Replace `{SB_NEXTCLOUD_DOMAIN}` with your Nextcloud domain name and
 `{SB_NEXTCLOUD_PORT}` with the port number you chose to use for the Nextcloud
 (the Nextcloud web server will listen on this port).
-<8> Replace `2.4.39-alpine` with the actual latest `httpd` (Alpine) image version (can be checked at the Docker Hub).
-<9> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual domain name for the Nextcloud.
-<10> Same as above.
-<11> Replace `{SB_IP}` and `{SB_NEXTCLOUD_PORT}` with the actual values.
+<9> Replace `2.4.39-alpine` with the actual latest `httpd` (Alpine) image version (can be checked at the Docker Hub).
+<10> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual domain name for the Nextcloud.
+<11> Same as above.
+<12> Replace `{SB_IP}` and `{SB_NEXTCLOUD_PORT}` with the actual values.
 
 [[nextcloud_httpd_config]]
 ===== HTTPD
