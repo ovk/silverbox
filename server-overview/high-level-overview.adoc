@@ -25,5 +25,5 @@ your needs.
 
 NOTE: In my case, all the clients are also Linux-based. This is not a requirement, and you may have clients running
 Windows, MacOS or other OS, but in such case client configuration will obviously be different.
-In come parts of this document it is assumed that your client is x86 64-bit PC running Desktop Ubuntu Linux 18.04.
+In some parts of this document it is assumed that your client is x86 64-bit PC running Desktop Ubuntu Linux 18.04.
 
