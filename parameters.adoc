@@ -44,7 +44,7 @@
 // Attributes for latest Docker images versions (for convenience)
 
 // Alpine Linux
-:SB_ALPINE_VERSION: 3.10.1
+:SB_ALPINE_VERSION: 3.10.2
 // PostgreSQL
 :SB_POSTGRES_VERSION: 11.4-alpine
 // Nextcloud FPM
