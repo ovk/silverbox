@@ -48,7 +48,7 @@
 // PostgreSQL
 :SB_POSTGRES_VERSION: 11.4-alpine
 // Nextcloud FPM
-:SB_NEXTCLOUD_FPM_VERSION: 16.0.3-fpm-alpine
+:SB_NEXTCLOUD_FPM_VERSION: 17.0.0-fpm-alpine
 // HTTPD
 :SB_HTTPD_VERSION: 2.4.41-alpine
 
