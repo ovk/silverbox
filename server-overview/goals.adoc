@@ -4,7 +4,7 @@ Main goals that greatly affected overall design decisions for the server are:
 
 Simplicity::
 Where possible, this document prefers more simple solutions, i.e. solutions that involve less configuration,
-fewer components and minimum bloat.
+fewer components and minimize bloat.
 Stability::
 The server design is heavily focused on stability of configuration and setup.
 While there are many fancy new tools and programs that could be used, vast majority of them have very short life span,
@@ -23,9 +23,9 @@ as possible.
 It is important to mention that this server is *not* a:
 
 NAS::
-It is not intended to be used for safe storage of massive amounts of data (at least no in the described configuration).
+It is not intended to be used for safe storage of massive amounts of data (at least not in the described configuration).
 Media Server::
-It is not running anything related to the media server, no Cody, not even X server.
+It is not running anything related to the media server, no Kodi, not even X server.
 Proprietary Server::
 It is not running any proprietary, closed-source solutions, even if they are free (so no Plex).
 

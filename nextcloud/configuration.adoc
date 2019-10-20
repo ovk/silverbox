@@ -51,14 +51,10 @@ sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml r
 
 Refresh the Nextcloud page and verify that pretty URLs work.
 
-==== Background Jobs, Maximum Upload Size, Email Delivery
+==== Background Jobs, Email Delivery
 Navigate to _Settings -> Basic settings_ page.
 
 Make sure Background Jobs scheduling is set to *Cron* and last run was within 15 minutes.
-
-You can optionally increase Maximum Upload Size.
-
-NOTE: It appears that the maximum upload size setting disappeared in the latest versions of Nextcloud.
 
 Also, on this page you can configure Email server parameters and test email delivery.
 

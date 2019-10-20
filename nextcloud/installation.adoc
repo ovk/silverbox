@@ -100,7 +100,7 @@ services:
       context: ./httpd
       network: common
       args:
-        version: '{SB_HTTPD_FPM_VERSION}' # <9>
+        version: '{SB_HTTPD_VERSION}' # <9>
     restart: on-failure:5
     logging:
       driver: json-file
@@ -124,12 +124,12 @@ You can double check if this version is supported by the Nextcloud in the Nextcl
 It may be unnecessary once the bug is fixed.
 <5> To build `nextcloud-fpm` image (same as for `nextcloud-web` image), `common` docker network is used.
 If you skipped over <<domain_name>> section where this network is created, create it now as described in that section.
-<6> Replace `16.0.1-fpm-alpine` with the actual latest `nextcloud-fpm` (Alpine) image version (can be checked at the Docker Hub).
+<6> Replace `{SB_NEXTCLOUD_FPM_VERSION}` with the actual latest `nextcloud-fpm` (Alpine) image version (can be checked at the Docker Hub).
 <7> Replace `\{POSTGRES_PASSWORD}` with the same password as above.
 <8> Replace `{SB_NEXTCLOUD_DOMAIN}` with your Nextcloud domain name and
 `{SB_NEXTCLOUD_PORT}` with the port number you chose to use for the Nextcloud
 (the Nextcloud web server will listen on this port).
-<9> Replace `2.4.39-alpine` with the actual latest `httpd` (Alpine) image version (can be checked at the Docker Hub).
+<9> Replace `{SB_HTTPD_VERSION}` with the actual latest `httpd` (Alpine) image version (can be checked at the Docker Hub).
 <10> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual domain name for the Nextcloud.
 <11> Same as above.
 <12> Replace `{SB_IP}` and `{SB_NEXTCLOUD_PORT}` with the actual values.

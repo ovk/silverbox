@@ -1,6 +1,6 @@
 = Silverbox: Linux Home Server
 https://gitlab.com/kosheo/silverbox-server
-v0.1.1, July 6, 2019
+v0.1.2, October 20, 2019
 :doctype: article
 :reproducible:
 :sectnums:

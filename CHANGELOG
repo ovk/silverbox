@@ -1,3 +1,12 @@
+## [0.1.2] - 2019-10-20
+
+- Remove paragraph about max upload size config. Max upload size setting has been removed from UI and now is not necessary, as chunked upload was implemented. [7c0468d]
+- Bump Nextcloud's Postgres version to `12.0`. [1b400ab]
+- Bump Nextcloud version to `17.0.0`. [bbdc3e2]
+- Bump httpd version to `2.4.41`. [1a40a09]
+- Bump Alpine version to `3.10.2`. [aeb4ecb]
+- Fix typos. Fixes #1. [26e1bad]
+
 ## [0.1.1] - 2019-07-14
 
 - Added power consumption information. [6a793e0e]
@@ -6,5 +15,6 @@
   Bumped Docker images versions to current versions. [0da6c15d]
 
 ## [0.1.0] - 2019-07-06
+
 Initial version published.
 
