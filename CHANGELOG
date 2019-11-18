@@ -1,3 +1,8 @@
+## [0.2.0] - 2019-11-17
+
+- Added chapter on Git server configuration. [38fcc2d5]
+- Fixed typo in copying public SSH key for SOCKS5-VPN proxy. [28c1bc20]
+
 ## [0.1.2] - 2019-10-20
 
 - Remove paragraph about max upload size config. Max upload size setting has been removed from UI and now is not necessary, as chunked upload was implemented. [7c0468d]
