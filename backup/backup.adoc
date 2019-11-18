@@ -1,3 +1,4 @@
+[[backup]]
 == Backup
 This section describes how to configure secure automatic backup of valuable files
 from the server to external drive and to the cloud.

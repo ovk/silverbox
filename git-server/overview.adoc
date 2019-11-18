@@ -1,0 +1,22 @@
+=== Overview
+There are many ways to host Git repositories.
+One of the approaches it to host complete collaborative software development platform that usually includes
+version control, issue tracking, documentation (e.g. wiki), code review, CI/CD pipelines,
+fine-grained permission control etc.
+Some of the popular open-source options include Gitlab, Gitea and Gogs.
+
+However, hosting a full-blown platform like this has its disadvantages:
+it increases complexity of the setup and hardware resource consumption,
+requires maintenance to keep platform secure and up-to-date,
+complicates configuration and "vendor-locks" you into a specific platform.
+I find that extra complexity of running such platforms is hardly justified,
+as for home setup most of the extra features provided are rarely needed.
+
+Instead, this guide describes how to run bare Git repositories accessible over SSH
+(that has been configured in the <<openssh_server_configuration>> section).
+This approach doesn't depend on any third-party solutions and only requires Git and SSH to function.
+It is very simple, transparent and maintenance-free.
+
+The configuration described below is very similar to the one described in the Git Book's section
+on setting up the Git server <<git_server>>.
+

@@ -17,4 +17,5 @@
 - [[[ovh_object_storage, 14]]] "`OVH Object Storage`": https://www.ovh.com/world/public-cloud/storage/object-storage
 - [[[rclone, 15]]] "`Rclone`": https://rclone.org
 - [[[watchtower, 16]]] "`Watchtower`": https://containrrr.github.io/watchtower
+- [[[git_server, 17]]] "`Git Book: Git Server`": https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server
 
