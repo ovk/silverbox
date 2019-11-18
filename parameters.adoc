@@ -40,6 +40,10 @@
 :SB_NEXTCLOUD_SUBNET: \{DOCKER_NEXTCLOUD_NETWORK}
 // Port number on which Nextcloud web server container fill listen for connections. Example: 12345
 :SB_NEXTCLOUD_PORT: \{NEXTCLOUD_PORT}
+// Group that allows reading from Git repositories.
+:SB_GIT_GROUP: gitusers
+// Account that allows read/write access to Git repositories.
+:SB_GIT_USER: git
 
 // Attributes for latest Docker images versions (for convenience)
 

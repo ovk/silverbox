@@ -52,6 +52,7 @@ borg create -v --stats /mnt/backup/borgrepo::'{hostname}-{now:%Y-%m-%d}' \ # <2>
     /etc/letsencrypt/archive \ # <3>
     /srv/nextcloud \
     /srv/nfs \
+    /srv/git \
     --exclude '/srv/nfs/torrents' \
     --exclude '/srv/nextcloud/html' \
     --exclude '/srv/nextcloud/data/*.log' \

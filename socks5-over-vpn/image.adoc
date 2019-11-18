@@ -327,7 +327,7 @@ Copy public key to the server:
 
 [subs="attributes+"]
 ----
-scp ~/.ssh/silverbox-proxy-tunnel $USER@{SB_IP}:proxy_tunnel.pub
+scp ~/.ssh/silverbox-proxy-tunnel.pub $USER@{SB_IP}:proxy_tunnel.pub
 ----
 
 Move this file under the `/root/silverbox/containers/vpn-proxy` directory and make it only readable by the root:

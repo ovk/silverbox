@@ -1,3 +1,4 @@
+[[openssh_server_configuration]]
 === OpenSSH Server Configuration
 To access the server over SSH, an OpenSSH server needs to be installed and configured.
 

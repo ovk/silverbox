@@ -1,0 +1,169 @@
+=== Configuration
+First, install `git` on the server (if you don't have it installed already):
+
+----
+sudo apt update
+sudo apt install git
+----
+
+Create `{SB_GIT_GROUP}` group:
+
+[subs="attributes+"]
+----
+sudo addgroup --system {SB_GIT_GROUP}
+----
+
+NOTE: A separate group is needed so that it would be possible to have more than just one user with access to Git repositories.
+This can be helpful, for instance, if you need to provide another user access under different permissions
+(for example, read-only access to repositories, as described in the next section).
+
+Create a directory where all of the Git repositories will reside, and assign proper ownership and permissions:
+
+[subs="attributes+"]
+----
+sudo mkdir /srv/git
+sudo chgrp {SB_GIT_GROUP} /srv/git
+sudo chmod 750 /srv/git
+----
+
+==== Create Git User Account
+In this model, all repositories under `/srv/git` directory will be accessible by `{SB_GIT_USER}` account created on the server.
+To give someone read/write access to Git repositories a separate SSH key pair needs to be generated and its public key
+added to `{SB_GIT_USER}` authorized SSH keys list.
+
+Create `{SB_GIT_USER}` user account:
+
+[subs="attributes+"]
+----
+sudo adduser --disabled-password --gecos "" --shell `which git-shell` {SB_GIT_USER}
+----
+
+NOTE: Having `git-shell` as the `{SB_GIT_USER}` user shell will only allow to execute Git related commands
+over SSH and nothing else (also no SCP).
+You can additionally customize the message that user will see on an attempt to SSH as the `{SB_GIT_USER}` user.
+To do this, create executable script `git-shell-commands/no-interactive-login` under `{SB_GIT_USER}` user's home directory,
+that prints desired message and exits.
+For more details see https://git-scm.com/docs/git-shell.
+
+Make `{SB_GIT_USER}` user a member of the `{SB_GIT_GROUP}` group:
+
+[subs="attributes+"]
+----
+sudo usermod -a -G {SB_GIT_GROUP} {SB_GIT_USER}
+----
+
+Login as `{SB_GIT_USER}` user and create `.ssh` directory and `authorized_keys` file with proper permissions,
+as well as `.hushlogin` file to suppress default Ubuntu MOTD (message of the day) banner:
+
+[subs="attributes+"]
+----
+sudo su --shell $SHELL {SB_GIT_USER}
+cd
+mkdir .ssh && chmod 700 .ssh
+touch .ssh/authorized_keys && chmod 600 .ssh/authorized_keys
+touch .hushlogin
+exit
+----
+
+As `root` user edit the `/etc/ssh/sshd_config` file and add `{SB_GIT_USER}` user to the list of allowed users:
+
+./etc/ssh/sshd_config
+[subs="attributes+"]
+----
+AllowUsers {SB_USER} {SB_GIT_USER}
+----
+
+Restart `sshd` service for the changes to take effect: `sudo systemctl restart sshd.service`.
+
+===== Read-Only Access
+As mentioned above, the `{SB_GIT_USER}` user account will have read/write access to all Git repositories on the server.
+However, sometimes it might be necessary to give someone read-only access,
+so that they can read (clone) from all repositories but not write (push).
+
+One way this can be achieved is by creating one more account on the server,
+for example `gitro` (where `ro` stands for read only), and adding this account to the `{SB_GIT_GROUP}` group.
+Since repositories are owned by the `{SB_GIT_USER}` user (as you will see in the next section) and not `gitro`,
+the `gitro` won't be able to write.
+But because `gitro` belongs to `{SB_GIT_GROUP}` group, it will be able to read.
+
+To create such `gitro` account follow the same steps as above for creating `{SB_GIT_USER}` account.
+You will also need to generate SSH keys for the `gitro` account in the same way as for `{SB_GIT_USER}` account
+(as described in the sections below).
+
+Additionally, you can put individual repositories in read-only mode for everyone by using Git server-side hooks
+(such as `pre-receive` hook).
+For more information on how to do this check Git documentation.
+
+==== Creating Git Repository
+To create a new Git repository on the server, first create a directory for it
+(the repository is called `example` in this case).
+Make this directory owned by the `{SB_GIT_USER}` user and read-only accessible by the members of `{SB_GIT_GROUP}` group:
+
+[subs="attributes+"]
+----
+sudo mkdir /srv/git/example
+sudo chown {SB_GIT_USER}:{SB_GIT_GROUP} /srv/git/example
+sudo chmod 750 /srv/git/example
+----
+
+Login as `{SB_GIT_USER}` user and initialize empty Git repository:
+
+[subs="attributes+"]
+----
+sudo su --shell $SHELL {SB_GIT_USER}
+cd /srv/git/example
+git init --bare --shared=0640 # <1>
+----
+<1> The `--shared=0640` argument means that the repository will be shared in such a way
+that it is writeable by owner (`{SB_GIT_USER}` user), and readable (and only readable) by anyone in the `{SB_GIT_GROUP}` group.
+See `man git-init` for more information.
+
+==== Providing Access to Git
+Git over SSH uses SSH keys for authentication.
+To provide access to someone to all Git repositories on the server (under either `{SB_GIT_USER}` or `gitro` user, if you created one),
+this person's public key must be added to the list of authorized SSH keys for the `{SB_GIT_USER}`
+(or `gitro`, but this section will assume `{SB_GIT_USER}`) account.
+Below is an example of how to give yourself read/write access from your client PC to all Git repositories on the server.
+
+First, generate a new key pair on your client PC:
+
+----
+ssh-keygen -t ed25519 -f ~/.ssh/silverbox-git -C "Silverbox Git key"
+----
+
+This will generate a pair of keys: private `~/.ssh/silverbox-git` and public `~/.ssh/silverbox-git.pub`.
+
+Copy generated public key to the server:
+
+[subs="attributes+"]
+----
+scp ~/.ssh/silverbox-git.pub $USER@{SB_IP}:.
+----
+
+Login to the server as your user and run the following command to add the public key to the list of authorized keys for `{SB_GIT_USER}` user:
+
+[subs="attributes+"]
+----
+sudo bash -c "printf '%s ' 'no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty' | cat - /home/$USER/silverbox-git.pub >> /home/{SB_GIT_USER}/.ssh/authorized_keys" # <1>
+rm silverbox-git.pub
+----
+<1> This also disables SSH tunneling, X forwarding
+(although it should be disabled in your sshd config if you followed this guide) and PTY for the `{SB_GIT_USER}` user.
+
+On your client PC edit the `~/.ssh/config` file and add the following:
+
+[subs="attributes+"]
+----
+host silverbox-git
+  HostName {SB_IP} # <1>
+  IdentityFile ~/.ssh/silverbox-git
+  User {SB_GIT_USER}
+----
+<1> Replace this with your server IP address or hostname.
+
+Now to clone example repository run:
+
+----
+git clone silverbox-git:/srv/git/example
+----
+

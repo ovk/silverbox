@@ -1,0 +1,13 @@
+== Git Server
+This section describes how to configure the server to host some private Git repositories.
+
+Having your own private Git repositories can be very helpful for keeping configuration files organized,
+notes, personal projects or forks that you prefer to keep private.
+Keeping your Git repositories locally on the server (as opposed to cloud services such as Github or Gitlab)
+has an advantage of being able to access them even when the cloud service or the internet connection is down.
+Server backups (described in section <<backup>>) can be utilized for backing up Git repositories.
+
+include::overview.adoc[]
+
+include::configuration.adoc[]
+

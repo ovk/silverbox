@@ -1,6 +1,6 @@
 = Silverbox: Linux Home Server
 https://gitlab.com/kosheo/silverbox-server
-v0.1.2, October 20, 2019
+v0.2.0, November 17, 2019
 :doctype: article
 :reproducible:
 :sectnums:
@@ -33,6 +33,8 @@ include::nfs-server/nfs-server.adoc[]
 include::transmission/transmission.adoc[]
 
 include::nextcloud/nextcloud.adoc[]
+
+include::git-server/git-server.adoc[]
 
 include::backup/backup.adoc[]
 
