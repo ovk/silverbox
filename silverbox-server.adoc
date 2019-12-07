@@ -1,6 +1,6 @@
 = Silverbox: Linux Home Server
 https://github.com/ovk/silverbox
-v0.2.0, November 17, 2019
+v0.2.1, December 7, 2019
 :doctype: article
 :reproducible:
 :sectnums:
