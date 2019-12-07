@@ -8,7 +8,7 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@master
-      - name: Analyze code with Shellcheck
+      - name: Compile document with Asciidoctor
         uses: docker://asciidoctor/docker-asciidoctor:latest
         with:
-          args: "asciidoctor silverbox-server.adoc"
+          args: "asciidoctor --failure-level WARN silverbox-server.adoc"
