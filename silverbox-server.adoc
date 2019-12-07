@@ -6,7 +6,7 @@ v0.2.0, November 17, 2019
 :sectnums:
 :prewrap!:
 :attribute-missing: warn
-:source-highlighter: pygments
+:source-highlighter: rouge
 :icons: font
 :toc:
 
