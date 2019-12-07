@@ -1,12 +1,12 @@
 = Silverbox: Linux Home Server
-https://gitlab.com/kosheo/silverbox-server
-v0.2.0, November 17, 2019
+https://github.com/ovk/silverbox
+v0.2.1, December 7, 2019
 :doctype: article
 :reproducible:
 :sectnums:
 :prewrap!:
 :attribute-missing: warn
-:source-highlighter: pygments
+:source-highlighter: rouge
 :icons: font
 :toc:
 

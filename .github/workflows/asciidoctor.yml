@@ -1,0 +1,14 @@
+on: [push, pull_request]
+
+jobs:
+  asciidoctor:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@master
+      - name: Compile document with Asciidoctor
+        uses: docker://asciidoctor/docker-asciidoctor:latest
+        with:
+          args: "asciidoctor --failure-level WARN silverbox-server.adoc"
