@@ -1,4 +1,4 @@
 === Getting Involved
 If you find a typo or error in this document, or if you think that some part could be explained in more details,
-updated, or improved in any way - please open an issue at https://gitlab.com/kosheo/silverbox-server/issues.
+updated, or improved in any way - please open an issue at https://github.com/ovk/silverbox/issues.
 

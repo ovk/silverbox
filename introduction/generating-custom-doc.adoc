@@ -13,25 +13,25 @@ This can easily be done in three steps using Docker:
 . Get the source code of this document from Git:
 +
 ----
-git clone https://gitlab.com/kosheo/silverbox-server.git
+git clone https://github.com/ovk/silverbox.git
 ----
 
-. Edit `silverbox-server/parameters.adoc` file and replace placeholder values with the values you want.
+. Edit `silverbox/parameters.adoc` file and replace placeholder values with the values you want.
 . Run disposable Docker container with Asciidoctor to compile the document to desired output:
 .. For HTML output:
 +
 ----
-docker run -it --rm -v $(pwd)/silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor silverbox-server.adoc
+docker run -it --rm -v $(pwd)/silverbox:/documents asciidoctor/docker-asciidoctor asciidoctor silverbox-server.adoc
 ----
 
 .. For PDF output:
 +
 ----
-docker run -it --rm -v $(pwd)/silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor-pdf silverbox-server.adoc
+docker run -it --rm -v $(pwd)/silverbox:/documents asciidoctor/docker-asciidoctor asciidoctor-pdf silverbox-server.adoc
 ----
 
-This should produce output file (`silverbox-server.html` or `silverbox-server.pdf`) in the `silverbox-server`
-directory, where all the placeholders replaced with your values.
+This should produce output file (`silverbox-server.html` or `silverbox-server.pdf`) in the `silverbox` directory,
+where all the placeholders replaced with your values.
 
 Now you can mostly just copy-paste code snippets without having to manually edit them first.
 

@@ -32,10 +32,10 @@ docker run -it --rm -v $(pwd)/silverbox:/documents asciidoctor/docker-asciidocto
 Or to build a PDF:
 
 ```
-docker run -it --rm -v $(pwd)/silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor-pdf silverbox-server.adoc
+docker run -it --rm -v $(pwd)/silverbox:/documents asciidoctor/docker-asciidoctor asciidoctor-pdf silverbox-server.adoc
 ```
 
-This should produce output file (`silverbox-server.html` or `silverbox-server.pdf`) in the `silverbox-server`
+This should produce output file (`silverbox-server.html` or `silverbox-server.pdf`) in the `silverbox`
 directory, where all the placeholders replaced with your values.
 
 See [Generating Custom Document](https://ovk.github.io/silverbox/#generating_custom_document)
