@@ -1,15 +1,21 @@
-A small guide on how to build compact, silent and energy-efficient Linux home server that runs:
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/693072/70379633-1406bd80-18fd-11ea-82d6-209c2bb80f24.png">
+</p>
+
+Guide on how to build compact, silent and energy-efficient Linux home server that runs:
 
 - Docker
 - NFSv4 server secured with Kerberos
-- Unbound DNS server
-- SOCKS5 over VPN proxy server
-- Transmission over VPN
-- Nextcloud
+- DNS server (Unbound)
+- SOCKS5 over VPN proxy server (containerized)
+- Transmission over VPN (containerized)
+- Nextcloud (HTTPs thanks to Let's Encrypt + Certbot)
+- Barebone Git server
+- Monitoring, encrypted incremental backups (on-site, off-site)
 - ... and more
 
-The latest HTML version of the guide is hosted online using GitLab Pages
-and can be viewed here: https://kosheo.gitlab.io/silverbox-server
+The latest HTML version of the guide is hosted online using GitHub Pages
+and can be viewed here: https://ovk.github.io/silverbox
 
 # Compiling
 The guide is written in [AsciiDoc](https://en.wikipedia.org/wiki/AsciiDoc) format
@@ -19,8 +25,8 @@ If you have Docker installed, you can use Asciidoctor Docker container.
 For example, to build HTML version:
 
 ```
-git clone https://gitlab.com/kosheo/silverbox-server.git
-docker run -it --rm -v $(pwd)/silverbox-server:/documents asciidoctor/docker-asciidoctor asciidoctor silverbox-server.adoc
+git clone https://github.com/ovk/silverbox.git
+docker run -it --rm -v $(pwd)/silverbox:/documents asciidoctor/docker-asciidoctor asciidoctor silverbox-server.adoc
 ```
 
 Or to build a PDF:
@@ -32,7 +38,7 @@ docker run -it --rm -v $(pwd)/silverbox-server:/documents asciidoctor/docker-asc
 This should produce output file (`silverbox-server.html` or `silverbox-server.pdf`) in the `silverbox-server`
 directory, where all the placeholders replaced with your values.
 
-See [Generating Custom Document](https://kosheo.gitlab.io/silverbox-server/#generating_custom_document)
+See [Generating Custom Document](https://ovk.github.io/silverbox/#generating_custom_document)
 section for more details.
 
 ## Customizing Document
