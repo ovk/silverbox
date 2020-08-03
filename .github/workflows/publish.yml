@@ -1,0 +1,29 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: SCM Checkout
+      uses: actions/checkout@v2
+      with:
+          persist-credentials: false
+
+    - name: Build with Asciidoctor
+      uses: docker://asciidoctor/docker-asciidoctor:latest
+      with:
+        args: "asciidoctor --failure-level WARN --destination-dir dist silverbox-server.adoc"
+
+    - name: Publish
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: dist
+
