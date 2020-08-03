@@ -18,7 +18,7 @@ jobs:
     - name: Build with Asciidoctor
       uses: docker://asciidoctor/docker-asciidoctor:latest
       with:
-        args: "asciidoctor --failure-level WARN --destination-dir dist silverbox-server.adoc"
+        args: "asciidoctor --failure-level WARN --destination-dir dist -o index.html silverbox-server.adoc"
 
     - name: Publish
       uses: JamesIves/github-pages-deploy-action@releases/v3
