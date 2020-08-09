@@ -29,13 +29,15 @@ Edit the `/srv/nextcloud/html/config/config.php` file and add/modify the followi
 'htaccess.RewriteBase' => '/', # <3>
 'default_language' => 'en',
 'default_locale' => 'en_CA',
-'knowledgebaseenabled' => false <4>
+'knowledgebaseenabled' => false, # <4>
+'token_auth_enforced' => true # <5>
 ----
 <1> Sets log level to _info_.
 <2> This and the next line will enable pretty URLs (essentially eliminating `index.php` from the URLs).
 More info: https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#pretty-urls.
 <3> Same as above.
 <4> This line disables arguably useless knowledge base page.
+<5> Enforces token authentication for API clients for better security (will block requests using the user password).
 
 Next, run the following command:
 
