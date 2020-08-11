@@ -71,7 +71,7 @@ services:
     container_name: nextcloud-fpm
     build:
       context: ./nextcloud-fpm
-      network: common <5>
+      network: common # <5>
       args:
         version: '{SB_NEXTCLOUD_FPM_VERSION}' # <6>
     restart: on-failure:5
@@ -117,19 +117,19 @@ services:
       - "{SB_IP}:{SB_NEXTCLOUD_PORT}:443" # <12>
 ----
 <1> Replace `{SB_NEXTCLOUD_SUBNET}` with the actual subnet you want to use for the Nextcloud.
-<2> Replace `11.3-alpine ` with the actual latest `postgres` (Alpine) image version (can be checked at the Docker Hub).
+<2> Replace `{SB_POSTGRES_VERSION}` with the actual latest `postgres` (Debian based) image version (can be checked at the Docker Hub).
 You can double check if this version is supported by the Nextcloud in the Nextcloud documentation.
 <3> Replace `\{POSTGRES_PASSWORD}` with some random password.
 <4> This is workaround for bug https://github.com/nextcloud/docker/issues/345.
 It may be unnecessary once the bug is fixed.
 <5> To build `nextcloud-fpm` image (same as for `nextcloud-web` image), `common` docker network is used.
 If you skipped over <<domain_name>> section where this network is created, create it now as described in that section.
-<6> Replace `{SB_NEXTCLOUD_FPM_VERSION}` with the actual latest `nextcloud-fpm` (Alpine) image version (can be checked at the Docker Hub).
+<6> Replace `{SB_NEXTCLOUD_FPM_VERSION}` with the actual latest `nextcloud-fpm` (Debian based) image version (can be checked at the Docker Hub).
 <7> Replace `\{POSTGRES_PASSWORD}` with the same password as above.
 <8> Replace `{SB_NEXTCLOUD_DOMAIN}` with your Nextcloud domain name and
 `{SB_NEXTCLOUD_PORT}` with the port number you chose to use for the Nextcloud
 (the Nextcloud web server will listen on this port).
-<9> Replace `{SB_HTTPD_VERSION}` with the actual latest `httpd` (Alpine) image version (can be checked at the Docker Hub).
+<9> Replace `{SB_HTTPD_VERSION}` with the actual latest `httpd` (Debian based) image version (can be checked at the Docker Hub).
 <10> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual domain name for the Nextcloud.
 <11> Same as above.
 <12> Replace `{SB_IP}` and `{SB_NEXTCLOUD_PORT}` with the actual values.
@@ -148,19 +148,19 @@ Inside it, create the `Dockerfile` file with the following content:
 ./root/silverbox/containers/nextcloud/httpd/Dockerfile
 [source,dockerfile]
 ----
-ARG version=alpine
+ARG version=latest
 
 FROM httpd:$version
 
-RUN [ `id -u www-data` -eq 82 ] || exit 1
-RUN [ `id -g www-data` -eq 82 ] || exit 1
+ARG WWW_DATA_UID=33 # <1>
+ARG WWW_DATA_GID=33
 
-RUN apk --no-cache --no-progress upgrade && \
-    apk --no-cache --no-progress add openssl && \
-    openssl dhparam -out /etc/ssl/dhparam.pem 2048
+RUN [ "$(id -u www-data)" -eq "$WWW_DATA_UID" ] && [ "$(id -g www-data)" -eq "$WWW_DATA_GID" ] || exit 1 # <2>
 
 COPY httpd.conf /usr/local/apache2/conf/httpd.conf
 ----
+<1> These UID and GID are currently standard Debian based HTTPD image.
+<2> Extra precaution to ensure that `www-data` UID/GID are what we expect (in case they change in newer images).
 
 Next, create the `httpd.conf` file with the following content:
 
@@ -193,20 +193,19 @@ LoadModule http2_module modules/mod_http2.so
 User www-data
 Group www-data
 
-Protocols h2 http/1.1 # <2>
+Protocols h2 http/1.1
 
 SSLEngine On
 SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
 SSLHonorCipherOrder On
-SSLProtocol All -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+SSLProtocol -all +TLSv1.3 +TLSv1.2
 SSLUseStapling on
 SSLStaplingCache "shmcb:/usr/local/apache2/logs/ssl_stapling(128000)"
 SSLSessionTickets Off
 SSLSessionCache "shmcb:/usr/local/apache2/logs/ssl_scache(512000)"
 SSLSessionCacheTimeout 300
-SSLOpenSSLConfCmd DHParameters "/etc/ssl/dhparam.pem"
-SSLCertificateFile /certs/live/{SB_NEXTCLOUD_DOMAIN}/fullchain.pem # <3>
-SSLCertificateKeyFile /certs/live/{SB_NEXTCLOUD_DOMAIN}/privkey.pem # <4>
+SSLCertificateFile /certs/live/{SB_NEXTCLOUD_DOMAIN}/fullchain.pem # <2>
+SSLCertificateKeyFile /certs/live/{SB_NEXTCLOUD_DOMAIN}/privkey.pem # <3>
 
 <Directory />
     AllowOverride none
@@ -231,7 +230,7 @@ DirectoryIndex index.html
 
 <Location "/apache-server-status.html">
     SetHandler server-status
-    Require ip {SB_IP} # <5>
+    Require ip {SB_IP} # <4>
 </Location>
 
 <Files ".ht*">
@@ -244,12 +243,12 @@ ProxyTimeout 3600
 </Proxy>
 
 RewriteEngine on
-RewriteCond %\{QUERY_STRING} ^monit$ # <6>
+RewriteCond %\{QUERY_STRING} ^monit$ # <5>
 RewriteCond %\{REQUEST_METHOD} HEAD
 RewriteCond %\{REQUEST_URI} ^/$
 RewriteRule .* - [env=dont_log]
 
-SetEnvIf Request_URI "^/apache-server-status.html$" dont_log # <7>
+SetEnvIf Request_URI "^/apache-server-status.html$" dont_log # <6>
 
 ErrorLog /proc/self/fd/2
 LogLevel warn
@@ -273,19 +272,15 @@ ServerTokens Prod
 TraceEnable off
 ----
 <1> Replace `{SB_NEXTCLOUD_DOMAIN}` and `{SB_NEXTCLOUD_PORT}` with the actual values.
-<2> On some hardware, using HTTP2 seems to cause Apache httpd processes to crash with `Illegal instruction` error.
-If you experience random error messages while using Nextcloud check the `nextcloud-web` container logs,
-and if you see this error you can disable HTTP2 by replacing this line with `Protocols http/1.1`.
-Bug report for this issue: https://github.com/docker-library/httpd/issues/128.
-<3> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual value.
-<4> Same as above.
-<5> Replace `{SB_IP}` with the actual value.
-<6> This rewrite block matches HEAD requests to root with query string equal to "monit" and sets environment variable
+<2> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual value.
+<3> Same as above.
+<4> Replace `{SB_IP}` with the actual value.
+<5> This rewrite block matches HEAD requests to root with query string equal to "monit" and sets environment variable
 `dont_log` that is later used to filter such requests from the web server logs.
 This is useful to filter out requests done by Monit from log, as they will flood logs otherwise.
 For security reasons, you can replace "monit" string in the first `RewriteCond` with a random alphanumeric string,
 that you will also put in the Monit configuration for Nextcloud monitoring.
-<7> This rule is used to filter out requests to Apache server status page from logs, as it only used by Monit.
+<6> This rule is used to filter out requests to Apache server status page from logs, as it only used by Monit.
 
 NOTE: If you decide to customize this config file and add some extra modules, make sure you are not using
 modules that don't work well with Nextcloud.
@@ -304,24 +299,28 @@ Inside it, create the `Dockerfile` file with the following content:
 ./root/silverbox/containers/nextcloud/nextcloud-fpm/Dockerfile
 [source,dockerfile]
 ----
-ARG version=fpm-alpine
+ARG version=fpm
 
 FROM nextcloud:$version
 
-ARG PHP_FPM_CONF=/usr/local/etc/php-fpm.d/www.conf
 ARG NFSSHARE_GID={GID} # <1>
 
-RUN [ `id -u www-data` -eq 82 ] || exit 1
-RUN [ `id -g www-data` -eq 82 ] || exit 1
+ARG WWW_DATA_UID=33 # <2>
+ARG WWW_DATA_GID=33
 
-RUN apk add --no-cache supervisor shadow && \
+ARG PHP_FPM_CONF=/usr/local/etc/php-fpm.d/www.conf
+
+RUN [ "$(id -u www-data)" -eq "$WWW_DATA_UID" ] && [ "$(id -g www-data)" -eq "$WWW_DATA_GID" ] || exit 1 # <3>
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends supervisor && \
     mkdir /var/log/supervisord /var/run/supervisord && \
-    sed -i 's/-l\s\+\d/-l 5/' /cron.sh && \ # <2>
-    sed -i 's/^\(pm.max_children\s*=\)\s*\d\+/\1 20/' ${PHP_FPM_CONF} && \
+    sed -i 's/-l\s\+\d/-l 5/' /cron.sh && \ # <4>
+    sed -i 's/^\(pm.max_children\s*=\)\s*\d\+/\1 20/' ${PHP_FPM_CONF} && \ # <5>
     sed -i 's/^\(pm.start_servers\s*=\)\s*\d\+/\1 5/' ${PHP_FPM_CONF} && \
     sed -i 's/^\(pm.min_spare_servers\s*=\)\s*\d\+/\1 4/' ${PHP_FPM_CONF} && \
     sed -i 's/^\(pm.max_spare_servers\s*=\)\s*\d\+/\1 10/' ${PHP_FPM_CONF} && \
-    addgroup -g ${NFSSHARE_GID} nfsshare && \
+    addgroup --gid ${NFSSHARE_GID} nfsshare && \
     usermod www-data -aG nfsshare
 
 COPY supervisord.conf /etc/supervisor/supervisord.conf
@@ -330,10 +329,11 @@ CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 ----
 <1> Replace the `\{GID}` with the GID of your `{SB_NFS_GROUP}` group.
 This is so that Nextcloud can access files in the NFS directory owned by the `{SB_NFS_GROUP}`.
-<2> This is to reduce verbosity of the Cron logs to 5. Adjust if necessary.
-
-TIP: You can adjust PHP FPM configuration according to your needs.
-More information: https://docs.nextcloud.com/server/stable/admin_manual/installation/server_tuning.html#tune-php-fpm.
+<2> These UID and GID are currently standard Debian based image.
+<3> Extra precaution to ensure that `www-data` UID/GID are what we expect (in case they change in newer images).
+<4> This is to reduce verbosity of the Cron logs to 5. Adjust if necessary.
+<5> Update PHP FPM configuration, feel free to adjust these values according to your needs.
+More information at Nextcloud [server tuning](https://docs.nextcloud.com/server/stable/admin_manual/installation/server_tuning.html#tune-php-fpm) documentation.
 
 Create the `supervisord.conf` file with the following content:
 

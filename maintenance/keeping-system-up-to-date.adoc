@@ -68,7 +68,7 @@ To create this script, create the `/usr/local/sbin/check-docker-tags.sh` file wi
 #!/bin/sh
 
 # List of images to check
-IMAGES="alpine httpd postgres" # <1>
+IMAGES="debian httpd postgres" # <1>
 
 for IMAGE in $IMAGES; do
     echo "> Checking Image: $IMAGE"
@@ -115,13 +115,13 @@ The sections below describe how to update Docker images when new image or new ba
 
 ===== Updating SOCKS5 Proxy Image
 Edit the `/root/silverbox/containers/vpn-proxy/docker-compose.yaml` file
-and update the alpine image version in the build arguments:
+and update the Debian image version in the build arguments:
 
 ./root/silverbox/containers/vpn-proxy/docker-compose.yaml
 [source,yaml,subs="attributes+"]
 ----
 args:
-  version: '{SB_ALPINE_VERSION}'
+  version: '{SB_DEBIAN_VERSION}'
 ----
 
 Stop the container, rebuild the image and start new container from the new image:
@@ -135,12 +135,12 @@ sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml 
 Since the SSH host identity key is stored outside of the container on disk, proxy should reconnect seamlessly.
 
 ===== Updating DNS Updater Image
-Edit the `/root/silverbox/containers/dns-updater/Dockerfile` file and update the alpine image version:
+Edit the `/root/silverbox/containers/dns-updater/Dockerfile` file and update the Debian image version:
 
 ./root/silverbox/containers/dns-updater/Dockerfile
 [source,docker,subs="attributes+"]
 ----
-FROM alpine:{SB_ALPINE_VERSION}
+FROM debian:{SB_DEBIAN_VERSION}
 ----
 
 Build the new image:
@@ -154,13 +154,13 @@ the new image will be picked up automatically next time the service runs.
 
 ===== Updating Transmission Image
 Edit the `/root/silverbox/containers/transmission/docker-compose.yaml` file
-and update the alpine image version in the build arguments:
+and update the Debian image version in the build arguments:
 
 ./root/silverbox/containers/transmission/docker-compose.yaml
 [source,yaml,subs="attributes+"]
 ----
 args:
-  version: '{SB_ALPINE_VERSION}'
+  version: '{SB_DEBIAN_VERSION}'
 ----
 
 Stop the container, rebuild the image and start new container from the new image:

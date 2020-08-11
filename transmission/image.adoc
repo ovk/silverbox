@@ -51,7 +51,7 @@ Inside the `transmission` directory, create a file named `docker-compose.yaml` w
 ./root/silverbox/containers/transmission/docker-compose.yaml
 [source,yaml,subs="attributes+"]
 ----
-version: '3.5'
+version: '3.7'
 
 networks:
   default:
@@ -61,11 +61,12 @@ networks:
 services:
   transmission:
     container_name: transmission
+    init: true
     build:
       context: /root/silverbox/containers/transmission
       network: vpn
       args:
-        version: '{SB_ALPINE_VERSION}' # <1>
+        version: '{SB_DEBIAN_VERSION}' # <1>
     restart: on-failure:15
     logging:
       driver: json-file
@@ -85,7 +86,7 @@ services:
       - /root/silverbox/vpn/transmission:/vpn-profiles
       - /root/silverbox/vpn/auth:/vpn-credentials
 ----
-<1> Replace `{SB_ALPINE_VERSION}` with the actual latest `alpine` image version (can be checked at the Docker Hub).
+<1> Replace `{SB_DEBIAN_VERSION}` with the actual latest `debian` image version (can be checked at the Docker Hub).
 Note that this is not the Transmission version.
 <2> Replace `{SB_TRANSMISSION_PORT}` with the actual port number.
 <3> Replace `{SB_TRANSMISSION_ADDR}` with the actual address.
@@ -97,24 +98,21 @@ Next, create a file named `Dockerfile` with the following content:
 ----
 ARG version=latest
 
-FROM alpine:$version
+FROM debian:$version
 
 ARG UID=\{USER_ID} # <1>
 ARG GID=\{GROUP_ID} # <2>
 
-RUN apk --no-cache --no-progress upgrade && \
-    apk --no-cache --no-progress add bash iptables tini shadow openvpn transmission-daemon && \
-    addgroup -S vpn && \
-    groupmod -g $\{GID} transmission && \
-    usermod -u $\{UID} transmission && \
-    rm -rf /tmp/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends bash iputils-ping iptables openvpn transmission-daemon && \
+    addgroup --system vpn && \
+    addgroup --gid $\{GID} transmission && \
+    adduser transmission --uid $\{UID} --gid $\{GID} --disabled-login --no-create-home --gecos "" --shell /usr/sbin/nologin && \
+    mkdir /config && chown transmission:transmission /config
 
 COPY docker-entrypoint.sh /usr/local/bin/
 COPY start-transmission.sh /usr/local/bin/
-
-RUN mkdir /config
-COPY settings.json /config/
-RUN chown transmission:transmission -R /config
+COPY --chown=transmission:transmission settings.json /config/
 
 HEALTHCHECK --interval=120s --timeout=20s --start-period=120s CMD ping 1.1.1.1 -c 1 # <3>
 
@@ -122,7 +120,7 @@ VOLUME ["/vpn-profiles", "/vpn-credentials", "/data"]
 
 EXPOSE {SB_TRANSMISSION_PORT}/tcp # <4>
 
-ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
+ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
 ----
 <1> Replace `\{USER_ID}` with the UID of your `{SB_USER}` user on the server.
 <2> Replace `\{GROUP_ID}` with the GID of your `{SB_NFS_GROUP}` group on the server.

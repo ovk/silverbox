@@ -40,10 +40,10 @@ Inside the `dns-updater` directory, create a file named `Dockerfile` with the fo
 ./root/silverbox/containers/dns-updater/Dockerfile
 [source,dockerfile,subs="attributes+"]
 ----
-FROM alpine:{SB_ALPINE_VERSION} # <1>
+FROM debian:{SB_DEBIAN_VERSION} # <1>
 
-RUN apk --no-cache --no-progress upgrade && \
-    apk --no-cache --no-progress add python3
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3 ca-certificates
 
 COPY update-dns.py /usr/local/bin/
 
@@ -51,7 +51,7 @@ VOLUME /secrets # <2>
 
 ENTRYPOINT [ "python3", "/usr/local/bin/update-dns.py" ]
 ----
-<1> Replace `{SB_ALPINE_VERSION}` with the actual latest `alpine` image version (can be checked at the Docker Hub).
+<1> Replace `{SB_DEBIAN_VERSION}` with the actual latest `debian` image version (can be checked at the Docker Hub).
 <2> For the lack of better option, the API key is passed inside the container in a file on a mapped volume.
 
 Next, create the `update-dns.py` file with the following content:

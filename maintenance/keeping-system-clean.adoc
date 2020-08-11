@@ -34,7 +34,6 @@ One solution is to remove all currently unused images semi-manually:
 sudo docker rmi `sudo docker images -q nextcloud:*`
 sudo docker rmi `sudo docker images -q httpd:*`
 sudo docker rmi `sudo docker images -q postgres:*`
-sudo docker rmi `sudo docker images -q alpine:*`
 ----
 
 NOTE: This will generate errors and skip deletion of images that are currently in use.

@@ -99,7 +99,7 @@ Inside the `vpn-proxy` directory, create a file named `docker-compose.yaml` with
 ./root/silverbox/containers/vpn-proxy/docker-compose.yaml
 [source,yaml,subs="attributes+"]
 ----
-version: '3.5'
+version: '3.7'
 
 networks:
   default:
@@ -109,11 +109,12 @@ networks:
 services:
   vpn-proxy:
     container_name: vpn-proxy
+    init: true
     build:
       context: /root/silverbox/containers/vpn-proxy
       network: vpn
       args:
-        version: '{SB_ALPINE_VERSION}' # <1>
+        version: '{SB_DEBIAN_VERSION}' # <1>
     restart: on-failure:15
     logging:
       driver: json-file
@@ -133,7 +134,7 @@ services:
       - /root/silverbox/vpn/auth:/vpn-credentials
       - /root/silverbox/containers/vpn-proxy/host-key:/ssh-host-key
 ----
-<1> Replace `{SB_ALPINE_VERSION}` with the actual latest `alpine` image version (can be checked at the Docker Hub).
+<1> Replace `{SB_DEBIAN_VERSION}` with the actual latest `debian` image version (can be checked at the Docker Hub).
 Don't use `latest` here as it makes setup non-deterministic and makes it harder to maintain and upgrade.
 <2> Replace `{SB_IP}` and `{SB_VPN_PROXY_PORT}` with the actual values.
 <3> Replace `{SB_VPN_PROXY_ADDR}` with desired VPN proxy container address.
@@ -145,20 +146,17 @@ Next, create a file named `Dockerfile` with the following content:
 ----
 ARG version=latest
 
-FROM alpine:$version
+FROM debian:$version
 
-RUN apk --no-cache --no-progress upgrade && \
-    apk --no-cache --no-progress add bash iptables tini shadow openvpn openssh && \
-    addgroup -S vpn && \
-    adduser proxytunnel -D --shell /sbin/nologin && \
-    usermod -p '*' proxytunnel && \
-    rm -rf /tmp/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends bash iputils-ping iptables openvpn openssh-server && \
+    addgroup --system vpn && \
+    adduser proxytunnel --disabled-password --gecos "" --shell /usr/sbin/nologin && \
+    mkdir /var/run/sshd
 
 COPY docker-entrypoint.sh /usr/local/bin/
 COPY sshd_config /etc/ssh/
-COPY proxy_tunnel.pub /home/proxytunnel
-
-RUN chown proxytunnel /home/proxytunnel/proxy_tunnel.pub
+COPY --chown=proxytunnel:proxytunnel proxy_tunnel.pub /home/proxytunnel
 
 HEALTHCHECK --interval=120s --timeout=20s --start-period=120s CMD ping 1.1.1.1 -c 1 # <1>
 
@@ -166,7 +164,7 @@ VOLUME ["/vpn-profiles", "/vpn-credentials"]
 
 EXPOSE {SB_VPN_PROXY_PORT}/tcp # <2>
 
-ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
+ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
 ----
 <1> Feel free to customize health check command.
 <2> Replace `{SB_VPN_PROXY_PORT}` with some port number of your choice (e.g. 12345).
@@ -272,7 +270,7 @@ function run_sshd()
         fi
     fi
 
-    echo "-- Adding oute back to LAN"
+    echo "-- Adding route back to LAN"
     ip route add {SB_SUBNET} via \{DOCKER_VPN_NETWORK_GW} # <3>
 
     echo "-- Starting SSH server"
