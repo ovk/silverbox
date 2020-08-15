@@ -315,11 +315,11 @@ RUN [ "$(id -u www-data)" -eq "$WWW_DATA_UID" ] && [ "$(id -g www-data)" -eq "$W
 RUN apt-get update && \
     apt-get install -y --no-install-recommends supervisor && \
     mkdir /var/log/supervisord /var/run/supervisord && \
-    sed -i 's/-l\s\+\d/-l 5/' /cron.sh && \ # <4>
-    sed -i 's/^\(pm.max_children\s*=\)\s*\d\+/\1 20/' ${PHP_FPM_CONF} && \ # <5>
-    sed -i 's/^\(pm.start_servers\s*=\)\s*\d\+/\1 5/' ${PHP_FPM_CONF} && \
-    sed -i 's/^\(pm.min_spare_servers\s*=\)\s*\d\+/\1 4/' ${PHP_FPM_CONF} && \
-    sed -i 's/^\(pm.max_spare_servers\s*=\)\s*\d\+/\1 10/' ${PHP_FPM_CONF} && \
+    sed -i 's/-l\s\+[0-9]\+/-l 5/' /cron.sh && \ # <4>
+    sed -i 's/^\(pm.max_children\s*=\)\s*[0-9]\+/\1 20/' ${PHP_FPM_CONF} && \ # <5>
+    sed -i 's/^\(pm.start_servers\s*=\)\s*[0-9]\+/\1 5/' ${PHP_FPM_CONF} && \
+    sed -i 's/^\(pm.min_spare_servers\s*=\)\s*[0-9]\+/\1 4/' ${PHP_FPM_CONF} && \
+    sed -i 's/^\(pm.max_spare_servers\s*=\)\s*[0-9]\+/\1 10/' ${PHP_FPM_CONF} && \
     addgroup --gid ${NFSSHARE_GID} nfsshare && \
     usermod www-data -aG nfsshare
 
