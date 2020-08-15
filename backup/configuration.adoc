@@ -45,6 +45,22 @@ if pidof -x borg >/dev/null; then
     exit 1
 fi
 
+OCC_OUTPUT=$(docker exec --user www-data nextcloud-fpm php occ maintenance:mode)
+if [ "$?" -ne "0" ]; then
+    echo "failed to check if Nextcloud is already in maintenance mode"
+    exit 1
+fi
+
+if ! printf "%s" "$OCC_OUTPUT" | grep -q "Maintenance mode is currently disabled"; then
+    echo "unexpected occ output: $OCC_OUTPUT"
+    exit 1
+fi
+
+if ! docker exec --user www-data nextcloud-fpm php occ maintenance:mode --on; then
+    echo "failed to enable Nextcloud maintenance mode"
+    exit 1
+fi
+
 export BORG_PASSPHRASE='{BORG_PASSPHRASE}' # <1>
 
 # Create backup
@@ -64,6 +80,11 @@ borg create -v --stats /mnt/backup/borgrepo::'{hostname}-{now:%Y-%m-%d}' \ # <2>
 if [ "$?" -ne "0" ]; then
     echo "borg create failed"
     exit 2
+fi
+
+if ! docker exec --user www-data nextcloud-fpm php occ maintenance:mode --off; then
+    echo "failed to disable Nextcloud maintenance mode"
+    exit 1
 fi
 
 # Prune old backups
