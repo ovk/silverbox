@@ -57,8 +57,8 @@ Overwrite the `/etc/krb5.conf` file with the following content:
     kdc_timesync = 1
 [realms]
     {SB_INTERNAL_DOMAIN} = { # <2>
-        kdc = silverbox.{SB_INTERNAL_DOMAIN} <3>
-        admin_server = silverbox.{SB_INTERNAL_DOMAIN} <4>
+        kdc = silverbox.{SB_INTERNAL_DOMAIN} # <3>
+        admin_server = silverbox.{SB_INTERNAL_DOMAIN} # <4>
     }
 ----
 <1> The internal domain `{SB_INTERNAL_DOMAIN}` here must be fully capitalized (since it is realm).
@@ -88,7 +88,7 @@ Finally, to add Kerberos principal for your user run `sudo kadmin.local` and the
 
 [subs="attributes+"]
 ----
-addprinc {SB_USER} <1>
+addprinc {SB_USER} # <1>
 ----
 <1> Replace `{SB_USER}` with your actual user name.
 

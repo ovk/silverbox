@@ -44,6 +44,10 @@
 :SB_GIT_GROUP: gitusers
 // Account that allows read/write access to Git repositories.
 :SB_GIT_USER: git
+// UID of the www-data user inside Apache httpd and Nextcloud FPM containers
+:SB_WWW_DATA_UID: 33
+// GID of the www-data user inside Apache httpd and Nextcloud FPM containers
+:SB_WWW_DATA_GID: 33
 
 // Attributes for latest Docker images versions (for convenience)
 

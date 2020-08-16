@@ -8,6 +8,13 @@ and will be obtained and renewed using Certbot <<certbot>>.
 The certificate needs to be obtained before Nextcloud installation,
 since Nextcloud will only be reachable via HTTPS (not plain HTTP) and the web server won't start without certificate.
 
+ACME DNS challenge is used for domain validation (needed to issue the initial certificate and for subsequent renewals).
+One major advantage DNS challenge has over more widely used HTTP challenge
+is that it doesn't require your web server to use standard ports: 80 and 443.
+This allows to host Nextcloud on non-standard port which can be advantageous for two reasons:
+using non-standard port can dramatically reduce amount of unwanted requests from bots,
+and it may be the only option if your ISP blocks standard ports 80 and 443.
+
 ==== Installing Certbot
 Certbot can be installed from the PPA maintained by the EFF team
 (the installation is described in more details in Certbot documentation
@@ -66,11 +73,11 @@ for i in {1..20}; do # <1>
     TXT=`dig "@$NS" "$ACME_SUBDOMAIN.$CERTBOT_DOMAIN" TXT +short | sed 's/"//g'`
     if [ "$TXT" == "$CERTBOT_VALIDATION" ]; then
         echo "Record updated. Waiting extra minute before returning."
-        sleep 60 <2>
+        sleep 60 # <2>
         exit 0
     else
         echo "Record still contains '$TXT'. Waiting for 1 minute..."
-        sleep 60 <3>
+        sleep 60 # <3>
     fi
 done
 
@@ -91,7 +98,7 @@ ACME_SUBDOMAIN="_acme-challenge"
 DOMAIN=`awk -F '.' '{print $(NF-1)"."$NF}' <<< "$CERTBOT_DOMAIN"` || exit 1
 NS=`dig "$DOMAIN" NS +short | head -1` || exit 2
 echo "Performing DNS Challenge Cleanup for domain: $CERTBOT_DOMAIN in $DOMAIN with authoritive NS $NS"
-docker run --rm --network common --cpus="1" -v /root/silverbox/namesilo:/secrets dns-updater -k /secrets/api-key -a update-txt -d "$ACME_SUBDOMAIN.$CERTBOT_DOMAIN" -t "none" || exit 3 <1>
+docker run --rm --network common --cpus="1" -v /root/silverbox/namesilo:/secrets dns-updater -k /secrets/api-key -a update-txt -d "$ACME_SUBDOMAIN.$CERTBOT_DOMAIN" -t "none" || exit 3 # <1>
 echo "Record cleaned up"
 ----
 <1> In this example, `none` value is used as the new TXT record value (since empty value is not allowed).

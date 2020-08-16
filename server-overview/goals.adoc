@@ -1,21 +1,24 @@
 [[server_overview_goals]]
 === Goals
-Main goals that greatly affected overall design decisions for the server are:
+Main goals that affected overall design of the server are:
 
 Simplicity::
-Where possible, this document prefers more simple solutions, i.e. solutions that involve less configuration,
-fewer components and minimize bloat.
+Where possible, this document prefers simple solutions, i.e. solutions that require less configuration,
+fewer components and minimize bloat. Simple solutions are often more secure (due to limited attack surface),
+easy to understand and maintain, easy to extend and use less resources.
 Stability::
 The server design is heavily focused on stability of configuration and setup.
-While there are many fancy new tools and programs that could be used, vast majority of them have very short life span,
-minimal to no backward/forward compatibility, support, documentation, security updates etc.
+While there are many new "fancy" and "feature-rich" tools and programs that could be used,
+I find that vast majority of them have very short life span,
+minimal to no backward/forward compatibility and meaningful upgrade path, often very poor support and documentation,
+lack of security updates etc.
 Instead, the choices were made in favor of mature, stable, proven software, that doesn't break compatibility every
 minor release.
 Security::
 Major considerations were given to security when designing the server setup.
 While I think the solution in general is secure enough for home use, I still would not recommend to keep any
 sensitive information on the server.
-Minimal maintenance::
+Low Maintenance::
 Another major focus was keeping the server maintenance as small as possible.
 This goes hand in hand with stability, and also relies on tools and automation to keep server maintenance as minimal
 as possible.
@@ -26,6 +29,9 @@ NAS::
 It is not intended to be used for safe storage of massive amounts of data (at least not in the described configuration).
 Media Server::
 It is not running anything related to the media server, no Kodi, not even X server.
+Although, turning it into a media server is definitely possible
+(I know of a person who added containerized Kodi on top of this guide and took advantage of NUCs infrared port).
 Proprietary Server::
-It is not running any proprietary, closed-source solutions, even if they are free (so no Plex).
+It is not running any proprietary, closed-source solutions, even if they are free (free as in beer).
+So you won't find anything like Plex or Mineraft server here, but you could definitely add these on your own if you wish.
 

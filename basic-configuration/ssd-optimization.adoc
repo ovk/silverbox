@@ -142,7 +142,7 @@ To automatically mount `/tmp` as `tmpfs`, add the following line to the `/etc/fs
 tmpfs /tmp tmpfs defaults,noatime,nosuid,nodev,noexec,mode=1777,size=2G 0 0
 ----
 
-In this example, its size is limited to 2G, but you can adjust if if needed.
+In this example, its size is limited to 2G, but you can adjust it if needed.
 
 IMPORTANT: A `noexec` option can sometime cause issues with programs that put something under `/tmp` and then try to execute it.
 If this happens, you can remove this option.

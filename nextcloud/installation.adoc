@@ -4,13 +4,15 @@ This section describes how to install and run Nextcloud.
 ==== Preparing Directory Structure
 The very first step is to create directories that will be mapped inside Nextcloud Docker containers:
 
+[subs="attributes+"]
 ----
 sudo mkdir -p /srv/nextcloud/db
 sudo mkdir /srv/nextcloud/html
 sudo mkdir /srv/nextcloud/data
-sudo chown 82 /srv/nextcloud/data
+sudo chown {SB_WWW_DATA_UID} /srv/nextcloud/data # <1>
 sudo chmod 750 -R /srv/nextcloud
 ----
+<1> `{SB_WWW_DATA_UID}` is the UID of the `www-data` user (inside Apache httpd and Nextcloud FPM containers).
 
 All the Nextcloud data (including database, static files and user data)
 will be stored under the `/srv/nextcloud` directory in the following way:
@@ -23,7 +25,7 @@ data::
 The `data` subdirectory will store user's data.
 
 NOTE: It is important to keep these directories owned by the root and have restrictive permissions
-since content inside them will be owned by the `www-data` (UID 82) user from the Docker containers.
+since content inside them will be owned by the `www-data` (UID `{SB_WWW_DATA_UID}`) user from the Docker containers.
 
 ==== Preparing Images
 Create a directory for Nextcloud containers files:
@@ -144,14 +146,14 @@ sudo chmod 700 /root/silverbox/containers/nextcloud/httpd
 Inside it, create the `Dockerfile` file with the following content:
 
 ./root/silverbox/containers/nextcloud/httpd/Dockerfile
-[source,dockerfile]
+[source,dockerfile,subs="attributes+"]
 ----
 ARG version=latest
 
 FROM httpd:$version
 
-ARG WWW_DATA_UID=33 # <1>
-ARG WWW_DATA_GID=33
+ARG WWW_DATA_UID={SB_WWW_DATA_UID} # <1>
+ARG WWW_DATA_GID={SB_WWW_DATA_GID}
 
 RUN [ "$(id -u www-data)" -eq "$WWW_DATA_UID" ] && [ "$(id -g www-data)" -eq "$WWW_DATA_GID" ] || exit 1 # <2>
 
@@ -295,16 +297,16 @@ sudo chmod 700 /root/silverbox/containers/nextcloud/nextcloud-fpm
 Inside it, create the `Dockerfile` file with the following content:
 
 ./root/silverbox/containers/nextcloud/nextcloud-fpm/Dockerfile
-[source,dockerfile]
+[source,dockerfile,subs="attributes+"]
 ----
 ARG version=fpm
 
 FROM nextcloud:$version
 
-ARG NFSSHARE_GID={GID} # <1>
+ARG NFSSHARE_GID=\{GID} # <1>
 
-ARG WWW_DATA_UID=33 # <2>
-ARG WWW_DATA_GID=33
+ARG WWW_DATA_UID={SB_WWW_DATA_UID} # <2>
+ARG WWW_DATA_GID={SB_WWW_DATA_GID}
 
 ARG PHP_FPM_CONF=/usr/local/etc/php-fpm.d/www.conf
 
@@ -314,11 +316,11 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends supervisor && \
     mkdir /var/log/supervisord /var/run/supervisord && \
     sed -i 's/-l\s\+[0-9]\+/-l 5/' /cron.sh && \ # <4>
-    sed -i 's/^\(pm.max_children\s*=\)\s*[0-9]\+/\1 20/' ${PHP_FPM_CONF} && \ # <5>
-    sed -i 's/^\(pm.start_servers\s*=\)\s*[0-9]\+/\1 5/' ${PHP_FPM_CONF} && \
-    sed -i 's/^\(pm.min_spare_servers\s*=\)\s*[0-9]\+/\1 4/' ${PHP_FPM_CONF} && \
-    sed -i 's/^\(pm.max_spare_servers\s*=\)\s*[0-9]\+/\1 10/' ${PHP_FPM_CONF} && \
-    addgroup --gid ${NFSSHARE_GID} nfsshare && \
+    sed -i 's/^\(pm.max_children\s*=\)\s*[0-9]\+/\1 20/' $\{PHP_FPM_CONF} && \ # <5>
+    sed -i 's/^\(pm.start_servers\s*=\)\s*[0-9]\+/\1 5/' $\{PHP_FPM_CONF} && \
+    sed -i 's/^\(pm.min_spare_servers\s*=\)\s*[0-9]\+/\1 4/' $\{PHP_FPM_CONF} && \
+    sed -i 's/^\(pm.max_spare_servers\s*=\)\s*[0-9]\+/\1 10/' $\{PHP_FPM_CONF} && \
+    addgroup --gid $\{NFSSHARE_GID} nfsshare && \
     usermod www-data -aG nfsshare
 
 COPY supervisord.conf /etc/supervisor/supervisord.conf

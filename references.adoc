@@ -1,21 +1,22 @@
 [bibliography]
 == References
 
-- [[[nut_hcl, 1]]] "`Network UPS Tools: Hardware compatibility list`": https://networkupstools.org/stable-hcl.html
-- [[[arch_wiki_ssd, 2]]] "`Arch Wiki: Solid state drive`": https://wiki.archlinux.org/index.php/Solid_state_drive
-- [[[ssh_audit, 3]]] "`ssh-audit script`": https://github.com/arthepsy/ssh-audit
-- [[[arch_wiki_hddtemp, 4]]] "`Arch Wiki: Hddtemp`": https://wiki.archlinux.org/index.php/Hddtemp
-- [[[unbound, 5]]] "`Unbound DNS Server`": https://nlnetlabs.nl/projects/unbound
-- [[[cloudflare_dns, 6]]] "`Cloudflare DNS Server`": https://www.cloudflare.com/learning/dns/what-is-1.1.1.1
-- [[[docker_compose, 7]]] "`Docker Compose`": https://docs.docker.com/compose
-- [[[name_silo, 8]]] "`NameSilo`": https://namesilo.com
-- [[[transmission, 9]]] "`Transmission`": https://transmissionbt.com
-- [[[nextcloud, 10]]] "`Nextcloud`": https://nextcloud.com
-- [[[lets_encrypt, 11]]] "`Let's Encrypt`": https://letsencrypt.org
-- [[[certbot, 12]]] "`Certbot`": https://certbot.eff.org
-- [[[borgbackup, 13]]] "`Borg Backup`": https://www.borgbackup.org
-- [[[ovh_object_storage, 14]]] "`OVH Object Storage`": https://www.ovh.com/world/public-cloud/storage/object-storage
-- [[[rclone, 15]]] "`Rclone`": https://rclone.org
-- [[[watchtower, 16]]] "`Watchtower`": https://containrrr.github.io/watchtower
-- [[[git_server, 17]]] "`Git Book: Git Server`": https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server
+- [[[changelog, 1]]] "`Silverbox Changelog`": https://github.com/ovk/silverbox/blob/master/CHANGELOG
+- [[[nut_hcl, 2]]] "`Network UPS Tools: Hardware compatibility list`": https://networkupstools.org/stable-hcl.html
+- [[[arch_wiki_ssd, 3]]] "`Arch Wiki: Solid state drive`": https://wiki.archlinux.org/index.php/Solid_state_drive
+- [[[ssh_audit, 4]]] "`ssh-audit script`": https://github.com/arthepsy/ssh-audit
+- [[[arch_wiki_hddtemp, 5]]] "`Arch Wiki: Hddtemp`": https://wiki.archlinux.org/index.php/Hddtemp
+- [[[unbound, 6]]] "`Unbound DNS Server`": https://nlnetlabs.nl/projects/unbound
+- [[[cloudflare_dns, 7]]] "`Cloudflare DNS Server`": https://www.cloudflare.com/learning/dns/what-is-1.1.1.1
+- [[[docker_compose, 8]]] "`Docker Compose`": https://docs.docker.com/compose
+- [[[name_silo, 9]]] "`NameSilo`": https://namesilo.com
+- [[[transmission, 10]]] "`Transmission`": https://transmissionbt.com
+- [[[nextcloud, 11]]] "`Nextcloud`": https://nextcloud.com
+- [[[lets_encrypt, 12]]] "`Let's Encrypt`": https://letsencrypt.org
+- [[[certbot, 13]]] "`Certbot`": https://certbot.eff.org
+- [[[borgbackup, 14]]] "`Borg Backup`": https://www.borgbackup.org
+- [[[ovh_object_storage, 15]]] "`OVH Object Storage`": https://www.ovh.com/world/public-cloud/storage/object-storage
+- [[[rclone, 16]]] "`Rclone`": https://rclone.org
+- [[[watchtower, 17]]] "`Watchtower`": https://containrrr.github.io/watchtower
+- [[[git_server, 18]]] "`Git Book: Git Server`": https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server
 

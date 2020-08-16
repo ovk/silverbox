@@ -20,7 +20,7 @@ External backup disk: Samsung T5 500Gb Portable SSD (USB 3.1 Gen2).
 8GB 1600mhz DDR3L SODIMM KVR16LS11/8.
 
 ==== UPS
-While strictly speaking this is not a part of the server, and technically not required, UPS is extremely recommended.
+While strictly speaking this is not a part of the server, and technically not required, UPS is highly recommended.
 
 The UPS that was used: Eaton 3S US550VA 5-15P (8) 5-15R 4-UPS.
 

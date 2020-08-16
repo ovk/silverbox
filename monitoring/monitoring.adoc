@@ -14,7 +14,7 @@ and some combination of Prometheus/Grafana/Collectd/Graphite/Telegraf/InfluxDB.
 Eventually, Monit was chosen as the main monitoring tool.
 While it may seem very limited at the first glance, it is actually quite powerful tool to monitor wide range of parameters
 and react to specific conditions.
-Monit is easy to extend and customize, it is well maintained, lightweight, with minimum dependencies and very low
+Monit is easy to extend and customize, it is maintained, very lightweight, with minimum dependencies and very low
 runtime overhead.
 The only significant downside is that it has no support for time series, and thus it is not possible to see
 historical data, graphs or analyze trends.

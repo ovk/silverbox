@@ -1,0 +1,11 @@
+// Logo hosted in GitHub issues
+image::https://user-images.githubusercontent.com/693072/70379633-1406bd80-18fd-11ea-82d6-209c2bb80f24.png[Logo,align=center]
+
+This document describes my setup for a simple home server running GNU/Linux (Ubuntu 18.04).
+The server is based on Intel NUC hardware and runs DNS server, NFS server, Nextcloud, SOCKS5 over VPN proxy server,
+Transmission (over VPN), Git server and some other services (see <<server_overview>> for detailed list).
+
+The document is always updated to reflect the current state of the software. The revision history can be found in changelog <<changelog>>.
+
+The document is hosted via GitHub Pages and the source is available at https://github.com/ovk/silverbox.
+

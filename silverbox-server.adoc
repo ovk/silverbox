@@ -1,6 +1,7 @@
-= Silverbox: Linux Home Server
-https://github.com/ovk/silverbox
+= Silverbox: GNU/Linux Home Server
+ovk <https://github.com/ovk[@ovk]>
 v0.2.1, December 7, 2019
+:homepage: https://github.com/ovk/silverbox
 :doctype: article
 :reproducible:
 :sectnums:
@@ -11,6 +12,8 @@ v0.2.1, December 7, 2019
 :toc: left
 
 include::parameters.adoc[]
+
+include::preamble.adoc[]
 
 include::introduction/introduction.adoc[]
 

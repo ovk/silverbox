@@ -1,0 +1,79 @@
+=== Document Overview
+Please note that this document is _not_ an exhaustive guide on building a home server,
+that deeply explores all different options and possibilities, and explains every single step great in detail.
+It is more or less just a documentation for the setup I choose, and it can be opinionated at times.
+Whenever there was a choice, I leaned towards secure and simple solutions, rather than fancy and "feature-rich".
+
+Following this guide is probably not the most efficient way to build home server,
+and you'd be better off finding some Ansible playbooks that will do everything for you,
+or even just a virtual machine image with all the services already configured.
+However, I think reading through this guide can be useful if you want to understand how everything works,
+especially if you are planning on running and maintaining your server for a long time.
+
+While some decisions I had to make were influenced by the specific hardware I use (see <<hardware>> section),
+where possible, this document tries to stay hardware agnostic.
+You don't have to use the exact same hardware as I did (you can even do it all in a virtual machine).
+I just wouldn't recommend using Raspberry Pi for performance reasons.
+
+==== Required Knowledge
+This document expects reader to have some GNU/Linux experience and at least some knowledge in the following areas:
+
+- Be comfortable in the GNU/Linux terminal and familiar with SSH.
+- Understand simple shell scripting (e.g. `sh` or `bash` scripts).
+- Be familiar with basic GNU/Linux command line utilities, such as: `sudo`, `cp/mv/rm`, `find`, `grep`, `sed` etc.
+- Be familiar with `man` pages and be able to explore them on your own.
+- Be at least somewhat familiar with Docker.
+- Be at least somewhat familiar with systemd.
+
+The document doesn't try to explain everything, as I believe it is simply impractical are a lot of good documentation already written.
+Instead, it provides references to the existing documentation where needed.
+
+==== Structure
+The document is split into few top-level chapters, where each chapter (with a few exceptions) represents a separate,
+standalone feature, for example: NFS Server, Nextcloud, Torrent Client etc.
+While it is possible to skip some chapters, some may have a dependency on another chapters.
+
+The document is structured more or less in the order of the configuration.
+
+==== Formatting and Naming Conventions
+In this document, parts of the sentence that require extra attention are marked with *bold* font.
+
+Inline system commands, arguments and file names are formatted with `monospace` font.
+
+Commands that need to be executed in a shell are formatted in monospace blocks.
+Command output is formatted as italic (if there is any output).
+
+For example:
+[subs="attributes+,macros+"]
+----
+some-command --with --some --arguments
+pass:q[_example command output_]
+----
+
+When a file needs to be edited, the file content is formatted in a similar monospace block.
+However, in this case the block will also have header with a file name, indicating what file is edited:
+
+.example-file.txt
+----
+File content goes here
+----
+
+By default, all parameters that are specific to the concrete setup are displayed as placeholders in a curly braces,
+for example: `{SB_IP}` is what you should replace with your server IP address.
+However, you can generate version of this document where all such placeholders replaced with the actual values you want,
+more on this in next section.
+
+There are also few blocks that are used to draw attention to a specific statement:
+
+NOTE: This is a note.
+
+TIP: This is some useful tip.
+
+IMPORTANT: This is very important point.
+
+WARNING: This is a warning.
+
+In the document, the server itself is referred as either _"the server"_ or _"silverbox"_.
+footnote:[The name _"silverbox"_ originates from some Intel NUCs visual appearance - literally a little silver box. ]
+When discussing client(s) that communicate to the server, the client device is usually referred as _"client PC"_,
+even though it could be laptop, tablet, smartphone or any other device.

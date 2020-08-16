@@ -5,7 +5,7 @@ In this guide, it is used for the following purposes:
 
 1. To configure proper domain for Kerberos (instead of doing domain hijacking).
 2. To access the server from the outside (from the internet) without having a static IP address.
-3. To obtain certificates for Nextcloud (to use HTTPS).
+3. To obtain certificates for Nextcloud (to use HTTPS) or other services.
 
 A domain name needs to be registered in order to proceed with this section of the document.
 

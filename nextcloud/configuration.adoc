@@ -98,7 +98,7 @@ To add these directories to Nextcloud navigate to _Settings -> External Storages
 ===== Permissions
 There are some permissions issues when accessing files created via NFS from the Nextcloud and vice versa.
 
-In particular, files created inside NFS directories from the Nextcloud will be owned by `www-data:www-data` (`82:82`)
+In particular, files created inside NFS directories from the Nextcloud will be owned by `www-data:www-data` (`{SB_WWW_DATA_UID}:{SB_WWW_DATA_GID}`)
 and with default `umask` will only allow modifications by the owner.
 Thus, users accessing these files over NFS won't be able to modify them.
 
@@ -106,10 +106,10 @@ The permissions/ownership for such files can be adjusted with the following comm
 
 [subs="attributes+"]
 ----
-sudo find /srv/nfs -uid 82 -exec chown {SB_USER}:{SB_NFS_GROUP} \{} \; -exec chmod g+w {} \; -exec echo {} \;
+sudo find /srv/nfs -uid {SB_WWW_DATA_UID} -exec chown {SB_USER}:{SB_NFS_GROUP} \{} \; -exec chmod g+w {} \; -exec echo {} \;
 ----
 
-This example command changes ownership for all files under `/srv/nfs` directory that are currently owned by UID 82,
+This example command changes ownership for all files under `/srv/nfs` directory that are currently owned by UID `{SB_WWW_DATA_UID}`,
 to be owned by your user and `{SB_NFS_GROUP}` group, and also adds write permissions to the group.
 
 There is a similar issue with the files created via NFS and accessed via Nextcloud.
@@ -139,8 +139,8 @@ https://scan.nextcloud.com.
 SSL Labs Scanner::
 https://www.ssllabs.com/ssltest. Note that it only works over default HTTPS port 443, so to use it
 you can temporary change port forwarding rule to forward from external port 443 to internal port `{SB_NEXTCLOUD_PORT}`.
-SSL Decoder Scanner::
-https://ssldecoder.org.
+ImmuniWeb SSL Scanner::
+https://www.immuniweb.com/ssl
 
 ==== Reduce Autovacuum Frequency
 This is completely optional step, but it may help to minimize disk writes.
