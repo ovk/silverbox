@@ -2,17 +2,23 @@
   <img src="https://user-images.githubusercontent.com/693072/70379633-1406bd80-18fd-11ea-82d6-209c2bb80f24.png">
 </p>
 
-Guide on how to build compact, silent and energy-efficient Linux home server that runs:
+Guide on how to build compact, silent and energy-efficient GNU/Linux home server that runs:
 
-- Docker
-- NFSv4 server secured with Kerberos
-- DNS server (Unbound)
-- SOCKS5 over VPN proxy server (containerized)
-- Transmission over VPN (containerized)
-- Nextcloud (HTTPs thanks to Let's Encrypt + Certbot)
-- Barebone Git server
-- Monitoring, encrypted incremental backups (on-site, off-site)
-- ... and more
+- *Unbound* as a forwarding DNS server that forwards queries to the DNS server of your choice and uses DNS-over-TLS and DNSSEC for
+extra security and privacy.
+- *NFS server* secured with Kerberos (clean NFSv4-only server).
+- *Nextcloud* accessible over HTTP(S) with Let's Encrypt certificates (renewed automatically using Certbot with DNS challenge).
+- *Transmission* BitTorent client that communicates only over a VPN connection.
+- *SOCKS5 proxy server* that proxies traffic securely over a VPN connection.
+- *Git server* for hosting Git repositories.
+- *Borg and Rclone* for automatic encrypted incremental backups (both on-site and off-site).
+- *Monit* for system monitoring and notifications.
+- Script to automatically update DNS record pointing to server's public IP address (in case of dynamic IP).
+
+The server also runs:
+
+- SSH server.
+- Docker engine (as most of the workloads are run as containers).
 
 The latest HTML version of the guide is hosted online using GitHub Pages
 and can be viewed here: https://ovk.github.io/silverbox
