@@ -1,3 +1,27 @@
+## [1.0.0] - 2020-08-16
+
+- Add preamble and icon. Improve some sections. Fix typos. [af07d23]
+- Move ToC on the left [f7046dd]
+- Removed workaround for nextcloud/docker bug #345 as it now fixed [c5e2aef]
+- Update Nextcloud to 19.0.1. Fix nextcloud-fpm container. [0121898]
+- Put Nextcloud to maintenance mode during backup [3165e48]
+- Switch away from Alpine to Debian Docker images [41d46b0]
+  * All Alpine images replaced with Debian (slim) images.
+    Note that for two Nextcloud containers (HTTPD and Postgres) the update
+    requires manual UID/GID update, as Debian uses different UID/GID for
+    users postgres and www-data. To do the update, stop Nextcloud, and then
+    run the following commands before starting it again with Debian based
+    images:
+        sudo find /srv/nextcloud -uid 82 -exec chown 33 {} \;
+        sudo find /srv/nextcloud -gid 82 -exec chgrp 33 {} \;
+        sudo find /srv/nextcloud -uid 70 -exec chown 999 {} \;
+        sudo find /srv/nextcloud -gid 70 -exec chgrp 999 {} \;
+  * Apache HTTPD updated to 2.4.46
+  * Use build-in Docker init (added in Docker 19) instead of Tini
+- Set token_auth_enforced parameter in Nextcloud [2226387]
+- Bump docker image versions [01ce933]
+  Postgres: 12.3
+
 ## [0.2.0] - 2019-11-17
 
 - Added chapter on Git server configuration. [38fcc2d5]
