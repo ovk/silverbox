@@ -4,15 +4,15 @@
 
 Guide on how to build compact, silent and energy-efficient GNU/Linux home server that runs:
 
-- *Unbound* as a forwarding DNS server that forwards queries to the DNS server of your choice and uses DNS-over-TLS and DNSSEC for
+- **Unbound** as a forwarding DNS server that forwards queries to the DNS server of your choice and uses DNS-over-TLS and DNSSEC for
 extra security and privacy.
-- *NFS server* secured with Kerberos (clean NFSv4-only server).
-- *Nextcloud* accessible over HTTP(S) with Let's Encrypt certificates (renewed automatically using Certbot with DNS challenge).
-- *Transmission* BitTorent client that communicates only over a VPN connection.
-- *SOCKS5 proxy server* that proxies traffic securely over a VPN connection.
-- *Git server* for hosting Git repositories.
-- *Borg and Rclone* for automatic encrypted incremental backups (both on-site and off-site).
-- *Monit* for system monitoring and notifications.
+- **NFS server** secured with Kerberos (clean NFSv4-only server).
+- **Nextcloud** accessible over HTTP(S) with Let's Encrypt certificates (renewed automatically using Certbot with DNS challenge).
+- **Transmission** BitTorent client that communicates only over a VPN connection.
+- **SOCKS5 proxy server** that proxies traffic securely over a VPN connection.
+- **Git server** for hosting Git repositories.
+- **Borg and Rclone** for automatic encrypted incremental backups (both on-site and off-site).
+- **Monit** for system monitoring and notifications.
 - Script to automatically update DNS record pointing to server's public IP address (in case of dynamic IP).
 
 The server also runs:
