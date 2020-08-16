@@ -5,8 +5,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<meta name="author" content="https://github.com/ovk/silverbox">
-<title>Silverbox: Linux Home Server</title>
+<meta name="author" content="ovk">
+<title>Silverbox: GNU/Linux Home Server</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -438,20 +438,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
-<h1>Silverbox: Linux Home Server</h1>
+<h1>Silverbox: GNU/Linux Home Server</h1>
 <div class="details">
-<span id="author" class="author">https://github.com/ovk/silverbox</span><br>
-<span id="revnumber">version 0.2.1,</span>
-<span id="revdate">December 7, 2019</span>
+<span id="author" class="author">ovk</span><br>
+<span id="email" class="email"><a href="https://github.com/ovk">@ovk</a></span><br>
+<span id="revnumber">version 1.0.0,</span>
+<span id="revdate">August 16, 2020</span>
 </div>
-<div id="toc" class="toc">
+<div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#_introduction">1. Introduction</a>
 <ul class="sectlevel2">
-<li><a href="#_overview">1.1. Overview</a></li>
+<li><a href="#_document_overview">1.1. Document Overview</a></li>
 <li><a href="#generating_custom_document">1.2. Generating Custom Document</a></li>
 <li><a href="#_getting_involved">1.3. Getting Involved</a></li>
 <li><a href="#_license">1.4. License</a></li>
@@ -528,7 +529,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_nextcloud">11. Nextcloud</a>
 <ul class="sectlevel2">
-<li><a href="#_overview_2">11.1. Overview</a></li>
+<li><a href="#_overview">11.1. Overview</a></li>
 <li><a href="#_certificate">11.2. Certificate</a></li>
 <li><a href="#_installation_4">11.3. Installation</a></li>
 <li><a href="#_configuration_3">11.4. Configuration</a></li>
@@ -537,13 +538,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_git_server">12. Git Server</a>
 <ul class="sectlevel2">
-<li><a href="#_overview_3">12.1. Overview</a></li>
+<li><a href="#_overview_2">12.1. Overview</a></li>
 <li><a href="#_configuration_4">12.2. Configuration</a></li>
 </ul>
 </li>
 <li><a href="#backup">13. Backup</a>
 <ul class="sectlevel2">
-<li><a href="#_overview_4">13.1. Overview</a></li>
+<li><a href="#_overview_3">13.1. Overview</a></li>
 <li><a href="#_disk_preparation">13.2. Disk Preparation</a></li>
 <li><a href="#_configuration_5">13.3. Configuration</a></li>
 <li><a href="#_monitoring_8">13.4. Monitoring</a></li>
@@ -563,42 +564,65 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="imageblock text-center">
+<div class="content">
+<img src="https://user-images.githubusercontent.com/693072/70379633-1406bd80-18fd-11ea-82d6-209c2bb80f24.png" alt="Logo">
+</div>
+</div>
+<div class="paragraph">
+<p>This document describes my setup for a simple home server running GNU/Linux (Ubuntu 18.04).
+The server is based on Intel NUC hardware and runs DNS server, NFS server, Nextcloud, SOCKS5 over VPN proxy server,
+Transmission (over VPN), Git server and some other services (see <a href="#server_overview">Server Overview</a> for detailed list).</p>
+</div>
+<div class="paragraph">
+<p>The document is always updated to reflect the current state of the software. The revision history can be found in changelog <a href="#changelog">[1]</a>.</p>
+</div>
+<div class="paragraph">
+<p>The document is hosted via GitHub Pages and the source is available at <a href="https://github.com/ovk/silverbox" class="bare">https://github.com/ovk/silverbox</a>.</p>
+</div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="_introduction">1. Introduction</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_overview">1.1. Overview</h3>
+<h3 id="_document_overview">1.1. Document Overview</h3>
 <div class="paragraph">
-<p>This document describes how to setup small, energy efficient, Linux based home server
-with quite a few different services hosted on it (see <a href="#server_overview">Server Overview</a> for more details about these services).
-It describes initial setup, configuration, monitoring, maintenance and backup.</p>
+<p>Please note that this document is <em>not</em> an exhaustive guide on building a home server,
+that deeply explores all different options and possibilities, and explains every single step great in detail.
+It is more or less just a documentation for the setup I choose, and it can be opinionated at times.
+Whenever there was a choice, I leaned towards secure and simple solutions, rather than fancy and "feature-rich".</p>
 </div>
 <div class="paragraph">
-<p>This is <em>not</em> an exhaustive guide that deeply explores all different options and possibilities,
-and explains every single step great in detail.
-Think of this document more like of a collection of ideas, notes and code/configuration snippets,
-that when put together will allow anyone to replicate similar setup.</p>
+<p>Following this guide is probably not the most efficient way to build home server,
+and you&#8217;d be better off finding some Ansible playbooks that will do everything for you,
+or even just a virtual machine image with all the services already configured.
+However, I think reading through this guide can be useful if you want to understand how everything works,
+especially if you are planning on running and maintaining your server for a long time.</p>
 </div>
 <div class="paragraph">
-<p>While many choices were influenced by the used hardware (see <a href="#hardware">Hardware</a> section), where possible,
-this document tries to stay as hardware agnostic as possible.</p>
+<p>While some decisions I had to make were influenced by the specific hardware I use (see <a href="#hardware">Hardware</a> section),
+where possible, this document tries to stay hardware agnostic.
+You don&#8217;t have to use the exact same hardware as I did (you can even do it all in a virtual machine).
+I just wouldn&#8217;t recommend using Raspberry Pi for performance reasons.</p>
 </div>
 <div class="sect3">
 <h4 id="_required_knowledge">1.1.1. Required Knowledge</h4>
 <div class="paragraph">
-<p>This document is intended for people with some Linux experience
-and assumes reader has at least some knowledge in the following areas:</p>
+<p>This document expects reader to have some GNU/Linux experience and at least some knowledge in the following areas:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Be comfortable in the Linux terminal and using SSH.</p>
+<p>Be comfortable in the GNU/Linux terminal and familiar with SSH.</p>
 </li>
 <li>
-<p>Understand simple shell scripting (e.g. <code>bash</code> scripts).</p>
+<p>Understand simple shell scripting (e.g. <code>sh</code> or <code>bash</code> scripts).</p>
 </li>
 <li>
-<p>Be familiar with basic GNU/Linux command line utilities, such as: <code>find</code>, <code>grep</code>, <code>sed</code>, <code>awk</code> etc.</p>
+<p>Be familiar with basic GNU/Linux command line utilities, such as: <code>sudo</code>, <code>cp/mv/rm</code>, <code>find</code>, <code>grep</code>, <code>sed</code> etc.</p>
 </li>
 <li>
 <p>Be familiar with <code>man</code> pages and be able to explore them on your own.</p>
@@ -607,20 +631,24 @@ and assumes reader has at least some knowledge in the following areas:</p>
 <p>Be at least somewhat familiar with Docker.</p>
 </li>
 <li>
-<p>Be at least somewhat familiar with Systemd.</p>
+<p>Be at least somewhat familiar with systemd.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>The document doesn&#8217;t try to explain everything, as I believe it is simply impractical are a lot of good documentation already written.
+Instead, it provides references to the existing documentation where needed.</p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_structure">1.1.2. Structure</h4>
 <div class="paragraph">
 <p>The document is split into few top-level chapters, where each chapter (with a few exceptions) represents a separate,
-standalone feature, for example: NFS Server, NextCloud, Torrent Client etc.
+standalone feature, for example: NFS Server, Nextcloud, Torrent Client etc.
 While it is possible to skip some chapters, some may have a dependency on another chapters.</p>
 </div>
 <div class="paragraph">
-<p>The document is structured in the order of the configuration.</p>
+<p>The document is structured more or less in the order of the configuration.</p>
 </div>
 </div>
 <div class="sect3">
@@ -633,7 +661,7 @@ While it is possible to skip some chapters, some may have a dependency on anothe
 </div>
 <div class="paragraph">
 <p>Commands that need to be executed in a shell are formatted in monospace blocks.
-Command output is formatted as italic (if it is present).</p>
+Command output is formatted as italic (if there is any output).</p>
 </div>
 <div class="paragraph">
 <p>For example:</p>
@@ -784,7 +812,7 @@ where all the placeholders replaced with your values.</p>
 <h3 id="_getting_involved">1.3. Getting Involved</h3>
 <div class="paragraph">
 <p>If you find a typo or error in this document, or if you think that some part could be explained in more details,
-updated, or improved in any way - please open an issue at <a href="https://github.com/ovk/silverbox/issues" class="bare">https://github.com/ovk/silverbox/issues</a>.</p>
+updated, or improved in any way - please open an issue at <a href="https://github.com/ovk/silverbox/issues" class="bare">https://github.com/ovk/silverbox/issues</a> or make a pull request.</p>
 </div>
 </div>
 <div class="sect2">
@@ -814,20 +842,23 @@ updated, or improved in any way - please open an issue at <a href="https://githu
 <div class="sect2">
 <h3 id="server_overview_goals">2.1. Goals</h3>
 <div class="paragraph">
-<p>Main goals that greatly affected overall design decisions for the server are:</p>
+<p>Main goals that affected overall design of the server are:</p>
 </div>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Simplicity</dt>
 <dd>
-<p>Where possible, this document prefers more simple solutions, i.e. solutions that involve less configuration,
-fewer components and minimize bloat.</p>
+<p>Where possible, this document prefers simple solutions, i.e. solutions that require less configuration,
+fewer components and minimize bloat. Simple solutions are often more secure (due to limited attack surface),
+easy to understand and maintain, easy to extend and use less resources.</p>
 </dd>
 <dt class="hdlist1">Stability</dt>
 <dd>
 <p>The server design is heavily focused on stability of configuration and setup.
-While there are many fancy new tools and programs that could be used, vast majority of them have very short life span,
-minimal to no backward/forward compatibility, support, documentation, security updates etc.
+While there are many new "fancy" and "feature-rich" tools and programs that could be used,
+I find that vast majority of them have very short life span,
+minimal to no backward/forward compatibility and meaningful upgrade path, often very poor support and documentation,
+lack of security updates etc.
 Instead, the choices were made in favor of mature, stable, proven software, that doesn&#8217;t break compatibility every
 minor release.</p>
 </dd>
@@ -837,7 +868,7 @@ minor release.</p>
 While I think the solution in general is secure enough for home use, I still would not recommend to keep any
 sensitive information on the server.</p>
 </dd>
-<dt class="hdlist1">Minimal maintenance</dt>
+<dt class="hdlist1">Low Maintenance</dt>
 <dd>
 <p>Another major focus was keeping the server maintenance as small as possible.
 This goes hand in hand with stability, and also relies on tools and automation to keep server maintenance as minimal
@@ -856,11 +887,14 @@ as possible.</p>
 </dd>
 <dt class="hdlist1">Media Server</dt>
 <dd>
-<p>It is not running anything related to the media server, no Kodi, not even X server.</p>
+<p>It is not running anything related to the media server, no Kodi, not even X server.
+Although, turning it into a media server is definitely possible
+(I know of a person who added containerized Kodi on top of this guide and took advantage of NUCs infrared port).</p>
 </dd>
 <dt class="hdlist1">Proprietary Server</dt>
 <dd>
-<p>It is not running any proprietary, closed-source solutions, even if they are free (so no Plex).</p>
+<p>It is not running any proprietary, closed-source solutions, even if they are free (free as in beer).
+So you won&#8217;t find anything like Plex or Mineraft server here, but you could definitely add these on your own if you wish.</p>
 </dd>
 </dl>
 </div>
@@ -913,25 +947,37 @@ In some parts of this document it is assumed that your client is x86 64-bit PC r
 <div class="sect2">
 <h3 id="_software_and_services">2.3. Software and Services</h3>
 <div class="paragraph">
-<p>This is the list of services that the server provides:</p>
+<p>This is the list of services running on the server that are described in this document:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Forwarding DNS server that forwards queries to the DNS server of your choice and uses DNS-over-TLS and DNSSEC for
+<p><strong>Unbound</strong> as a forwarding DNS server that forwards queries to the DNS server of your choice and uses DNS-over-TLS and DNSSEC for
 extra security and privacy.</p>
 </li>
 <li>
-<p>NFS(v4) server secured with Kerberos.</p>
+<p><strong>NFS server</strong> secured with Kerberos (clean NFSv4-only server).</p>
 </li>
 <li>
-<p>Externally accessible Nextcloud server with public certificate.</p>
+<p><strong>Nextcloud</strong> accessible over HTTP(S) with Let&#8217;s Encrypt certificates (renewed automatically using Certbot with DNS challenge).</p>
 </li>
 <li>
-<p>SOCKS5 proxy over VPN.</p>
+<p><strong>Transmission</strong> BitTorent client that communicates only over a VPN connection.</p>
 </li>
 <li>
-<p>Transmission BitTorent client over VPN.</p>
+<p><strong>SOCKS5 proxy server</strong> that proxies traffic securely over a VPN connection.</p>
+</li>
+<li>
+<p><strong>Git server</strong> for hosting Git repositories.</p>
+</li>
+<li>
+<p><strong>Borg and Rclone</strong> for automatic encrypted incremental backups (both on-site and off-site).</p>
+</li>
+<li>
+<p><strong>Monit</strong> for system monitoring and notifications.</p>
+</li>
+<li>
+<p>Script to automatically update DNS record pointing to server&#8217;s public IP address (in case of dynamic IP).</p>
 </li>
 </ul>
 </div>
@@ -944,22 +990,9 @@ extra security and privacy.</p>
 <p>SSH server.</p>
 </li>
 <li>
-<p>Docker engine.</p>
-</li>
-<li>
-<p>Monitoring system.</p>
-</li>
-<li>
-<p>Certbot.</p>
-</li>
-<li>
-<p>Automatic encrypted backups to external disk and to the cloud storage.</p>
+<p>Docker engine (as most of the workloads are run as containers).</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p>To provide access to the server from the internet, server dynamically updates DNS records with an actual IP address,
-by using domain registrar&#8217;s API.</p>
 </div>
 </div>
 <div class="sect2">
@@ -999,7 +1032,7 @@ and reasonable power consumption for 24/7 operation.</p>
 <div class="sect3">
 <h4 id="_ups">2.4.4. UPS</h4>
 <div class="paragraph">
-<p>While strictly speaking this is not a part of the server, and technically not required, UPS is extremely recommended.</p>
+<p>While strictly speaking this is not a part of the server, and technically not required, UPS is highly recommended.</p>
 </div>
 <div class="paragraph">
 <p>The UPS that was used: Eaton 3S US550VA 5-15P (8) 5-15R 4-UPS.</p>
@@ -1012,7 +1045,7 @@ and reasonable power consumption for 24/7 operation.</p>
 </td>
 <td class="content">
 When choosing UPS, make sure you buy one that has decent Linux support.
-Compatibility with Network UPS Tools can be checked on the NUT hardware compatibility list <a href="#nut_hcl">[1]</a>.
+Compatibility with Network UPS Tools can be checked on the NUT hardware compatibility list <a href="#nut_hcl">[2]</a>.
 </td>
 </tr>
 </table>
@@ -1368,7 +1401,7 @@ and minimize the number of writes (thus prolonging SSD life).</p>
 </div>
 <div class="paragraph">
 <p>A lot of useful information about SSD-related configuration in Linux
-can be found in the Arch Wiki article about SSD <a href="#arch_wiki_ssd">[2]</a>.</p>
+can be found in the Arch Wiki article about SSD <a href="#arch_wiki_ssd">[3]</a>.</p>
 </div>
 <div class="sect3">
 <h4 id="_trim">3.3.1. TRIM</h4>
@@ -1575,7 +1608,7 @@ According to the Systemd documentation (at least at the moment of writing), usin
 </div>
 </div>
 <div class="paragraph">
-<p>In this example, its size is limited to 2G, but you can adjust if if needed.</p>
+<p>In this example, its size is limited to 2G, but you can adjust it if needed.</p>
 </div>
 <div class="admonitionblock important">
 <table>
@@ -1664,7 +1697,7 @@ Usually, UPS is connected to the server by USB and Network UPS Tools (NUT) is us
 <div class="sect4">
 <h5 id="_configuring_nut_driver">Configuring NUT Driver</h5>
 <div class="paragraph">
-<p>The driver type for NUT can be checked on the NUT Compatibility Page <a href="#nut_hcl">[1]</a>.
+<p>The driver type for NUT can be checked on the NUT Compatibility Page <a href="#nut_hcl">[2]</a>.
 In the case of Eaton 3S UPS the driver is <code>usbhid-ups</code>.</p>
 </div>
 <div class="paragraph">
@@ -1893,7 +1926,7 @@ AllowUsers {SERVER_USER}</pre>
 </ul>
 </div>
 <div class="paragraph">
-<p>Additionally, you can run SSH audit script <a href="#ssh_audit">[3]</a> against your SSH server. It haven&#8217;t been updated since 2016 though.</p>
+<p>Additionally, you can run SSH audit script <a href="#ssh_audit">[4]</a> against your SSH server. It haven&#8217;t been updated since 2016 though.</p>
 </div>
 </div>
 </div>
@@ -1968,7 +2001,7 @@ and some combination of Prometheus/Grafana/Collectd/Graphite/Telegraf/InfluxDB.<
 <p>Eventually, Monit was chosen as the main monitoring tool.
 While it may seem very limited at the first glance, it is actually quite powerful tool to monitor wide range of parameters
 and react to specific conditions.
-Monit is easy to extend and customize, it is well maintained, lightweight, with minimum dependencies and very low
+Monit is easy to extend and customize, it is maintained, very lightweight, with minimum dependencies and very low
 runtime overhead.
 The only significant downside is that it has no support for time series, and thus it is not possible to see
 historical data, graphs or analyze trends.</p>
@@ -2095,7 +2128,7 @@ If you using different hardware, you may need to modify this script.</p>
 <td class="content">
 For some SSDs (notably for Samsung EVO ones), the temperature data is returned in different smart field.
 Some extra configuration may be required for <code>hddtemp</code> to read temperature data from such drives.
-More details can be found in the Arch Wiki article on <code>hddtemp</code> <a href="#arch_wiki_hddtemp">[4]</a>.
+More details can be found in the Arch Wiki article on <code>hddtemp</code> <a href="#arch_wiki_hddtemp">[5]</a>.
 </td>
 </tr>
 </table>
@@ -2707,7 +2740,7 @@ and the DNS server will forward queries securely (using DNS over TLS and DNSSEC)
 <div class="sect2">
 <h3 id="_installation_2">5.1. Installation</h3>
 <div class="paragraph">
-<p>Unbound <a href="#unbound">[5]</a> is used as the DNS server.</p>
+<p>Unbound <a href="#unbound">[6]</a> is used as the DNS server.</p>
 </div>
 <div class="paragraph">
 <p>It can be installed directly from the repositories with:</p>
@@ -2820,7 +2853,7 @@ Uncomment this line once Ubuntu gets newer version of Unbound.</td>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-This configuration uses Cloudflare&#8217;s DNS servers <a href="#cloudflare_dns">[6]</a>, due to their reasonable privacy policy and support for
+This configuration uses Cloudflare&#8217;s DNS servers <a href="#cloudflare_dns">[7]</a>, due to their reasonable privacy policy and support for
 DNS over TLS and DNSSEC. Feel free to replace with DNS server of your choice.
 </td>
 </tr>
@@ -3031,7 +3064,7 @@ password for privilege elevation (unlike <code>sudo</code>).
 <div class="sect3">
 <h4 id="docker_compose_install">6.1.2. Docker Compose</h4>
 <div class="paragraph">
-<p>Docker Compose <a href="#docker_compose">[7]</a> is a useful tool for deploying and managing multi-container workloads.</p>
+<p>Docker Compose <a href="#docker_compose">[8]</a> is a useful tool for deploying and managing multi-container workloads.</p>
 </div>
 <div class="paragraph">
 <p>At the moment of writing, the preferred method of installation for Ubuntu was simply grabbing
@@ -3324,7 +3357,7 @@ sudo chmod 700 /root/silverbox/containers/vpn-proxy/host-key</pre>
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/vpn-proxy/docker-compose.yaml</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3.5'</span>
+<pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3.7'</span>
 
 <span class="na">networks</span><span class="pi">:</span>
   <span class="na">default</span><span class="pi">:</span>
@@ -3334,11 +3367,12 @@ sudo chmod 700 /root/silverbox/containers/vpn-proxy/host-key</pre>
 <span class="na">services</span><span class="pi">:</span>
   <span class="na">vpn-proxy</span><span class="pi">:</span>
     <span class="na">container_name</span><span class="pi">:</span> <span class="s">vpn-proxy</span>
+    <span class="na">init</span><span class="pi">:</span> <span class="no">true</span>
     <span class="na">build</span><span class="pi">:</span>
       <span class="na">context</span><span class="pi">:</span> <span class="s">/root/silverbox/containers/vpn-proxy</span>
       <span class="na">network</span><span class="pi">:</span> <span class="s">vpn</span>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3.10.2'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.5-slim'</span> <i class="conum" data-value="1"></i><b>(1)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:15</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -3363,7 +3397,7 @@ sudo chmod 700 /root/silverbox/containers/vpn-proxy/host-key</pre>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Replace <code>3.10.2</code> with the actual latest <code>alpine</code> image version (can be checked at the Docker Hub).
+<td>Replace <code>10.5-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).
 Don&#8217;t use <code>latest</code> here as it makes setup non-deterministic and makes it harder to maintain and upgrade.</td>
 </tr>
 <tr>
@@ -3384,20 +3418,17 @@ Don&#8217;t use <code>latest</code> here as it makes setup non-deterministic and
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">ARG</span><span class="s"> version=latest</span>
 
-<span class="k">FROM</span><span class="s"> alpine:$version</span>
+<span class="k">FROM</span><span class="s"> debian:$version</span>
 
-<span class="k">RUN </span>apk <span class="nt">--no-cache</span> <span class="nt">--no-progress</span> upgrade <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    apk <span class="nt">--no-cache</span> <span class="nt">--no-progress</span> add bash iptables tini shadow openvpn openssh <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    addgroup <span class="nt">-S</span> vpn <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    adduser proxytunnel <span class="nt">-D</span> <span class="nt">--shell</span> /sbin/nologin <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    usermod <span class="nt">-p</span> <span class="s1">'*'</span> proxytunnel <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    <span class="nb">rm</span> <span class="nt">-rf</span> /tmp/<span class="k">*</span>
+<span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nt">--no-install-recommends</span> bash iputils-ping iptables openvpn openssh-server <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    addgroup <span class="nt">--system</span> vpn <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    adduser proxytunnel <span class="nt">--disabled-password</span> <span class="nt">--gecos</span> <span class="s2">""</span> <span class="nt">--shell</span> /usr/sbin/nologin <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    <span class="nb">mkdir</span> /var/run/sshd
 
 <span class="k">COPY</span><span class="s"> docker-entrypoint.sh /usr/local/bin/</span>
 <span class="k">COPY</span><span class="s"> sshd_config /etc/ssh/</span>
-<span class="k">COPY</span><span class="s"> proxy_tunnel.pub /home/proxytunnel</span>
-
-<span class="k">RUN </span><span class="nb">chown </span>proxytunnel /home/proxytunnel/proxy_tunnel.pub
+<span class="k">COPY</span><span class="s"> --chown=proxytunnel:proxytunnel proxy_tunnel.pub /home/proxytunnel</span>
 
 <span class="k">HEALTHCHECK</span><span class="s"> --interval=120s --timeout=20s --start-period=120s CMD ping 1.1.1.1 -c 1 </span><i class="conum" data-value="1"></i><b>(1)</b>
 
@@ -3405,7 +3436,7 @@ Don&#8217;t use <code>latest</code> here as it makes setup non-deterministic and
 
 <span class="k">EXPOSE</span><span class="s"> {VPN_PROXY_PORT}/tcp </span><i class="conum" data-value="2"></i><b>(2)</b>
 
-<span class="k">ENTRYPOINT</span><span class="s"> ["/sbin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]</span></code></pre>
+<span class="k">ENTRYPOINT</span><span class="s"> [ "/usr/local/bin/docker-entrypoint.sh" ]</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -3533,7 +3564,7 @@ and the <code>{VPN_PROXY_PORT}</code> port number.</td>
         <span class="k">fi
     fi
 
-    </span><span class="nb">echo</span> <span class="s2">"-- Adding oute back to LAN"</span>
+    </span><span class="nb">echo</span> <span class="s2">"-- Adding route back to LAN"</span>
     ip route add <span class="o">{</span>SERVER_SUBNET<span class="o">}</span> via <span class="o">{</span>DOCKER_VPN_NETWORK_GW<span class="o">}</span> <i class="conum" data-value="3"></i><b>(3)</b>
 
     <span class="nb">echo</span> <span class="s2">"-- Starting SSH server"</span>
@@ -3921,7 +3952,7 @@ In this guide, it is used for the following purposes:</p>
 <p>To access the server from the outside (from the internet) without having a static IP address.</p>
 </li>
 <li>
-<p>To obtain certificates for Nextcloud (to use HTTPS).</p>
+<p>To obtain certificates for Nextcloud (to use HTTPS) or other services.</p>
 </li>
 </ol>
 </div>
@@ -3943,7 +3974,7 @@ Domain name registration and payment process may take a few days, so it is bette
 <div class="paragraph">
 <p>The main requirement to the domain name registrar is to provide an API that allows changing DNS records
 (at least host A and TXT records).
-After evaluating a few options, NameSilo <a href="#name_silo">[8]</a> was chosen as the domain name registrar,
+After evaluating a few options, NameSilo <a href="#name_silo">[9]</a> was chosen as the domain name registrar,
 so this document provides DNS records update script for its API.
 If you decide to use different domain name registrar, you&#8217;ll have to write similar script by yourself.</p>
 </div>
@@ -4044,10 +4075,10 @@ sudo chmod 700 /root/silverbox/containers/dns-updater</pre>
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/dns-updater/Dockerfile</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> alpine:3.10.2 </span><i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> debian:10.5-slim </span><i class="conum" data-value="1"></i><b>(1)</b>
 
-<span class="k">RUN </span>apk <span class="nt">--no-cache</span> <span class="nt">--no-progress</span> upgrade <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    apk <span class="nt">--no-cache</span> <span class="nt">--no-progress</span> add python3
+<span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nt">--no-install-recommends</span> python3 ca-certificates
 
 <span class="k">COPY</span><span class="s"> update-dns.py /usr/local/bin/</span>
 
@@ -4060,7 +4091,7 @@ sudo chmod 700 /root/silverbox/containers/dns-updater</pre>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Replace <code>3.10.2</code> with the actual latest <code>alpine</code> image version (can be checked at the Docker Hub).</td>
+<td>Replace <code>10.5-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -4087,54 +4118,54 @@ sudo chmod 700 /root/silverbox/containers/dns-updater</pre>
     <span class="k">return</span> <span class="s">'https://www.namesilo.com/api/'</span> <span class="o">+</span> <span class="n">operation</span> <span class="o">+</span> <span class="s">'?version=1&amp;type=xml&amp;key='</span> <span class="o">+</span> <span class="n">api_key</span>
 
 <span class="k">def</span> <span class="nf">check_reply_code</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
-    <span class="n">actual</span><span class="o">=</span><span class="n">doc</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'reply'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'code'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">firstChild</span><span class="o">.</span><span class="n">nodeValue</span>
+    <span class="n">actual</span><span class="o">=</span><span class="n">doc</span><span class="p">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'reply'</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'code'</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="n">firstChild</span><span class="p">.</span><span class="n">nodeValue</span>
     <span class="k">if</span> <span class="n">actual</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="nb">BaseException</span><span class="p">(</span><span class="s">'Expecting code {} got {}'</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">actual</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="nb">BaseException</span><span class="p">(</span><span class="s">'Expecting code {} got {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">actual</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">get_dns_record</span><span class="p">(</span><span class="n">rec_type</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">api_key</span><span class="p">):</span>
-    <span class="n">response</span><span class="o">=</span><span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="p">(</span><span class="n">namesilo_url</span><span class="p">(</span><span class="s">'dnsListRecords'</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span> <span class="o">+</span> <span class="s">'&amp;domain='</span> <span class="o">+</span> <span class="n">domain</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="n">DEFAULT_HEADERS</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-    <span class="n">doc</span><span class="o">=</span><span class="n">minidom</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="n">response</span><span class="o">=</span><span class="n">urllib</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">urllib</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="p">(</span><span class="n">namesilo_url</span><span class="p">(</span><span class="s">'dnsListRecords'</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span> <span class="o">+</span> <span class="s">'&amp;domain='</span> <span class="o">+</span> <span class="n">domain</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="n">DEFAULT_HEADERS</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">doc</span><span class="o">=</span><span class="n">minidom</span><span class="p">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">read</span><span class="p">())</span>
     <span class="n">check_reply_code</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'reply'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'resource_record'</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'host'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">firstChild</span><span class="o">.</span><span class="n">nodeValue</span> <span class="o">==</span> <span class="n">subdomain</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'type'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">firstChild</span><span class="o">.</span><span class="n">nodeValue</span> <span class="o">==</span> <span class="n">rec_type</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{</span> <span class="s">'val'</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'value'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">firstChild</span><span class="o">.</span><span class="n">nodeValue</span><span class="p">,</span>
-                     <span class="s">'id'</span><span class="p">:</span>  <span class="n">e</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'record_id'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">firstChild</span><span class="o">.</span><span class="n">nodeValue</span><span class="p">,</span>
-                     <span class="s">'ttl'</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'ttl'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">firstChild</span><span class="o">.</span><span class="n">nodeValue</span> <span class="p">}</span>
-    <span class="k">raise</span> <span class="nb">BaseException</span><span class="p">(</span><span class="s">'DNS {} record for {} not found'</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">rec_type</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'reply'</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'resource_record'</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">e</span><span class="p">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'host'</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="n">firstChild</span><span class="p">.</span><span class="n">nodeValue</span> <span class="o">==</span> <span class="n">subdomain</span> <span class="ow">and</span> <span class="n">e</span><span class="p">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'type'</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="n">firstChild</span><span class="p">.</span><span class="n">nodeValue</span> <span class="o">==</span> <span class="n">rec_type</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span> <span class="s">'val'</span><span class="p">:</span> <span class="n">e</span><span class="p">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'value'</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="n">firstChild</span><span class="p">.</span><span class="n">nodeValue</span><span class="p">,</span>
+                     <span class="s">'id'</span><span class="p">:</span>  <span class="n">e</span><span class="p">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'record_id'</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="n">firstChild</span><span class="p">.</span><span class="n">nodeValue</span><span class="p">,</span>
+                     <span class="s">'ttl'</span><span class="p">:</span> <span class="n">e</span><span class="p">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s">'ttl'</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="n">firstChild</span><span class="p">.</span><span class="n">nodeValue</span> <span class="p">}</span>
+    <span class="k">raise</span> <span class="nb">BaseException</span><span class="p">(</span><span class="s">'DNS {} record for {} not found'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">rec_type</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">update_dns_record</span><span class="p">(</span><span class="n">rec_type</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">rec_id</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">ttl</span><span class="p">,</span> <span class="n">api_key</span><span class="p">):</span>
-    <span class="n">params</span><span class="o">=</span><span class="s">'&amp;domain={}&amp;rrid={}&amp;rrhost={}&amp;rrvalue={}&amp;rrttl={}'</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">rec_id</span><span class="p">,</span> <span class="s">'.'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subdomain</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]),</span> <span class="n">val</span><span class="p">,</span> <span class="n">ttl</span><span class="p">)</span>
-    <span class="n">response</span><span class="o">=</span><span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="p">(</span><span class="n">namesilo_url</span><span class="p">(</span><span class="s">'dnsUpdateRecord'</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span> <span class="o">+</span> <span class="n">params</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="n">DEFAULT_HEADERS</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-    <span class="n">check_reply_code</span><span class="p">(</span><span class="n">minidom</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()),</span> <span class="mi">300</span><span class="p">)</span>
+    <span class="n">params</span><span class="o">=</span><span class="s">'&amp;domain={}&amp;rrid={}&amp;rrhost={}&amp;rrvalue={}&amp;rrttl={}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">rec_id</span><span class="p">,</span> <span class="s">'.'</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">subdomain</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]),</span> <span class="n">val</span><span class="p">,</span> <span class="n">ttl</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">=</span><span class="n">urllib</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">urllib</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="p">(</span><span class="n">namesilo_url</span><span class="p">(</span><span class="s">'dnsUpdateRecord'</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span> <span class="o">+</span> <span class="n">params</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="n">DEFAULT_HEADERS</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">check_reply_code</span><span class="p">(</span><span class="n">minidom</span><span class="p">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">read</span><span class="p">()),</span> <span class="mi">300</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">rec_type</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">api_key</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">rec_type</span> <span class="o">==</span> <span class="s">'A'</span><span class="p">:</span>
-        <span class="n">val</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">'https://api.ipify.org?format=json'</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())[</span><span class="s">'ip'</span><span class="p">]</span> <i class="conum" data-value="2"></i><b>(2)</b>
+        <span class="n">val</span><span class="o">=</span><span class="n">json</span><span class="p">.</span><span class="n">loads</span><span class="p">(</span><span class="n">urllib</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">'https://api.ipify.org?format=json'</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">).</span><span class="n">read</span><span class="p">())[</span><span class="s">'ip'</span><span class="p">]</span> <i class="conum" data-value="2"></i><b>(2)</b>
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">'Current external IP address: {}'</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'Current external IP address: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
 
     <span class="n">current_record</span><span class="o">=</span><span class="n">get_dns_record</span><span class="p">(</span><span class="n">rec_type</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">'Current DNS {} record for {}: "{}"'</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">rec_type</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">,</span> <span class="n">current_record</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Current DNS {} record for {}: "{}"'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">rec_type</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">,</span> <span class="n">current_record</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">val</span> <span class="o">!=</span> <span class="n">current_record</span><span class="p">[</span><span class="s">'val'</span><span class="p">]</span> <span class="ow">or</span> <span class="n">force</span><span class="p">:</span>
         <span class="n">update_dns_record</span><span class="p">(</span><span class="n">rec_type</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">current_record</span><span class="p">[</span><span class="s">'id'</span><span class="p">],</span> <span class="n">val</span><span class="p">,</span> <span class="n">current_record</span><span class="p">[</span><span class="s">'ttl'</span><span class="p">],</span> <span class="n">api_key</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">'{} record for {} updated: "{}" -&gt; "{}"'</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">rec_type</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">,</span> <span class="n">current_record</span><span class="p">[</span><span class="s">'val'</span><span class="p">],</span> <span class="n">val</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'{} record for {} updated: "{}" -&gt; "{}"'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">rec_type</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">,</span> <span class="n">current_record</span><span class="p">[</span><span class="s">'val'</span><span class="p">],</span> <span class="n">val</span><span class="p">))</span>
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
-    <span class="n">parser</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-v'</span><span class="p">,</span> <span class="s">'--verbose'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'verbose output'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">'store_true'</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-f'</span><span class="p">,</span> <span class="s">'--force'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'force DNS record update (even if it contains the same value)'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">'store_true'</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-d'</span><span class="p">,</span> <span class="s">'--domain'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'fully qualified domain name for which to update a record (i.e. server.example.com)'</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-a'</span><span class="p">,</span> <span class="s">'--action'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'action to perform: update host A record with the current external IP or update TXT record with a given value'</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span> <span class="s">'update-ip'</span><span class="p">,</span> <span class="s">'update-txt'</span> <span class="p">])</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-t'</span><span class="p">,</span> <span class="s">'--txt'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'content of the TXT record'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-k'</span><span class="p">,</span> <span class="s">'--key'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'file name of the file containing API key'</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">args</span><span class="o">=</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">=</span><span class="n">argparse</span><span class="p">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-v'</span><span class="p">,</span> <span class="s">'--verbose'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'verbose output'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">'store_true'</span><span class="p">)</span>
+    <span class="n">parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-f'</span><span class="p">,</span> <span class="s">'--force'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'force DNS record update (even if it contains the same value)'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">'store_true'</span><span class="p">)</span>
+    <span class="n">parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-d'</span><span class="p">,</span> <span class="s">'--domain'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'fully qualified domain name for which to update a record (i.e. server.example.com)'</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-a'</span><span class="p">,</span> <span class="s">'--action'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'action to perform: update host A record with the current external IP or update TXT record with a given value'</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span> <span class="s">'update-ip'</span><span class="p">,</span> <span class="s">'update-txt'</span> <span class="p">])</span>
+    <span class="n">parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-t'</span><span class="p">,</span> <span class="s">'--txt'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'content of the TXT record'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+    <span class="n">parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">'-k'</span><span class="p">,</span> <span class="s">'--key'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">'file name of the file containing API key'</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">parser</span><span class="p">.</span><span class="n">parse_args</span><span class="p">()</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">key</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">api_key</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">key</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">api_key</span><span class="o">=</span><span class="n">f</span><span class="p">.</span><span class="n">readline</span><span class="p">().</span><span class="n">strip</span><span class="p">()</span>
 
-    <span class="n">main</span><span class="p">(</span><span class="s">'A'</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s">'update-ip'</span> <span class="k">else</span> <span class="s">'TXT'</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">txt</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="s">'.'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]),</span> <span class="n">api_key</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span></code></pre>
+    <span class="n">main</span><span class="p">(</span><span class="s">'A'</span> <span class="k">if</span> <span class="n">args</span><span class="p">.</span><span class="n">action</span> <span class="o">==</span> <span class="s">'update-ip'</span> <span class="k">else</span> <span class="s">'TXT'</span><span class="p">,</span> <span class="n">args</span><span class="p">.</span><span class="n">txt</span><span class="p">,</span> <span class="n">args</span><span class="p">.</span><span class="n">domain</span><span class="p">,</span> <span class="s">'.'</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">domain</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]),</span> <span class="n">api_key</span><span class="p">,</span> <span class="n">args</span><span class="p">.</span><span class="n">force</span><span class="p">,</span> <span class="n">args</span><span class="p">.</span><span class="n">verbose</span><span class="p">)</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -5345,7 +5376,7 @@ The only workaround I found for this is to add <code>systemctl --user daemon-rel
 <h2 id="_transmission">10. Transmission</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section describes hot to setup Transmission <a href="#transmission">[9]</a> BitTorrent client on the server.
+<p>This section describes hot to setup Transmission <a href="#transmission">[10]</a> BitTorrent client on the server.
 Similarly to how SOCKS5 proxy server was deployed (as described in the <a href="#socks5_over_vpn">SOCKS5 Over VPN</a> section),
 the Transmission will be running inside a Docker container together with the OpenVPN,
 such that all Transmission traffic will be tunneled though the VPN.
@@ -5452,7 +5483,7 @@ sudo chmod 700 /root/silverbox/containers/transmission</pre>
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/transmission/docker-compose.yaml</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3.5'</span>
+<pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3.7'</span>
 
 <span class="na">networks</span><span class="pi">:</span>
   <span class="na">default</span><span class="pi">:</span>
@@ -5462,11 +5493,12 @@ sudo chmod 700 /root/silverbox/containers/transmission</pre>
 <span class="na">services</span><span class="pi">:</span>
   <span class="na">transmission</span><span class="pi">:</span>
     <span class="na">container_name</span><span class="pi">:</span> <span class="s">transmission</span>
+    <span class="na">init</span><span class="pi">:</span> <span class="no">true</span>
     <span class="na">build</span><span class="pi">:</span>
       <span class="na">context</span><span class="pi">:</span> <span class="s">/root/silverbox/containers/transmission</span>
       <span class="na">network</span><span class="pi">:</span> <span class="s">vpn</span>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3.10.2'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.5-slim'</span> <i class="conum" data-value="1"></i><b>(1)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:15</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -5491,7 +5523,7 @@ sudo chmod 700 /root/silverbox/containers/transmission</pre>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Replace <code>3.10.2</code> with the actual latest <code>alpine</code> image version (can be checked at the Docker Hub).
+<td>Replace <code>10.5-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).
 Note that this is not the Transmission version.</td>
 </tr>
 <tr>
@@ -5512,24 +5544,21 @@ Note that this is not the Transmission version.</td>
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">ARG</span><span class="s"> version=latest</span>
 
-<span class="k">FROM</span><span class="s"> alpine:$version</span>
+<span class="k">FROM</span><span class="s"> debian:$version</span>
 
 <span class="k">ARG</span><span class="s"> UID={USER_ID} </span><i class="conum" data-value="1"></i><b>(1)</b>
 <span class="k">ARG</span><span class="s"> GID={GROUP_ID} </span><i class="conum" data-value="2"></i><b>(2)</b>
 
-<span class="k">RUN </span>apk <span class="nt">--no-cache</span> <span class="nt">--no-progress</span> upgrade <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    apk <span class="nt">--no-cache</span> <span class="nt">--no-progress</span> add bash iptables tini shadow openvpn transmission-daemon <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    addgroup <span class="nt">-S</span> vpn <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    groupmod <span class="nt">-g</span> <span class="k">${</span><span class="nv">GID</span><span class="k">}</span> transmission <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    usermod <span class="nt">-u</span> <span class="k">${</span><span class="nv">UID</span><span class="k">}</span> transmission <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    <span class="nb">rm</span> <span class="nt">-rf</span> /tmp/<span class="k">*</span>
+<span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nt">--no-install-recommends</span> bash iputils-ping iptables openvpn transmission-daemon <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    addgroup <span class="nt">--system</span> vpn <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    addgroup <span class="nt">--gid</span> <span class="k">${</span><span class="nv">GID</span><span class="k">}</span> transmission <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    adduser transmission <span class="nt">--uid</span> <span class="k">${</span><span class="nv">UID</span><span class="k">}</span> <span class="nt">--gid</span> <span class="k">${</span><span class="nv">GID</span><span class="k">}</span> <span class="nt">--disabled-login</span> <span class="nt">--no-create-home</span> <span class="nt">--gecos</span> <span class="s2">""</span> <span class="nt">--shell</span> /usr/sbin/nologin <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    <span class="nb">mkdir</span> /config <span class="o">&amp;&amp;</span> <span class="nb">chown </span>transmission:transmission /config
 
 <span class="k">COPY</span><span class="s"> docker-entrypoint.sh /usr/local/bin/</span>
 <span class="k">COPY</span><span class="s"> start-transmission.sh /usr/local/bin/</span>
-
-<span class="k">RUN </span><span class="nb">mkdir</span> /config
-<span class="k">COPY</span><span class="s"> settings.json /config/</span>
-<span class="k">RUN </span><span class="nb">chown </span>transmission:transmission <span class="nt">-R</span> /config
+<span class="k">COPY</span><span class="s"> --chown=transmission:transmission settings.json /config/</span>
 
 <span class="k">HEALTHCHECK</span><span class="s"> --interval=120s --timeout=20s --start-period=120s CMD ping 1.1.1.1 -c 1 </span><i class="conum" data-value="3"></i><b>(3)</b>
 
@@ -5537,7 +5566,7 @@ Note that this is not the Transmission version.</td>
 
 <span class="k">EXPOSE</span><span class="s"> {TRANSMISSION_UI_PORT}/tcp </span><i class="conum" data-value="4"></i><b>(4)</b>
 
-<span class="k">ENTRYPOINT</span><span class="s"> ["/sbin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]</span></code></pre>
+<span class="k">ENTRYPOINT</span><span class="s"> [ "/usr/local/bin/docker-entrypoint.sh" ]</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -5978,14 +6007,14 @@ Web interface now can be accessed on the client pc at <code><a href="http://127.
 <h2 id="_nextcloud">11. Nextcloud</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section describes how to install and configure Nextcloud <a href="#nextcloud">[10]</a> on the server,
+<p>This section describes how to install and configure Nextcloud <a href="#nextcloud">[11]</a> on the server,
 in such a way that it can be accessed from the internet securely over HTTPS.</p>
 </div>
 <div class="paragraph">
 <p>This section depends on the following sections: <a href="#docker">Docker</a>, <a href="#domain_name">Domain Name</a>, <a href="#nfs_server">NFS Server</a>.</p>
 </div>
 <div class="sect2">
-<h3 id="_overview_2">11.1. Overview</h3>
+<h3 id="_overview">11.1. Overview</h3>
 <div class="paragraph">
 <p>The Nextcloud will be deployed using Docker (more specifically - Docker Compose).
 Below is a diagram that shows high level overview of the Nextcloud deployment:</p>
@@ -6088,12 +6117,20 @@ But more importantly, compromising or DoS-ing one container doesn&#8217;t compro
 that will be used to setup HTTPS for the Nextcloud.</p>
 </div>
 <div class="paragraph">
-<p>The certificate will be issued by Let&#8217;s Encrypt <a href="#lets_encrypt">[11]</a>
-and will be obtained and renewed using Certbot <a href="#certbot">[12]</a>.</p>
+<p>The certificate will be issued by Let&#8217;s Encrypt <a href="#lets_encrypt">[12]</a>
+and will be obtained and renewed using Certbot <a href="#certbot">[13]</a>.</p>
 </div>
 <div class="paragraph">
 <p>The certificate needs to be obtained before Nextcloud installation,
 since Nextcloud will only be reachable via HTTPS (not plain HTTP) and the web server won&#8217;t start without certificate.</p>
+</div>
+<div class="paragraph">
+<p>ACME DNS challenge is used for domain validation (needed to issue the initial certificate and for subsequent renewals).
+One major advantage DNS challenge has over more widely used HTTP challenge
+is that it doesn&#8217;t require your web server to use standard ports: 80 and 443.
+This allows to host Nextcloud on non-standard port which can be advantageous for two reasons:
+using non-standard port can dramatically reduce amount of unwanted requests from bots,
+and it may be the only option if your ISP blocks standard ports 80 and 443.</p>
 </div>
 <div class="sect3">
 <h4 id="_installing_certbot">11.2.1. Installing Certbot</h4>
@@ -6397,9 +6434,17 @@ To check the status of the timer:</p>
 <pre class="nowrap">sudo mkdir -p /srv/nextcloud/db
 sudo mkdir /srv/nextcloud/html
 sudo mkdir /srv/nextcloud/data
-sudo chown 82 /srv/nextcloud/data
+sudo chown 33 /srv/nextcloud/data <i class="conum" data-value="1"></i><b>(1)</b>
 sudo chmod 750 -R /srv/nextcloud</pre>
 </div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>33</code> is the UID of the <code>www-data</code> user (inside Apache httpd and Nextcloud FPM containers).</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>All the Nextcloud data (including database, static files and user data)
@@ -6429,7 +6474,7 @@ will be stored under the <code>/srv/nextcloud</code> directory in the following 
 </td>
 <td class="content">
 It is important to keep these directories owned by the root and have restrictive permissions
-since content inside them will be owned by the <code>www-data</code> (UID 82) user from the Docker containers.
+since content inside them will be owned by the <code>www-data</code> (UID <code>33</code>) user from the Docker containers.
 </td>
 </tr>
 </table>
@@ -6465,7 +6510,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
 <span class="na">services</span><span class="pi">:</span>
   <span class="na">nextcloud-db</span><span class="pi">:</span>
     <span class="na">container_name</span><span class="pi">:</span> <span class="s">nextcloud-db</span>
-    <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:12.0-alpine</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:12.3</span> <i class="conum" data-value="2"></i><b>(2)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">shm_size</span><span class="pi">:</span> <span class="s">256mb</span>
     <span class="na">logging</span><span class="pi">:</span>
@@ -6478,16 +6523,16 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
     <span class="na">environment</span><span class="pi">:</span>
       <span class="pi">-</span> <span class="s">POSTGRES_USER=nextcloud</span>
       <span class="pi">-</span> <span class="s">POSTGRES_PASSWORD={POSTGRES_PASSWORD}</span> <i class="conum" data-value="3"></i><b>(3)</b>
-      <span class="pi">-</span> <span class="s">POSTGRES_DB=not_used</span> <i class="conum" data-value="4"></i><b>(4)</b>
+      <span class="pi">-</span> <span class="s">POSTGRES_DB=nextcloud</span>
       <span class="pi">-</span> <span class="s">POSTGRES_INITDB_ARGS="--data-checksums"</span>
 
   <span class="na">nextcloud-fpm</span><span class="pi">:</span>
     <span class="na">container_name</span><span class="pi">:</span> <span class="s">nextcloud-fpm</span>
     <span class="na">build</span><span class="pi">:</span>
       <span class="na">context</span><span class="pi">:</span> <span class="s">./nextcloud-fpm</span>
-      <span class="na">network</span><span class="pi">:</span> <span class="s">common</span> <i class="conum" data-value="5"></i><b>(5)</b>
+      <span class="na">network</span><span class="pi">:</span> <span class="s">common</span> <i class="conum" data-value="4"></i><b>(4)</b>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">17.0.0-fpm-alpine'</span> <i class="conum" data-value="6"></i><b>(6)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">19.0.1-fpm'</span> <i class="conum" data-value="5"></i><b>(5)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -6503,10 +6548,10 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
       <span class="pi">-</span> <span class="s">POSTGRES_HOST=nextcloud-db</span>
       <span class="pi">-</span> <span class="s">POSTGRES_DB=nextcloud</span>
       <span class="pi">-</span> <span class="s">POSTGRES_USER=nextcloud</span>
-      <span class="pi">-</span> <span class="s">POSTGRES_PASSWORD={POSTGRES_PASSWORD}</span> <i class="conum" data-value="7"></i><b>(7)</b>
+      <span class="pi">-</span> <span class="s">POSTGRES_PASSWORD={POSTGRES_PASSWORD}</span> <i class="conum" data-value="6"></i><b>(6)</b>
       <span class="pi">-</span> <span class="s">NEXTCLOUD_DATA_DIR=/data</span>
       <span class="pi">-</span> <span class="s">NEXTCLOUD_UPDATE=1</span>
-      <span class="pi">-</span> <span class="s">NEXTCLOUD_TRUSTED_DOMAINS='{NEXTCLOUD_DOMAIN}:{NEXTCLOUD_PORT}'</span> <i class="conum" data-value="8"></i><b>(8)</b>
+      <span class="pi">-</span> <span class="s">NEXTCLOUD_TRUSTED_DOMAINS='{NEXTCLOUD_DOMAIN}:{NEXTCLOUD_PORT}'</span> <i class="conum" data-value="7"></i><b>(7)</b>
 
   <span class="na">nextcloud-web</span><span class="pi">:</span>
     <span class="na">container_name</span><span class="pi">:</span> <span class="s">nextcloud-web</span>
@@ -6514,7 +6559,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
       <span class="na">context</span><span class="pi">:</span> <span class="s">./httpd</span>
       <span class="na">network</span><span class="pi">:</span> <span class="s">common</span>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2.4.41-alpine'</span> <i class="conum" data-value="9"></i><b>(9)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2.4.46'</span> <i class="conum" data-value="8"></i><b>(8)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -6525,10 +6570,10 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
       <span class="pi">-</span> <span class="s">nextcloud-fpm</span>
     <span class="na">volumes</span><span class="pi">:</span>
       <span class="pi">-</span> <span class="s">/srv/nextcloud/html:/usr/local/apache2/htdocs</span>
-      <span class="pi">-</span> <span class="s">/etc/letsencrypt/live/{NEXTCLOUD_DOMAIN}:/certs/live/{NEXTCLOUD_DOMAIN}</span> <i class="conum" data-value="10"></i><b>(10)</b>
-      <span class="pi">-</span> <span class="s">/etc/letsencrypt/archive/{NEXTCLOUD_DOMAIN}:/certs/archive/{NEXTCLOUD_DOMAIN}</span> <i class="conum" data-value="11"></i><b>(11)</b>
+      <span class="pi">-</span> <span class="s">/etc/letsencrypt/live/{NEXTCLOUD_DOMAIN}:/certs/live/{NEXTCLOUD_DOMAIN}</span> <i class="conum" data-value="9"></i><b>(9)</b>
+      <span class="pi">-</span> <span class="s">/etc/letsencrypt/archive/{NEXTCLOUD_DOMAIN}:/certs/archive/{NEXTCLOUD_DOMAIN}</span> <i class="conum" data-value="10"></i><b>(10)</b>
     <span class="na">ports</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="s2">"</span><span class="s">{SERVER_IP_ADDR}:{NEXTCLOUD_PORT}:443"</span> <i class="conum" data-value="12"></i><b>(12)</b></code></pre>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">{SERVER_IP_ADDR}:{NEXTCLOUD_PORT}:443"</span> <i class="conum" data-value="11"></i><b>(11)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -6539,7 +6584,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Replace <code>11.3-alpine ` with the actual latest `postgres</code> (Alpine) image version (can be checked at the Docker Hub).
+<td>Replace <code>12.3</code> with the actual latest <code>postgres</code> (Debian based) image version (can be checked at the Docker Hub).
 You can double check if this version is supported by the Nextcloud in the Nextcloud documentation.</td>
 </tr>
 <tr>
@@ -6548,42 +6593,37 @@ You can double check if this version is supported by the Nextcloud in the Nextcl
 </tr>
 <tr>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>This is workaround for bug <a href="https://github.com/nextcloud/docker/issues/345" class="bare">https://github.com/nextcloud/docker/issues/345</a>.
-It may be unnecessary once the bug is fixed.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
 <td>To build <code>nextcloud-fpm</code> image (same as for <code>nextcloud-web</code> image), <code>common</code> docker network is used.
 If you skipped over <a href="#domain_name">Domain Name</a> section where this network is created, create it now as described in that section.</td>
 </tr>
 <tr>
-<td><i class="conum" data-value="6"></i><b>6</b></td>
-<td>Replace <code>17.0.0-fpm-alpine</code> with the actual latest <code>nextcloud-fpm</code> (Alpine) image version (can be checked at the Docker Hub).</td>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Replace <code>19.0.1-fpm</code> with the actual latest <code>nextcloud-fpm</code> (Debian based) image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
-<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
 <td>Replace <code>{POSTGRES_PASSWORD}</code> with the same password as above.</td>
 </tr>
 <tr>
-<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
 <td>Replace <code>{NEXTCLOUD_DOMAIN}</code> with your Nextcloud domain name and
 <code>{NEXTCLOUD_PORT}</code> with the port number you chose to use for the Nextcloud
 (the Nextcloud web server will listen on this port).</td>
 </tr>
 <tr>
-<td><i class="conum" data-value="9"></i><b>9</b></td>
-<td>Replace <code>2.4.41-alpine</code> with the actual latest <code>httpd</code> (Alpine) image version (can be checked at the Docker Hub).</td>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Replace <code>2.4.46</code> with the actual latest <code>httpd</code> (Debian based) image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
-<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
 <td>Replace <code>{NEXTCLOUD_DOMAIN}</code> with the actual domain name for the Nextcloud.</td>
 </tr>
 <tr>
-<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
 <td>Same as above.</td>
 </tr>
 <tr>
-<td><i class="conum" data-value="12"></i><b>12</b></td>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
 <td>Replace <code>{SERVER_IP_ADDR}</code> and <code>{NEXTCLOUD_PORT}</code> with the actual values.</td>
 </tr>
 </table>
@@ -6605,19 +6645,29 @@ sudo chmod 700 /root/silverbox/containers/nextcloud/httpd</pre>
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/nextcloud/httpd/Dockerfile</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">ARG</span><span class="s"> version=alpine</span>
+<pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">ARG</span><span class="s"> version=latest</span>
 
 <span class="k">FROM</span><span class="s"> httpd:$version</span>
 
-<span class="k">RUN </span><span class="o">[</span> <span class="sb">`</span><span class="nb">id</span> <span class="nt">-u</span> www-data<span class="sb">`</span> <span class="nt">-eq</span> 82 <span class="o">]</span> <span class="o">||</span> <span class="nb">exit </span>1
-<span class="k">RUN </span><span class="o">[</span> <span class="sb">`</span><span class="nb">id</span> <span class="nt">-g</span> www-data<span class="sb">`</span> <span class="nt">-eq</span> 82 <span class="o">]</span> <span class="o">||</span> <span class="nb">exit </span>1
+<span class="k">ARG</span><span class="s"> WWW_DATA_UID=33 </span><i class="conum" data-value="1"></i><b>(1)</b>
+<span class="k">ARG</span><span class="s"> WWW_DATA_GID=33</span>
 
-<span class="k">RUN </span>apk <span class="nt">--no-cache</span> <span class="nt">--no-progress</span> upgrade <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    apk <span class="nt">--no-cache</span> <span class="nt">--no-progress</span> add openssl <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    openssl dhparam <span class="nt">-out</span> /etc/ssl/dhparam.pem 2048
+<span class="k">RUN </span><span class="o">[</span> <span class="s2">"</span><span class="si">$(</span><span class="nb">id</span> <span class="nt">-u</span> www-data<span class="si">)</span><span class="s2">"</span> <span class="nt">-eq</span> <span class="s2">"</span><span class="nv">$WWW_DATA_UID</span><span class="s2">"</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="o">[</span> <span class="s2">"</span><span class="si">$(</span><span class="nb">id</span> <span class="nt">-g</span> www-data<span class="si">)</span><span class="s2">"</span> <span class="nt">-eq</span> <span class="s2">"</span><span class="nv">$WWW_DATA_GID</span><span class="s2">"</span> <span class="o">]</span> <span class="o">||</span> <span class="nb">exit </span>1 <i class="conum" data-value="2"></i><b>(2)</b>
 
 <span class="k">COPY</span><span class="s"> httpd.conf /usr/local/apache2/conf/httpd.conf</span></code></pre>
 </div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>These UID and GID are currently standard Debian based HTTPD image.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Extra precaution to ensure that <code>www-data</code> UID/GID are what we expect (in case they change in newer images).</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>Next, create the <code>httpd.conf</code> file with the following content:</p>
@@ -6626,7 +6676,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud/httpd</pre>
 <div class="title">/root/silverbox/containers/nextcloud/httpd/httpd.conf</div>
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="apache"><span class="nc">ServerName</span> {NEXTCLOUD_DOMAIN}:{NEXTCLOUD_PORT} <i class="conum" data-value="1"></i><b>(1)</b>
-ServerRoot "/usr/local/apache2"
+<span class="ss">ServerRoot</span> "/usr/local/apache2"
 
 <span class="nc">Listen</span> 443
 
@@ -6651,24 +6701,23 @@ ServerRoot "/usr/local/apache2"
 <span class="nc">User</span> www-data
 <span class="nc">Group</span> www-data
 
-<span class="nc">Protocols</span> h2 http/1.1 <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="nc">Protocols</span> h2 http/1.1
 
-SSLEngine On
+<span class="nc">SSLEngine</span> <span class="ss">On</span>
 <span class="nc">SSLCipherSuite</span> EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
-<span class="nc">SSLHonorCipherOrder</span> On
-<span class="nc">SSLProtocol</span> <span class="ss">All</span> -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+<span class="nc">SSLHonorCipherOrder</span> <span class="ss">On</span>
+<span class="nc">SSLProtocol</span> -all +TLSv1.3 +TLSv1.2
 <span class="nc">SSLUseStapling</span> <span class="ss">on</span>
 <span class="nc">SSLStaplingCache</span> "shmcb:/usr/local/apache2/logs/ssl_stapling(128000)"
-<span class="nc">SSLSessionTickets</span> Off
+<span class="nc">SSLSessionTickets</span> <span class="ss">Off</span>
 <span class="nc">SSLSessionCache</span> "shmcb:/usr/local/apache2/logs/ssl_scache(512000)"
 <span class="nc">SSLSessionCacheTimeout</span> 300
-<span class="nc">SSLOpenSSLConfCmd</span> DHParameters "/etc/ssl/dhparam.pem"
-<span class="nc">SSLCertificateFile</span> /certs/live/{NEXTCLOUD_DOMAIN}/fullchain.pem <i class="conum" data-value="3"></i><b>(3)</b>
-SSLCertificateKeyFile /certs/live/{NEXTCLOUD_DOMAIN}/privkey.pem <i class="conum" data-value="4"></i><b>(4)</b>
+<span class="nc">SSLCertificateFile</span> /certs/live/{NEXTCLOUD_DOMAIN}/fullchain.pem <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="ss">SSLCertificateKeyFile</span> /certs/live/{NEXTCLOUD_DOMAIN}/privkey.pem <i class="conum" data-value="3"></i><b>(3)</b>
 
 &lt;Directory /&gt;
     <span class="nc">AllowOverride</span> <span class="ss">none</span>
-    <span class="nc">Require</span> all denied
+    <span class="nc">Require</span> <span class="ss">all</span> denied
 <span class="p">&lt;/</span><span class="nl">Directory</span><span class="p">&gt;
 </span>
 <span class="nc">DocumentRoot</span> "/usr/local/apache2/htdocs"
@@ -6677,23 +6726,23 @@ SSLCertificateKeyFile /certs/live/{NEXTCLOUD_DOMAIN}/privkey.pem <i class="conum
 <span class="p">&lt;</span><span class="nl">Directory</span><span class="sr"> "/usr/local/apache2/htdocs"</span><span class="p">&gt;
 </span>    <span class="nc">Options</span> <span class="ss">FollowSymLinks</span>
     <span class="nc">AllowOverride</span> <span class="ss">All</span>
-    <span class="nc">Require</span> all granted
+    <span class="nc">Require</span> <span class="ss">all</span> granted
 
     <span class="p">&lt;</span><span class="nl">FilesMatch</span><span class="sr"> \.php$</span><span class="p">&gt;
-</span>        ProxyFCGISetEnvIf "true" SCRIPT_FILENAME "/var/www/html%{reqenv:SCRIPT_NAME}"
+</span>        <span class="nc">ProxyFCGISetEnvIf</span> "true" SCRIPT_FILENAME "/var/www/html%{reqenv:SCRIPT_NAME}"
         <span class="nc">SetHandler</span> proxy:fcgi://nextcloud-fpm:9000
     <span class="p">&lt;/</span><span class="nl">FilesMatch</span><span class="p">&gt;
 </span>
-    <span class="nc">Header</span> always <span class="ss">set</span> Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
+    <span class="nc">Header</span> <span class="ss">always</span> <span class="ss">set</span> Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
 <span class="p">&lt;/</span><span class="nl">Directory</span><span class="p">&gt;
 </span>
 <span class="p">&lt;</span><span class="nl">Location</span><span class="sr"> "/apache-server-status.html"</span><span class="p">&gt;
 </span>    <span class="nc">SetHandler</span> server-status
-    <span class="nc">Require</span> ip {SERVER_IP_ADDR} <i class="conum" data-value="5"></i><b>(5)</b>
+    <span class="nc">Require</span> ip {SERVER_IP_ADDR} <i class="conum" data-value="4"></i><b>(4)</b>
 &lt;/Location&gt;
 
 <span class="p">&lt;</span><span class="nl">Files</span><span class="sr"> ".ht*"</span><span class="p">&gt;
-</span>    <span class="nc">Require</span> all denied
+</span>    <span class="nc">Require</span> <span class="ss">all</span> denied
 <span class="p">&lt;/</span><span class="nl">Files</span><span class="p">&gt;
 </span>
 <span class="nc">ProxyTimeout</span> 3600
@@ -6702,14 +6751,14 @@ SSLCertificateKeyFile /certs/live/{NEXTCLOUD_DOMAIN}/privkey.pem <i class="conum
 &lt;/</span><span class="nl">Proxy</span><span class="p">&gt;
 </span>
 <span class="nc">RewriteEngine</span> <span class="ss">on</span>
-<span class="nc">RewriteCond</span> %{QUERY_STRING} ^monit$ <i class="conum" data-value="6"></i><b>(6)</b>
-RewriteCond %{REQUEST_METHOD} HEAD
+<span class="nc">RewriteCond</span> %{QUERY_STRING} ^monit$ <i class="conum" data-value="5"></i><b>(5)</b>
+<span class="ss">RewriteCond</span> %{REQUEST_METHOD} HEAD
 <span class="nc">RewriteCond</span> %{REQUEST_URI} ^/$
 <span class="nc">RewriteRule</span> .* - [env=dont_log]
 
-<span class="nc">SetEnvIf</span> Request_URI "^/apache-server-status.html$" dont_log <i class="conum" data-value="7"></i><b>(7)</b>
+<span class="nc">SetEnvIf</span> <span class="ss">Request_URI</span> "^/apache-server-status.html$" dont_log <i class="conum" data-value="6"></i><b>(6)</b>
 
-ErrorLog /proc/self/fd/2
+<span class="ss">ErrorLog</span> /proc/self/fd/2
 <span class="nc">LogLevel</span> warn
 <span class="nc">LogFormat</span> "%h %l %u %t \"%r\" %&gt;s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
 <span class="nc">LogFormat</span> "%h %l %u %t \"%r\" %&gt;s %b" common
@@ -6721,11 +6770,11 @@ ErrorLog /proc/self/fd/2
 
 <span class="nc">Include</span> conf/extra/httpd-mpm.conf
 
-<span class="nc">RewriteEngine</span> On
+<span class="nc">RewriteEngine</span> <span class="ss">On</span>
 <span class="nc">RewriteCond</span> %{REQUEST_METHOD} ^TRACK
 <span class="nc">RewriteRule</span> .* - [F]
 
-<span class="nc">RequestHeader</span> <span class="ss">unset</span> Proxy early
+<span class="nc">RequestHeader</span> <span class="ss">unset</span> <span class="ss">Proxy</span> <span class="ss">early</span>
 
 <span class="nc">ServerTokens</span> Prod
 <span class="nc">TraceEnable</span> <span class="ss">off</span></code></pre>
@@ -6739,25 +6788,18 @@ ErrorLog /proc/self/fd/2
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>On some hardware, using HTTP2 seems to cause Apache httpd processes to crash with <code>Illegal instruction</code> error.
-If you experience random error messages while using Nextcloud check the <code>nextcloud-web</code> container logs,
-and if you see this error you can disable HTTP2 by replacing this line with <code>Protocols http/1.1</code>.
-Bug report for this issue: <a href="https://github.com/docker-library/httpd/issues/128" class="bare">https://github.com/docker-library/httpd/issues/128</a>.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
 <td>Replace <code>{NEXTCLOUD_DOMAIN}</code> with the actual value.</td>
 </tr>
 <tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
 <td>Same as above.</td>
 </tr>
 <tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
 <td>Replace <code>{SERVER_IP_ADDR}</code> with the actual value.</td>
 </tr>
 <tr>
-<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
 <td>This rewrite block matches HEAD requests to root with query string equal to "monit" and sets environment variable
 <code>dont_log</code> that is later used to filter such requests from the web server logs.
 This is useful to filter out requests done by Monit from log, as they will flood logs otherwise.
@@ -6765,7 +6807,7 @@ For security reasons, you can replace "monit" string in the first <code>RewriteC
 that you will also put in the Monit configuration for Nextcloud monitoring.</td>
 </tr>
 <tr>
-<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
 <td>This rule is used to filter out requests to Apache server status page from logs, as it only used by Monit.</td>
 </tr>
 </table>
@@ -6802,24 +6844,28 @@ sudo chmod 700 /root/silverbox/containers/nextcloud/nextcloud-fpm</pre>
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/nextcloud/nextcloud-fpm/Dockerfile</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">ARG</span><span class="s"> version=fpm-alpine</span>
+<pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">ARG</span><span class="s"> version=fpm</span>
 
 <span class="k">FROM</span><span class="s"> nextcloud:$version</span>
 
-<span class="k">ARG</span><span class="s"> PHP_FPM_CONF=/usr/local/etc/php-fpm.d/www.conf</span>
 <span class="k">ARG</span><span class="s"> NFSSHARE_GID={GID} </span><i class="conum" data-value="1"></i><b>(1)</b>
 
-<span class="k">RUN </span><span class="o">[</span> <span class="sb">`</span><span class="nb">id</span> <span class="nt">-u</span> www-data<span class="sb">`</span> <span class="nt">-eq</span> 82 <span class="o">]</span> <span class="o">||</span> <span class="nb">exit </span>1
-<span class="k">RUN </span><span class="o">[</span> <span class="sb">`</span><span class="nb">id</span> <span class="nt">-g</span> www-data<span class="sb">`</span> <span class="nt">-eq</span> 82 <span class="o">]</span> <span class="o">||</span> <span class="nb">exit </span>1
+<span class="k">ARG</span><span class="s"> WWW_DATA_UID=33 </span><i class="conum" data-value="2"></i><b>(2)</b>
+<span class="k">ARG</span><span class="s"> WWW_DATA_GID=33</span>
 
-<span class="k">RUN </span>apk add <span class="nt">--no-cache</span> supervisor shadow <span class="o">&amp;&amp;</span> <span class="se">\
+<span class="k">ARG</span><span class="s"> PHP_FPM_CONF=/usr/local/etc/php-fpm.d/www.conf</span>
+
+<span class="k">RUN </span><span class="o">[</span> <span class="s2">"</span><span class="si">$(</span><span class="nb">id</span> <span class="nt">-u</span> www-data<span class="si">)</span><span class="s2">"</span> <span class="nt">-eq</span> <span class="s2">"</span><span class="nv">$WWW_DATA_UID</span><span class="s2">"</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="o">[</span> <span class="s2">"</span><span class="si">$(</span><span class="nb">id</span> <span class="nt">-g</span> www-data<span class="si">)</span><span class="s2">"</span> <span class="nt">-eq</span> <span class="s2">"</span><span class="nv">$WWW_DATA_GID</span><span class="s2">"</span> <span class="o">]</span> <span class="o">||</span> <span class="nb">exit </span>1 <i class="conum" data-value="3"></i><b>(3)</b>
+
+<span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nt">--no-install-recommends</span> supervisor <span class="o">&amp;&amp;</span> <span class="se">\
 </span>    <span class="nb">mkdir</span> /var/log/supervisord /var/run/supervisord <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    <span class="nb">sed</span> <span class="nt">-i</span> <span class="s1">'s/-l\s\+\d/-l 5/'</span> /cron.sh <span class="o">&amp;&amp;</span> <span class="se">\ </span><i class="conum" data-value="2"></i><b>(2)</b>
-    sed -i 's/^\(pm.max_children\s*=\)\s*\d\+/\1 20/' ${PHP_FPM_CONF} &amp;&amp; \
-    sed -i 's/^\(pm.start_servers\s*=\)\s*\d\+/\1 5/' ${PHP_FPM_CONF} &amp;&amp; \
-    sed -i 's/^\(pm.min_spare_servers\s*=\)\s*\d\+/\1 4/' ${PHP_FPM_CONF} &amp;&amp; \
-    sed -i 's/^\(pm.max_spare_servers\s*=\)\s*\d\+/\1 10/' ${PHP_FPM_CONF} &amp;&amp; \
-    addgroup -g ${NFSSHARE_GID} nfsshare &amp;&amp; \
+</span>    <span class="nb">sed</span> <span class="nt">-i</span> <span class="s1">'s/-l\s\+[0-9]\+/-l 5/'</span> /cron.sh <span class="o">&amp;&amp;</span> <span class="se">\ </span><i class="conum" data-value="4"></i><b>(4)</b>
+    sed -i 's/^\(pm.max_children\s*=\)\s*[0-9]\+/\1 20/' ${PHP_FPM_CONF} &amp;&amp; \ <i class="conum" data-value="5"></i><b>(5)</b>
+    sed -i 's/^\(pm.start_servers\s*=\)\s*[0-9]\+/\1 5/' ${PHP_FPM_CONF} &amp;&amp; \
+    sed -i 's/^\(pm.min_spare_servers\s*=\)\s*[0-9]\+/\1 4/' ${PHP_FPM_CONF} &amp;&amp; \
+    sed -i 's/^\(pm.max_spare_servers\s*=\)\s*[0-9]\+/\1 10/' ${PHP_FPM_CONF} &amp;&amp; \
+    addgroup --gid ${NFSSHARE_GID} nfsshare &amp;&amp; \
     usermod www-data -aG nfsshare
 
 <span class="k">COPY</span><span class="s"> supervisord.conf /etc/supervisor/supervisord.conf</span>
@@ -6836,20 +6882,20 @@ This is so that Nextcloud can access files in the NFS directory owned by the <co
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>These UID and GID are currently standard Debian based image.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Extra precaution to ensure that <code>www-data</code> UID/GID are what we expect (in case they change in newer images).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
 <td>This is to reduce verbosity of the Cron logs to 5. Adjust if necessary.</td>
 </tr>
-</table>
-</div>
-<div class="admonitionblock tip">
-<table>
 <tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-You can adjust PHP FPM configuration according to your needs.
-More information: <a href="https://docs.nextcloud.com/server/stable/admin_manual/installation/server_tuning.html#tune-php-fpm" class="bare">https://docs.nextcloud.com/server/stable/admin_manual/installation/server_tuning.html#tune-php-fpm</a>.
-</td>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Update PHP FPM configuration, feel free to adjust these values according to your needs.
+More information at Nextcloud [server tuning](<a href="https://docs.nextcloud.com/server/stable/admin_manual/installation/server_tuning.html#tune-php-fpm" class="bare">https://docs.nextcloud.com/server/stable/admin_manual/installation/server_tuning.html#tune-php-fpm</a>) documentation.</td>
 </tr>
 </table>
 </div>
@@ -7019,7 +7065,8 @@ sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml e
 'htaccess.RewriteBase' =&gt; '/', <i class="conum" data-value="3"></i><b>(3)</b>
 'default_language' =&gt; 'en',
 'default_locale' =&gt; 'en_CA',
-'knowledgebaseenabled' =&gt; false <i class="conum" data-value="4"></i><b>(4)</b></pre>
+'knowledgebaseenabled' =&gt; false, <i class="conum" data-value="4"></i><b>(4)</b>
+'token_auth_enforced' =&gt; true <i class="conum" data-value="5"></i><b>(5)</b></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -7040,6 +7087,10 @@ More info: <a href="https://docs.nextcloud.com/server/stable/admin_manual/instal
 <tr>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
 <td>This line disables arguably useless knowledge base page.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Enforces token authentication for API clients for better security (will block requests using the user password).</td>
 </tr>
 </table>
 </div>
@@ -7124,7 +7175,7 @@ sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml u
 <p>There are some permissions issues when accessing files created via NFS from the Nextcloud and vice versa.</p>
 </div>
 <div class="paragraph">
-<p>In particular, files created inside NFS directories from the Nextcloud will be owned by <code>www-data:www-data</code> (<code>82:82</code>)
+<p>In particular, files created inside NFS directories from the Nextcloud will be owned by <code>www-data:www-data</code> (<code>33:33</code>)
 and with default <code>umask</code> will only allow modifications by the owner.
 Thus, users accessing these files over NFS won&#8217;t be able to modify them.</p>
 </div>
@@ -7133,11 +7184,11 @@ Thus, users accessing these files over NFS won&#8217;t be able to modify them.</
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="nowrap">sudo find /srv/nfs -uid 82 -exec chown {SERVER_USER}:{NFS_SHARE_GROUP} \{} \; -exec chmod g+w {} \; -exec echo {} \;</pre>
+<pre class="nowrap">sudo find /srv/nfs -uid 33 -exec chown {SERVER_USER}:{NFS_SHARE_GROUP} \{} \; -exec chmod g+w {} \; -exec echo {} \;</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This example command changes ownership for all files under <code>/srv/nfs</code> directory that are currently owned by UID 82,
+<p>This example command changes ownership for all files under <code>/srv/nfs</code> directory that are currently owned by UID <code>33</code>,
 to be owned by your user and <code>{NFS_SHARE_GROUP}</code> group, and also adds write permissions to the group.</p>
 </div>
 <div class="paragraph">
@@ -7189,9 +7240,9 @@ Here are some example:</p>
 <p><a href="https://www.ssllabs.com/ssltest" class="bare">https://www.ssllabs.com/ssltest</a>. Note that it only works over default HTTPS port 443, so to use it
 you can temporary change port forwarding rule to forward from external port 443 to internal port <code>{NEXTCLOUD_PORT}</code>.</p>
 </dd>
-<dt class="hdlist1">SSL Decoder Scanner</dt>
+<dt class="hdlist1">ImmuniWeb SSL Scanner</dt>
 <dd>
-<p><a href="https://ssldecoder.org" class="bare">https://ssldecoder.org</a>.</p>
+<p><a href="https://www.immuniweb.com/ssl" class="bare">https://www.immuniweb.com/ssl</a></p>
 </dd>
 </dl>
 </div>
@@ -7296,7 +7347,7 @@ has an advantage of being able to access them even when the cloud service or the
 Server backups (described in section <a href="#backup">Backup</a>) can be utilized for backing up Git repositories.</p>
 </div>
 <div class="sect2">
-<h3 id="_overview_3">12.1. Overview</h3>
+<h3 id="_overview_2">12.1. Overview</h3>
 <div class="paragraph">
 <p>There are many ways to host Git repositories.
 One of the approaches it to host complete collaborative software development platform that usually includes
@@ -7320,7 +7371,7 @@ It is very simple, transparent and maintenance-free.</p>
 </div>
 <div class="paragraph">
 <p>The configuration described below is very similar to the one described in the Git Book&#8217;s section
-on setting up the Git server <a href="#git_server">[17]</a>.</p>
+on setting up the Git server <a href="#git_server">[18]</a>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -7578,7 +7629,7 @@ rm silverbox-git.pub</pre>
 from the server to external drive and to the cloud.</p>
 </div>
 <div class="sect2">
-<h3 id="_overview_4">13.1. Overview</h3>
+<h3 id="_overview_3">13.1. Overview</h3>
 <div class="paragraph">
 <p>Below is a diagram that describes the general backup strategy for the server:</p>
 </div>
@@ -7599,13 +7650,13 @@ from the server to external drive and to the cloud.</p>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>In the first step all valuable information backed up using Borg Backup <a href="#borgbackup">[13]</a>
+<p>In the first step all valuable information backed up using Borg Backup <a href="#borgbackup">[14]</a>
 to an external drive that is connected via USB.
 This step includes de-duplication, compression and encryption.</p>
 </li>
 <li>
-<p>In the second step backup is synced from the external drive to the OVH cloud object storage <a href="#ovh_object_storage">[14]</a>
-using Rclone tool <a href="#rclone">[15]</a>.</p>
+<p>In the second step backup is synced from the external drive to the OVH cloud object storage <a href="#ovh_object_storage">[15]</a>
+using Rclone tool <a href="#rclone">[16]</a>.</p>
 </li>
 </ol>
 </div>
@@ -7842,6 +7893,22 @@ sudo chmod 700 /root/silverbox/backup</pre>
     <span class="nb">exit </span>1
 <span class="k">fi
 
+</span><span class="nv">OCC_OUTPUT</span><span class="o">=</span><span class="si">$(</span>docker <span class="nb">exec</span> <span class="nt">--user</span> www-data nextcloud-fpm php occ maintenance:mode<span class="si">)</span>
+<span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$?</span><span class="s2">"</span> <span class="nt">-ne</span> <span class="s2">"0"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">echo</span> <span class="s2">"failed to check if Nextcloud is already in maintenance mode"</span>
+    <span class="nb">exit </span>1
+<span class="k">fi
+
+if</span> <span class="o">!</span> <span class="nb">printf</span> <span class="s2">"%s"</span> <span class="s2">"</span><span class="nv">$OCC_OUTPUT</span><span class="s2">"</span> | <span class="nb">grep</span> <span class="nt">-q</span> <span class="s2">"Maintenance mode is currently disabled"</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">echo</span> <span class="s2">"unexpected occ output: </span><span class="nv">$OCC_OUTPUT</span><span class="s2">"</span>
+    <span class="nb">exit </span>1
+<span class="k">fi
+
+if</span> <span class="o">!</span> docker <span class="nb">exec</span> <span class="nt">--user</span> www-data nextcloud-fpm php occ maintenance:mode <span class="nt">--on</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">echo</span> <span class="s2">"failed to enable Nextcloud maintenance mode"</span>
+    <span class="nb">exit </span>1
+<span class="k">fi
+
 </span><span class="nb">export </span><span class="nv">BORG_PASSPHRASE</span><span class="o">=</span><span class="s1">'{BORG_PASSPHRASE}'</span> <i class="conum" data-value="1"></i><b>(1)</b>
 
 <span class="c"># Create backup</span>
@@ -7861,6 +7928,11 @@ borg create <span class="nt">-v</span> <span class="nt">--stats</span> /mnt/back
 <span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$?</span><span class="s2">"</span> <span class="nt">-ne</span> <span class="s2">"0"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
     </span><span class="nb">echo</span> <span class="s2">"borg create failed"</span>
     <span class="nb">exit </span>2
+<span class="k">fi
+
+if</span> <span class="o">!</span> docker <span class="nb">exec</span> <span class="nt">--user</span> www-data nextcloud-fpm php occ maintenance:mode <span class="nt">--off</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">echo</span> <span class="s2">"failed to disable Nextcloud maintenance mode"</span>
+    <span class="nb">exit </span>1
 <span class="k">fi</span>
 
 <span class="c"># Prune old backups</span>
@@ -8375,7 +8447,7 @@ for example with <code>ls /var/run/reboot-required</code> command.
 <div class="paragraph">
 <p>The first step is to check if newer Docker images (including base images) are available.
 Unfortunately, at the moment of writing Docker didn&#8217;t have such functionality out of the box.
-One workaround would be to use 3rd party tools that can do the job, such as Watchtower <a href="#watchtower">[16]</a>,
+One workaround would be to use 3rd party tools that can do the job, such as Watchtower <a href="#watchtower">[17]</a>,
 but I decided not to use it due to lack of flexibility and security considerations
 (as it requires access to the Docker engine).</p>
 </div>
@@ -8407,7 +8479,7 @@ but at the moment I found no easy way to do this via Docker registry API.</p>
 <pre class="rouge highlight nowrap"><code data-lang="bash"><span class="c">#!/bin/sh</span>
 
 <span class="c"># List of images to check</span>
-<span class="nv">IMAGES</span><span class="o">=</span><span class="s2">"alpine httpd postgres"</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="nv">IMAGES</span><span class="o">=</span><span class="s2">"debian httpd postgres"</span> <i class="conum" data-value="1"></i><b>(1)</b>
 
 <span class="k">for </span>IMAGE <span class="k">in</span> <span class="nv">$IMAGES</span><span class="p">;</span> <span class="k">do
     </span><span class="nb">echo</span> <span class="s2">"&gt; Checking Image: </span><span class="nv">$IMAGE</span><span class="s2">"</span>
@@ -8467,13 +8539,13 @@ but at the moment I found no easy way to do this via Docker registry API.</p>
 <h5 id="_updating_socks5_proxy_image">Updating SOCKS5 Proxy Image</h5>
 <div class="paragraph">
 <p>Edit the <code>/root/silverbox/containers/vpn-proxy/docker-compose.yaml</code> file
-and update the alpine image version in the build arguments:</p>
+and update the Debian image version in the build arguments:</p>
 </div>
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/vpn-proxy/docker-compose.yaml</div>
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">args</span><span class="pi">:</span>
-  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3.10.2'</span></code></pre>
+  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.5-slim'</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -8493,12 +8565,12 @@ sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml 
 <div class="sect4">
 <h5 id="_updating_dns_updater_image">Updating DNS Updater Image</h5>
 <div class="paragraph">
-<p>Edit the <code>/root/silverbox/containers/dns-updater/Dockerfile</code> file and update the alpine image version:</p>
+<p>Edit the <code>/root/silverbox/containers/dns-updater/Dockerfile</code> file and update the Debian image version:</p>
 </div>
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/dns-updater/Dockerfile</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="docker"><span class="k">FROM</span><span class="s"> alpine:3.10.2</span></code></pre>
+<pre class="rouge highlight nowrap"><code data-lang="docker"><span class="k">FROM</span><span class="s"> debian:10.5-slim</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -8518,13 +8590,13 @@ the new image will be picked up automatically next time the service runs.</p>
 <h5 id="_updating_transmission_image">Updating Transmission Image</h5>
 <div class="paragraph">
 <p>Edit the <code>/root/silverbox/containers/transmission/docker-compose.yaml</code> file
-and update the alpine image version in the build arguments:</p>
+and update the Debian image version in the build arguments:</p>
 </div>
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/transmission/docker-compose.yaml</div>
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">args</span><span class="pi">:</span>
-  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3.10.2'</span></code></pre>
+  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.5-slim'</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -8831,8 +8903,7 @@ can still be required later (for example, the <code>dns-updater</code> image).</
 <div class="content">
 <pre class="nowrap">sudo docker rmi `sudo docker images -q nextcloud:*`
 sudo docker rmi `sudo docker images -q httpd:*`
-sudo docker rmi `sudo docker images -q postgres:*`
-sudo docker rmi `sudo docker images -q alpine:*`</pre>
+sudo docker rmi `sudo docker images -q postgres:*`</pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -8926,55 +8997,58 @@ sudo systemctl disable motd-news.timer</pre>
 <div class="ulist bibliography">
 <ul class="bibliography">
 <li>
-<p><a id="nut_hcl"></a>[1] &#8220;Network UPS Tools: Hardware compatibility list&#8221;: <a href="https://networkupstools.org/stable-hcl.html" class="bare">https://networkupstools.org/stable-hcl.html</a></p>
+<p><a id="changelog"></a>[1] &#8220;Silverbox Changelog&#8221;: <a href="https://github.com/ovk/silverbox/blob/master/CHANGELOG" class="bare">https://github.com/ovk/silverbox/blob/master/CHANGELOG</a></p>
 </li>
 <li>
-<p><a id="arch_wiki_ssd"></a>[2] &#8220;Arch Wiki: Solid state drive&#8221;: <a href="https://wiki.archlinux.org/index.php/Solid_state_drive" class="bare">https://wiki.archlinux.org/index.php/Solid_state_drive</a></p>
+<p><a id="nut_hcl"></a>[2] &#8220;Network UPS Tools: Hardware compatibility list&#8221;: <a href="https://networkupstools.org/stable-hcl.html" class="bare">https://networkupstools.org/stable-hcl.html</a></p>
 </li>
 <li>
-<p><a id="ssh_audit"></a>[3] &#8220;ssh-audit script&#8221;: <a href="https://github.com/arthepsy/ssh-audit" class="bare">https://github.com/arthepsy/ssh-audit</a></p>
+<p><a id="arch_wiki_ssd"></a>[3] &#8220;Arch Wiki: Solid state drive&#8221;: <a href="https://wiki.archlinux.org/index.php/Solid_state_drive" class="bare">https://wiki.archlinux.org/index.php/Solid_state_drive</a></p>
 </li>
 <li>
-<p><a id="arch_wiki_hddtemp"></a>[4] &#8220;Arch Wiki: Hddtemp&#8221;: <a href="https://wiki.archlinux.org/index.php/Hddtemp" class="bare">https://wiki.archlinux.org/index.php/Hddtemp</a></p>
+<p><a id="ssh_audit"></a>[4] &#8220;ssh-audit script&#8221;: <a href="https://github.com/arthepsy/ssh-audit" class="bare">https://github.com/arthepsy/ssh-audit</a></p>
 </li>
 <li>
-<p><a id="unbound"></a>[5] &#8220;Unbound DNS Server&#8221;: <a href="https://nlnetlabs.nl/projects/unbound" class="bare">https://nlnetlabs.nl/projects/unbound</a></p>
+<p><a id="arch_wiki_hddtemp"></a>[5] &#8220;Arch Wiki: Hddtemp&#8221;: <a href="https://wiki.archlinux.org/index.php/Hddtemp" class="bare">https://wiki.archlinux.org/index.php/Hddtemp</a></p>
 </li>
 <li>
-<p><a id="cloudflare_dns"></a>[6] &#8220;Cloudflare DNS Server&#8221;: <a href="https://www.cloudflare.com/learning/dns/what-is-1.1.1.1" class="bare">https://www.cloudflare.com/learning/dns/what-is-1.1.1.1</a></p>
+<p><a id="unbound"></a>[6] &#8220;Unbound DNS Server&#8221;: <a href="https://nlnetlabs.nl/projects/unbound" class="bare">https://nlnetlabs.nl/projects/unbound</a></p>
 </li>
 <li>
-<p><a id="docker_compose"></a>[7] &#8220;Docker Compose&#8221;: <a href="https://docs.docker.com/compose" class="bare">https://docs.docker.com/compose</a></p>
+<p><a id="cloudflare_dns"></a>[7] &#8220;Cloudflare DNS Server&#8221;: <a href="https://www.cloudflare.com/learning/dns/what-is-1.1.1.1" class="bare">https://www.cloudflare.com/learning/dns/what-is-1.1.1.1</a></p>
 </li>
 <li>
-<p><a id="name_silo"></a>[8] &#8220;NameSilo&#8221;: <a href="https://namesilo.com" class="bare">https://namesilo.com</a></p>
+<p><a id="docker_compose"></a>[8] &#8220;Docker Compose&#8221;: <a href="https://docs.docker.com/compose" class="bare">https://docs.docker.com/compose</a></p>
 </li>
 <li>
-<p><a id="transmission"></a>[9] &#8220;Transmission&#8221;: <a href="https://transmissionbt.com" class="bare">https://transmissionbt.com</a></p>
+<p><a id="name_silo"></a>[9] &#8220;NameSilo&#8221;: <a href="https://namesilo.com" class="bare">https://namesilo.com</a></p>
 </li>
 <li>
-<p><a id="nextcloud"></a>[10] &#8220;Nextcloud&#8221;: <a href="https://nextcloud.com" class="bare">https://nextcloud.com</a></p>
+<p><a id="transmission"></a>[10] &#8220;Transmission&#8221;: <a href="https://transmissionbt.com" class="bare">https://transmissionbt.com</a></p>
 </li>
 <li>
-<p><a id="lets_encrypt"></a>[11] &#8220;Let&#8217;s Encrypt&#8221;: <a href="https://letsencrypt.org" class="bare">https://letsencrypt.org</a></p>
+<p><a id="nextcloud"></a>[11] &#8220;Nextcloud&#8221;: <a href="https://nextcloud.com" class="bare">https://nextcloud.com</a></p>
 </li>
 <li>
-<p><a id="certbot"></a>[12] &#8220;Certbot&#8221;: <a href="https://certbot.eff.org" class="bare">https://certbot.eff.org</a></p>
+<p><a id="lets_encrypt"></a>[12] &#8220;Let&#8217;s Encrypt&#8221;: <a href="https://letsencrypt.org" class="bare">https://letsencrypt.org</a></p>
 </li>
 <li>
-<p><a id="borgbackup"></a>[13] &#8220;Borg Backup&#8221;: <a href="https://www.borgbackup.org" class="bare">https://www.borgbackup.org</a></p>
+<p><a id="certbot"></a>[13] &#8220;Certbot&#8221;: <a href="https://certbot.eff.org" class="bare">https://certbot.eff.org</a></p>
 </li>
 <li>
-<p><a id="ovh_object_storage"></a>[14] &#8220;OVH Object Storage&#8221;: <a href="https://www.ovh.com/world/public-cloud/storage/object-storage" class="bare">https://www.ovh.com/world/public-cloud/storage/object-storage</a></p>
+<p><a id="borgbackup"></a>[14] &#8220;Borg Backup&#8221;: <a href="https://www.borgbackup.org" class="bare">https://www.borgbackup.org</a></p>
 </li>
 <li>
-<p><a id="rclone"></a>[15] &#8220;Rclone&#8221;: <a href="https://rclone.org" class="bare">https://rclone.org</a></p>
+<p><a id="ovh_object_storage"></a>[15] &#8220;OVH Object Storage&#8221;: <a href="https://www.ovh.com/world/public-cloud/storage/object-storage" class="bare">https://www.ovh.com/world/public-cloud/storage/object-storage</a></p>
 </li>
 <li>
-<p><a id="watchtower"></a>[16] &#8220;Watchtower&#8221;: <a href="https://containrrr.github.io/watchtower" class="bare">https://containrrr.github.io/watchtower</a></p>
+<p><a id="rclone"></a>[16] &#8220;Rclone&#8221;: <a href="https://rclone.org" class="bare">https://rclone.org</a></p>
 </li>
 <li>
-<p><a id="git_server"></a>[17] &#8220;Git Book: Git Server&#8221;: <a href="https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server" class="bare">https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server</a></p>
+<p><a id="watchtower"></a>[17] &#8220;Watchtower&#8221;: <a href="https://containrrr.github.io/watchtower" class="bare">https://containrrr.github.io/watchtower</a></p>
+</li>
+<li>
+<p><a id="git_server"></a>[18] &#8220;Git Book: Git Server&#8221;: <a href="https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server" class="bare">https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server</a></p>
 </li>
 </ul>
 </div>
@@ -8995,7 +9069,7 @@ sudo systemctl disable motd-news.timer</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.2.1<br>
+Version 1.0.0<br>
 </div>
 </div>
 <style>
