@@ -8,7 +8,7 @@ v0.2.1, December 7, 2019
 :attribute-missing: warn
 :source-highlighter: rouge
 :icons: font
-:toc:
+:toc: left
 
 include::parameters.adoc[]
 
