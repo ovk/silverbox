@@ -1,3 +1,7 @@
+## [1.0.1] - 2020-09-14
+
+- Update Nextcloud to 19.0.3-fpm and Postgres to 12.4 [23293c2]
+
 ## [1.0.0] - 2020-08-16
 
 - Add preamble and icon. Improve some sections. Fix typos. [af07d23]
