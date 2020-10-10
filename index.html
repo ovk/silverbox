@@ -444,8 +444,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">ovk</span><br>
 <span id="email" class="email"><a href="https://github.com/ovk">@ovk</a></span><br>
-<span id="revnumber">version 1.0.1,</span>
-<span id="revdate">September 14, 2020</span>
+<span id="revnumber">version 1.0.2,</span>
+<span id="revdate">October 10, 2020</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -6510,7 +6510,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
 <span class="na">services</span><span class="pi">:</span>
   <span class="na">nextcloud-db</span><span class="pi">:</span>
     <span class="na">container_name</span><span class="pi">:</span> <span class="s">nextcloud-db</span>
-    <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:12.4</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:13.0</span> <i class="conum" data-value="2"></i><b>(2)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">shm_size</span><span class="pi">:</span> <span class="s">256mb</span>
     <span class="na">logging</span><span class="pi">:</span>
@@ -6532,7 +6532,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
       <span class="na">context</span><span class="pi">:</span> <span class="s">./nextcloud-fpm</span>
       <span class="na">network</span><span class="pi">:</span> <span class="s">common</span> <i class="conum" data-value="4"></i><b>(4)</b>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">19.0.3-fpm'</span> <i class="conum" data-value="5"></i><b>(5)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">19.0.4-fpm'</span> <i class="conum" data-value="5"></i><b>(5)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -6584,7 +6584,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Replace <code>12.4</code> with the actual latest <code>postgres</code> (Debian based) image version (can be checked at the Docker Hub).
+<td>Replace <code>13.0</code> with the actual latest <code>postgres</code> (Debian based) image version (can be checked at the Docker Hub).
 You can double check if this version is supported by the Nextcloud in the Nextcloud documentation.</td>
 </tr>
 <tr>
@@ -6598,7 +6598,7 @@ If you skipped over <a href="#domain_name">Domain Name</a> section where this ne
 </tr>
 <tr>
 <td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Replace <code>19.0.3-fpm</code> with the actual latest <code>nextcloud-fpm</code> (Debian based) image version (can be checked at the Docker Hub).</td>
+<td>Replace <code>19.0.4-fpm</code> with the actual latest <code>nextcloud-fpm</code> (Debian based) image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="6"></i><b>6</b></td>
@@ -9069,7 +9069,7 @@ sudo systemctl disable motd-news.timer</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.1<br>
+Version 1.0.2<br>
 </div>
 </div>
 <style>
