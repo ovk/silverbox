@@ -1,3 +1,21 @@
+## [1.0.2] - 2020-10-10
+
+- Update Nextcloud to 19.0.4-fpm and Postgres to 13.0 [b53d512]
+  Note that due to major version upgrade for PostgreSQL manual DB conversion is required:
+    - First stop Nextcloud and backup its database (for example, by making a copy of /srv/nextcloud/db directory). Then start it again.
+    - Unfortunately, there is no easy upgrade path between major PostgreSQL versions (see https://github.com/docker-library/postgres/issues/37 issue) when using Docker.
+      One way would be to use pg_upgrade (for example, see https://github.com/tianon/docker-postgres-upgrade) but it appears to be unreliable.
+      The easiest way seems to be to just dump and restore database:
+        - Stop nextcloud-web and nextcloud-fpm containers
+        - Create a full dump of the DB using currently running nextcloud-db container:
+          $ sudo docker exec -i nextcloud-db pg_dumpall --username nextcloud --clean > db_dump.sql
+        - Stop nextcloud-db container, edit Nextcloud docker-compose.yml file and update DB image to desired version (13.0)
+        - Delete everything inside /srv/nextcloud/db directory (make sure you have backup of it before doing this)
+        - Start new nextcloud-db container with the new PostgreSQL version
+        - Restore the DB from the dump:
+          $ sudo docker exec -i nextcloud-db psql --username nextcloud nextcloud < db_dump.sql
+        - After restore completes the nextcloud-web and nextcloud-fpm containers can be started back up
+
 ## [1.0.1] - 2020-09-14
 
 - Update Nextcloud to 19.0.3-fpm and Postgres to 12.4 [23293c2]
