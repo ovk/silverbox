@@ -52,7 +52,7 @@
 // Attributes for latest Docker images versions (for convenience)
 
 // Debian Linux (slim)
-:SB_DEBIAN_VERSION: 10.5-slim
+:SB_DEBIAN_VERSION: 10.6-slim
 // PostgreSQL
 :SB_POSTGRES_VERSION: 13.0
 // Nextcloud FPM
