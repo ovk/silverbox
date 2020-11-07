@@ -98,7 +98,7 @@ Next, create the `dns-challenge-cleanup.sh` file with the following content:
 ACME_SUBDOMAIN="_acme-challenge"
 DOMAIN=`awk -F '.' '{print $(NF-1)"."$NF}' <<< "$CERTBOT_DOMAIN"` || exit 1
 NS=`dig "$DOMAIN" NS +short | head -1` || exit 2
-echo "Performing DNS Challenge Cleanup for domain: $CERTBOT_DOMAIN in $DOMAIN with authoritive NS $NS"
+echo "Performing DNS Challenge Cleanup for domain: $CERTBOT_DOMAIN in $DOMAIN with authoritative NS $NS"
 docker run --rm --network common --cpus="1" -v /root/silverbox/namesilo:/secrets dns-updater -k /secrets/api-key -a update-txt -d "$ACME_SUBDOMAIN.$CERTBOT_DOMAIN" -t "none" || exit 3 # <1>
 echo "Record cleaned up"
 ----
