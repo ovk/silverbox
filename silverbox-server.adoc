@@ -39,6 +39,8 @@ include::nextcloud/nextcloud.adoc[]
 
 include::git-server/git-server.adoc[]
 
+include::reverse-proxy/reverse-proxy.adoc[]
+
 include::backup/backup.adoc[]
 
 include::maintenance/maintenance.adoc[]

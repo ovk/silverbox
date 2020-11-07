@@ -1,0 +1,36 @@
+=== Overview
+Below is a diagram with an overview how such reverse proxy could be deployed:
+
+----
+                                                       Silverbox Server
+                                                      --------------------------------------------
+                                                     |    --------                                |
+monit.home.example.com ------\                       |   | Apache |---> Internal Monit Addr       |
+transmission.home.example.com--[HTTPS, Basic Auth]------>| HTTP   |---> Internal Transmission Addr|
+service-a.home.example.com --/                       |   | Server |---> Internal Service A Addr   |
+                                                     |    --------                                |
+                                                     |        |                                   |
+                                                     |    {/certs}                                |
+                                                     |        |                                   |
+                                                     |        V                                   |
+                                                     | /etc/letsencrypt - *.home.example.com      |
+                                                      --------------------------------------------
+----
+
+NOTE: In the diagram above, a path inside curly braces indicates a path as it seen inside Docker container,
+while path without curly braces indicates the real path on the host file system.
+
+This diagram assumes you have domain for your home services `home.example.com` and three services:
+Monit, Transmission and some hypothetical Service A (DNS names for these services need to be configured in Unbound).
+
+Apache web server serves as HTTPS to HTTP reverse proxy, while also (optionally) performing Basic HTTP Authentication.
+Wildcard Let's Encrypt certificate for `*.home.example.com` is used for HTTPS in this example, thus allowing easy addition of services without the need to get new certificates.
+
+This approach allows to have both authentication (using HTTP Basic Auth which is secure when used with HTTPS) and encryption (HTTPS).
+The basic auth can be turned off for some services if they offer strong built-in authentication.
+
+Additionally, the reverse proxy enables HTTP2 and adds some common security headers.
+
+This section is completely optional, as for many people who may only have one or two services which they rarely use it maybe not worth the effort of initial configuration.
+But if you plan on running many selfhosted services it may be very convenient to have such reverse proxy with easily expandable rules to add additional services.
+

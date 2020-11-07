@@ -9,6 +9,7 @@ For example, if your domain is `example.com`, the internal domain could be `home
 Before proceeding to creating local zone for the internal domain, create an address reservations
 on your DHCP server for all the client devices that will be in the domain (or configure static IP addresses).
 
+[[nfs_configuring_dns]]
 ==== Configuring Local DNS Zone
 To create local DNS zone for your internal domain,
 edit the `/etc/unbound/unbound.conf.d/dns-config.conf` file

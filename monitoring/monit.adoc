@@ -261,6 +261,8 @@ Now the tunnel can be established simply with:
 ssh -N silverbox-monit-ui-tunnel
 ----
 
+NOTE: More convenient way of accessing Monit web interface and other internal services is described in the <<reverse_proxy>> section.
+
 ==== Useful References
 Some useful sources of information about Monit:
 

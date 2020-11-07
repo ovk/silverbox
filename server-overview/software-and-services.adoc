@@ -4,11 +4,12 @@ This is the list of services running on the server that are described in this do
 - *Unbound* as a forwarding DNS server that forwards queries to the DNS server of your choice and uses DNS-over-TLS and DNSSEC for
 extra security and privacy.
 - *NFS server* secured with Kerberos (clean NFSv4-only server).
-- *Nextcloud* accessible over HTTP(S) with Let's Encrypt certificates (renewed automatically using Certbot with DNS challenge).
+- *Nextcloud* accessible over HTTPS with Let's Encrypt certificates (renewed automatically using Certbot with DNS challenge).
 - *Transmission* BitTorent client that communicates only over a VPN connection.
 - *SOCKS5 proxy server* that proxies traffic securely over a VPN connection.
 - *Git server* for hosting Git repositories.
 - *Borg and Rclone* for automatic encrypted incremental backups (both on-site and off-site).
+- *Reverse proxy server* with HTTPS (using wildcard certificate) and basic authentication to access internal services.
 - *Monit* for system monitoring and notifications.
 - Script to automatically update DNS record pointing to server's public IP address (in case of dynamic IP).
 

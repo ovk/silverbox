@@ -1,0 +1,19 @@
+[[reverse_proxy]]
+== Reverse Proxy
+There are some services described in this guide (such as Monit Web UI or Transmission Web UI)
+that are internal and only intended to be accessible from inside the home (LAN) network.
+In addition, you may want to install some other services, not described in the guide, which should only be accessible from inside.
+As described in this guide, the suggested way of accessing such services securely (with authentication and encryption)
+is by establishing an SSH tunnel to each service first, and then accessing the service over the tunnel.
+
+While this approach works, it may become quite inconvenient to access internal services this way, especially for the larger number of services.
+This section describes an alternative approach: using internal reverse proxy to provide access to all internal services in secure way.
+
+include::overview.adoc[]
+
+include::certificate.adoc[]
+
+include::installation.adoc[]
+
+include::monitoring.adoc[]
+

@@ -171,6 +171,24 @@ sudo docker-compose -f /root/silverbox/containers/transmission/docker-compose.ya
 sudo docker-compose -f /root/silverbox/containers/transmission/docker-compose.yaml up -d
 ----
 
+===== Updating Reverse Proxy Image
+Edit the `/root/silverbox/containers/reverse-proxy/docker-compose.yml` file
+and update the Apache httpd image version:
+
+./root/silverbox/containers/reverse-proxy/docker-compose.yml
+[source,yaml,subs="attributes+"]
+----
+image: 'httpd:{SB_HTTPD_VERSION}'
+----
+
+Stop the container, pull the new image and start new container from the new image:
+
+----
+sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml down
+sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml pull
+sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d
+----
+
 ==== Nextcloud
 By default, Nextcloud will automatically show notification when new version is available.
 This can also be checked on the _Settings -> Overview_ page.

@@ -12,6 +12,7 @@ extra security and privacy.
 - **SOCKS5 proxy server** that proxies traffic securely over a VPN connection.
 - **Git server** for hosting Git repositories.
 - **Borg and Rclone** for automatic encrypted incremental backups (both on-site and off-site).
+- **Reverse proxy server** with HTTPS (using wildcard certificate) and basic authentication to access internal services.
 - **Monit** for system monitoring and notifications.
 - Script to automatically update DNS record pointing to server's public IP address (in case of dynamic IP).
 

@@ -1,0 +1,116 @@
+=== Certificate
+This section describes how to obtain and maintain wildcard certificate that the reverse proxy will use to setup HTTPS for all services
+(hence the need for wildcard and not just regular certificate).
+
+The process is very similar to what was described in the <<nextcloud_certificate>> section for Nextcloud and it relies on that section being done.
+
+==== Preparing Domain Name
+It's assumed that the wildcard certificate will be obtained on your internal domain name `{SB_INTERNAL_DOMAIN}`.
+If this is not the case, adjust instructions below accordingly.
+
+The individual services will be sub-domains of the `{SB_INTERNAL_DOMAIN}`.
+For example, if your `{SB_INTERNAL_DOMAIN}` is `home.example.com` then service addresses will look like `service-name.home.example.com`.
+
+Since it's intended that the services will be only accessible from the internal network,
+there is no need to create any public A or CNAME records for the `{SB_INTERNAL_DOMAIN}`.
+
+Only the TXT DNS record for the `_acme-challenge.{SB_INTERNAL_DOMAIN}` with any value
+(the value is just a placeholder and will be replaced with the actual DNS ACME challenge during
+domain validation) needs to be created.
+
+==== Preparing Certbot Scripts
+Create the `/etc/letsencrypt/renewal-hooks/post/reverse-proxy-restart.sh` file with the following content:
+
+./etc/letsencrypt/renewal-hooks/post/reverse-proxy-restart.sh
+[source,bash,subs="attributes+"]
+----
+#!/bin/bash
+if [ "$CERTBOT_DOMAIN" = "{SB_INTERNAL_DOMAIN}" ]; then # <1>
+    echo "Restarting reverse proxy server"
+    docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml restart proxy
+else
+    echo "Skipping reverse proxy server restart - different domain: $CERTBOT_DOMAIN"
+fi
+----
+<1> Replace `{SB_INTERNAL_DOMAIN}` with the actual domain name.
+
+This script will be executed automatically by Certbot during the renewal of a certificate,
+and if the renewal is for the reverse proxy certificate it will restart reverse proxy server
+to use the new certificate.
+
+And assign the following permissions to this file:
+
+----
+sudo chmod 770 /etc/letsencrypt/renewal-hooks/post/reverse-proxy-restart.sh
+----
+
+==== Test Certificate
+To test that domain validation and certificate renewal works, it is possible to use Let's Encrypt test server
+to generate test (not trusted) certificate.
+
+To get test certificate run:
+
+[subs="attributes+"]
+----
+sudo certbot certonly --test-cert \
+    --agree-tos \
+    -m {SB_EMAIL} \ # <1>
+    --manual \
+    --preferred-challenges=dns \
+    --manual-auth-hook /root/silverbox/certbot/dns-challenge-auth.sh \
+    --manual-cleanup-hook /root/silverbox/certbot/dns-challenge-cleanup.sh \
+    --must-staple \
+    -d *.{SB_INTERNAL_DOMAIN} # <2>
+----
+<1> Replace `{SB_EMAIL}` with the email address you wish to use for certificate generation.
+<2> Replace `{SB_INTERNAL_DOMAIN}` with the actual domain name. The `*.` before domain name is significant - it is needed to request wildcard certificate.
+
+NOTE: This may take a while.
+
+To view information about the generated certificate:
+
+----
+sudo certbot certificates
+----
+
+To test certificate renewal:
+
+[subs="attributes+"]
+----
+sudo certbot renew --test-cert --dry-run --cert-name {SB_INTERNAL_DOMAIN}
+----
+
+To revoke and delete the test certificate:
+
+[subs="attributes+"]
+----
+sudo certbot revoke --test-cert --cert-name {SB_INTERNAL_DOMAIN}
+----
+
+==== Getting Real Certificate
+To get the real certificate run:
+
+[subs="attributes+"]
+----
+sudo certbot certonly \
+    --agree-tos \
+    -m {SB_EMAIL} \ # <1>
+    --manual \
+    --preferred-challenges=dns \
+    --manual-auth-hook /root/silverbox/certbot/dns-challenge-auth.sh \
+    --manual-cleanup-hook /root/silverbox/certbot/dns-challenge-cleanup.sh \
+    --must-staple \
+    -d *.{SB_INTERNAL_DOMAIN} # <2>
+----
+<1> Replace `{SB_EMAIL}` with the email address you wish to use for certificate generation.
+<2> Replace `{SB_INTERNAL_DOMAIN}` with the actual domain name. The `*.` before domain name is significant - it is needed to request wildcard certificate.
+
+==== Automatic Certificate Renewal
+The certificate should be automatically renewed by the Certbot's Systemd service.
+The service should run automatically triggered by the corresponding timer.
+To check the status of the timer:
+
+----
+systemctl status certbot.timer
+----
+

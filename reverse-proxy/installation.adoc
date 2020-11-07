@@ -1,0 +1,206 @@
+=== Installation
+This section describes how to install and run the reverse proxy server.
+
+==== Preparing Container
+Create a directory for the reverse proxy container files:
+
+----
+sudo mkdir /root/silverbox/containers/reverse-proxy
+sudo chmod 700 /root/silverbox/containers/reverse-proxy
+----
+
+Inside it, create the `docker-compose.yml` file with the following content:
+
+./root/silverbox/containers/reverse-proxy/docker-compose.yml
+[source,yaml,subs="attributes+"]
+----
+version: '3.5'
+
+services:
+  proxy:
+    container_name: reverse-proxy
+    image: 'httpd:{SB_HTTPD_VERSION}' # <1>
+    restart: on-failure:5
+    network_mode: host # <2>
+    logging:
+      driver: json-file
+      options:
+        max-size: 10mb
+        max-file: '3'
+    volumes:
+      - /etc/letsencrypt/live/{SB_INTERNAL_DOMAIN}:/certs/live/{SB_INTERNAL_DOMAIN}:ro # <3>
+      - /etc/letsencrypt/archive/{SB_INTERNAL_DOMAIN}:/certs/archive/{SB_INTERNAL_DOMAIN}:ro # <4>
+      - ./httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
+      - ./htpasswd:/usr/local/apache2/.htpasswd:ro
+    ports:
+      - "443:443" # <5>
+----
+<1> Replace `{SB_HTTPD_VERSION}` with the actual latest `httpd` (Debian based) image version (can be checked at the Docker Hub).
+<2> This puts container on the host network, rather than creating bridge network.
+While it may be not perfect from the isolation standpoint, it makes it very easy to proxy traffic to different services,
+regardless of what interface they are listening on.
+<3> Replace `{SB_INTERNAL_DOMAIN}` with the actual domain name.
+<4> Same as above.
+<5> This puts the reverse proxy on default HTTPS port 443. Feel free to use different port if you need to.
+
+===== Configuring HTTPD
+Create the `/root/silverbox/containers/reverse-proxy/httpd.conf` file with the following content:
+
+./root/silverbox/containers/reverse-proxy/httpd.conf
+[source,apache,subs="attributes+"]
+----
+Listen 443
+
+LoadModule mpm_event_module modules/mod_mpm_event.so
+LoadModule authn_core_module modules/mod_authn_core.so
+LoadModule authz_core_module modules/mod_authz_core.so
+LoadModule authz_host_module modules/mod_authz_host.so
+LoadModule authz_user_module modules/mod_authz_user.so
+LoadModule auth_basic_module modules/mod_auth_basic.so
+LoadModule authn_file_module modules/mod_authn_file.so
+LoadModule mime_module modules/mod_mime.so
+LoadModule log_config_module modules/mod_log_config.so
+LoadModule env_module modules/mod_env.so
+LoadModule headers_module modules/mod_headers.so
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_http_module modules/mod_proxy_http.so
+LoadModule unixd_module modules/mod_unixd.so
+LoadModule socache_shmcb_module modules/mod_socache_shmcb.so
+LoadModule ssl_module modules/mod_ssl.so
+LoadModule http2_module modules/mod_http2.so
+
+User www-data
+Group www-data
+
+Protocols h2 http/1.1
+
+SSLEngine On
+SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
+SSLHonorCipherOrder On
+SSLProtocol -all +TLSv1.3 +TLSv1.2
+SSLUseStapling on
+SSLStaplingCache "shmcb:/usr/local/apache2/logs/ssl_stapling(128000)"
+SSLSessionTickets Off
+SSLSessionCache "shmcb:/usr/local/apache2/logs/ssl_scache(512000)"
+SSLSessionCacheTimeout 300
+SSLCertificateFile /certs/live/{SB_INTERNAL_DOMAIN}/fullchain.pem # <1>
+SSLCertificateKeyFile /certs/live/{SB_INTERNAL_DOMAIN}/privkey.pem
+
+<Directory />
+    AllowOverride none
+    Require all denied
+</Directory>
+
+DocumentRoot "/usr/local/apache2/htdocs"
+
+Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains; preload" # <2>
+Header always set X-Frame-Options "DENY"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-XSS-Protection "1; mode=block"
+
+# Monit
+<VirtualHost *:443>
+    ServerName monit.{SB_INTERNAL_DOMAIN} # <3>
+    ProxyPass        "/" "http://127.0.0.1:\{MONIT_PORT}/" # <4>
+    ProxyPassReverse "/" "http://127.0.0.1:\{MONIT_PORT}/"
+    <Proxy *>
+        Authtype Basic
+        Authname "Authentication required"
+        AuthUserFile /usr/local/apache2/.htpasswd
+        Require valid-user
+    </Proxy>
+</VirtualHost>
+
+# Transmission
+<VirtualHost *:443>
+    ServerName transmission.{SB_INTERNAL_DOMAIN} # <5>
+    ProxyPass        "/" "http://127.0.0.1:{SB_TRANSMISSION_PORT}/" # <6>
+    ProxyPassReverse "/" "http://127.0.0.1:{SB_TRANSMISSION_PORT}/"
+    <Proxy *>
+        Authtype Basic
+        Authname "Authentication required"
+        AuthUserFile /usr/local/apache2/.htpasswd
+        Require valid-user
+    </Proxy>
+</VirtualHost>
+
+<Files ".ht*">
+    Require all denied
+</Files>
+
+ErrorLog /proc/self/fd/2
+LogLevel warn
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%\{Referer}i\" \"%\{User-Agent}i\"" combined
+LogFormat "%h %l %u %t \"%r\" %>s %b" common
+CustomLog /proc/self/fd/1 common env=!dont_log
+
+Include conf/extra/httpd-mpm.conf
+
+ServerTokens Prod
+TraceEnable off
+----
+<1> Replace `{SB_INTERNAL_DOMAIN}` in this and next line with the actual value.
+<2> This and next three lines add some of the standard security-related headers for all proxied services.
+Feel free to customize this.
+<3> Replace `{SB_INTERNAL_DOMAIN}` with the actual value.
+<4> Replace `\{MONIT_PORT}` in this and next line with the actual port number you've chosen for Monit UI.
+<5> Replace `{SB_INTERNAL_DOMAIN}` with the actual value.
+<6> Replace `\{SB_TRANSMISSION_PORT}` in this and next line with the actual port number you've chosen for Transmission UI.
+
+If you want to add additional services to the proxy, it can be done in the similar manner, by adding `VirtualHost` block for each service.
+
+===== Adding Users
+Install the `apache2-utils` package that contains `htpasswd` utility that is needed to generate file containing users and hashed passwords:
+
+----
+sudo apt install apache2-utils
+----
+
+Create the users database file, initially containing one user (you will be prompted for user's password):
+
+----
+sudo htpasswd -B -c /root/silverbox/containers/reverse-proxy/htpasswd {USERNAME} # <1>
+----
+<1> Replace `\{USERNAME}` with the actual desired username.
+
+To add more users, refer to `htpasswd` documentation <<htpasswd>>.
+
+==== Adding Firewall Rule
+To add Firewall rule to allow accessing the reverse proxy:
+
+[subs="attributes+"]
+----
+sudo ufw allow proto tcp to any port 443 comment "Reverse proxy"
+----
+
+==== Configuring DNS
+This part assumes you have configured local DNS zone as described in <<nfs_configuring_dns>>.
+
+To add DNS records for the services that go through the reverse proxy edit the
+`/etc/unbound/unbound.conf.d/dns-config.conf` file and add `local-data` record
+pointing to the server IP `{SB_IP}` for each service you want to proxy.
+
+Below are example records for Monit and Transmission:
+
+./etc/unbound/unbound.conf.d/dns-config.conf
+[source,yaml,subs="attributes+"]
+----
+server:
+ local-data: "monit.{SB_INTERNAL_DOMAIN}.        IN A {SB_IP}" # <1>
+ local-data: "transmission.{SB_INTERNAL_DOMAIN}. IN A {SB_IP}"
+----
+<1> In this and the next line replace `{SB_INTERNAL_DOMAIN}` and `{SB_IP}` with the actual values.
+
+Restart the Unbound server to apply the changes:
+
+----
+sudo systemctl restart unbound.service
+----
+
+==== Running Reverse Proxy Server
+To start the reverse proxy server do:
+
+----
+sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d
+----
+

@@ -31,3 +31,5 @@ Now the tunnel can be established simply with:
 ssh -N silverbox-transmission-ui-tunnel
 ----
 
+NOTE: More convenient way of accessing Transmission web interface and other internal services is described in the <<reverse_proxy>> section.
+
