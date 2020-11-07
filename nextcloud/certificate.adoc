@@ -1,3 +1,4 @@
+[[nextcloud_certificate]]
 === Certificate
 This section describes how to obtain and maintain publicly trusted SSL/TLS Certificate
 that will be used to setup HTTPS for the Nextcloud.
@@ -119,29 +120,29 @@ To create directories for the renewal hooks run:
 sudo certbot certificates
 ----
 
-Create the `/etc/letsencrypt/renewal-hooks/pre/nextcloud-web-stop.sh` file with the following content:
+Create the `/etc/letsencrypt/renewal-hooks/post/nextcloud-web-restart.sh` file with the following content:
 
-./etc/letsencrypt/renewal-hooks/pre/nextcloud-web-stop.sh
-[source,bash]
+./etc/letsencrypt/renewal-hooks/post/nextcloud-web-restart.sh
+[source,bash,subs="attributes+"]
 ----
 #!/bin/bash
-docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml stop nextcloud-web
+if [ "$CERTBOT_DOMAIN" = "{SB_NEXTCLOUD_DOMAIN}" ]; then # <1>
+    echo "Restarting Nextcloud web server"
+    docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml restart nextcloud-web
+else
+    echo "Skipping Nextcloud web server restart - different domain: $CERTBOT_DOMAIN"
+fi
 ----
+<1> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual domain name.
 
-Create the `/etc/letsencrypt/renewal-hooks/post/nextcloud-web-start.sh` file with the following content:
+This script will be executed automatically by Certbot during the renewal of a certificate,
+and if the renewal is for the Nextcloud certificate it will restart Nextcloud's web server
+to use the new certificate.
 
-./etc/letsencrypt/renewal-hooks/post/nextcloud-web-start.sh
-[source,bash]
-----
-#!/bin/bash
-docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml start nextcloud-web
-----
-
-And assign the following permissions to these files:
+And assign the following permissions to this file:
 
 ----
-sudo chmod 770 /etc/letsencrypt/renewal-hooks/pre/nextcloud-web-stop.sh
-sudo chmod 770 /etc/letsencrypt/renewal-hooks/post/nextcloud-web-start.sh
+sudo chmod 770 /etc/letsencrypt/renewal-hooks/post/nextcloud-web-restart.sh
 ----
 
 Finally, install the `dnsutils` package which contains `dig` tool:
@@ -181,8 +182,9 @@ sudo certbot certificates
 
 To test certificate renewal:
 
+[subs="attributes+"]
 ----
-sudo certbot renew --test-cert --dry-run
+sudo certbot renew --test-cert --dry-run --cert-name {SB_NEXTCLOUD_DOMAIN}
 ----
 
 To revoke and delete the test certificate:
