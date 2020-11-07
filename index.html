@@ -444,8 +444,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">ovk</span><br>
 <span id="email" class="email"><a href="https://github.com/ovk">@ovk</a></span><br>
-<span id="revnumber">version 1.0.2,</span>
-<span id="revdate">October 10, 2020</span>
+<span id="revnumber">version 1.1.0,</span>
+<span id="revdate">November 7, 2020</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -530,7 +530,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_nextcloud">11. Nextcloud</a>
 <ul class="sectlevel2">
 <li><a href="#_overview">11.1. Overview</a></li>
-<li><a href="#_certificate">11.2. Certificate</a></li>
+<li><a href="#nextcloud_certificate">11.2. Certificate</a></li>
 <li><a href="#_installation_4">11.3. Installation</a></li>
 <li><a href="#_configuration_3">11.4. Configuration</a></li>
 <li><a href="#_monitoring_7">11.5. Monitoring</a></li>
@@ -542,21 +542,29 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_configuration_4">12.2. Configuration</a></li>
 </ul>
 </li>
-<li><a href="#backup">13. Backup</a>
+<li><a href="#reverse_proxy">13. Reverse Proxy</a>
 <ul class="sectlevel2">
 <li><a href="#_overview_3">13.1. Overview</a></li>
-<li><a href="#_disk_preparation">13.2. Disk Preparation</a></li>
-<li><a href="#_configuration_5">13.3. Configuration</a></li>
+<li><a href="#_certificate">13.2. Certificate</a></li>
+<li><a href="#_installation_5">13.3. Installation</a></li>
 <li><a href="#_monitoring_8">13.4. Monitoring</a></li>
-<li><a href="#_restore_procedure">13.5. Restore Procedure</a></li>
-<li><a href="#_references">13.6. References</a></li>
 </ul>
 </li>
-<li><a href="#_maintenance">14. Maintenance</a>
+<li><a href="#backup">14. Backup</a>
 <ul class="sectlevel2">
-<li><a href="#_keeping_system_up_to_date">14.1. Keeping System Up to Date</a></li>
-<li><a href="#_monitoring_9">14.2. Monitoring</a></li>
-<li><a href="#_keeping_system_clean">14.3. Keeping System Clean</a></li>
+<li><a href="#_overview_4">14.1. Overview</a></li>
+<li><a href="#_disk_preparation">14.2. Disk Preparation</a></li>
+<li><a href="#_configuration_5">14.3. Configuration</a></li>
+<li><a href="#_monitoring_9">14.4. Monitoring</a></li>
+<li><a href="#_restore_procedure">14.5. Restore Procedure</a></li>
+<li><a href="#_references">14.6. References</a></li>
+</ul>
+</li>
+<li><a href="#_maintenance">15. Maintenance</a>
+<ul class="sectlevel2">
+<li><a href="#_keeping_system_up_to_date">15.1. Keeping System Up to Date</a></li>
+<li><a href="#_monitoring_10">15.2. Monitoring</a></li>
+<li><a href="#_keeping_system_clean">15.3. Keeping System Clean</a></li>
 </ul>
 </li>
 <li><a href="#_references_2">References</a></li>
@@ -959,7 +967,7 @@ extra security and privacy.</p>
 <p><strong>NFS server</strong> secured with Kerberos (clean NFSv4-only server).</p>
 </li>
 <li>
-<p><strong>Nextcloud</strong> accessible over HTTP(S) with Let&#8217;s Encrypt certificates (renewed automatically using Certbot with DNS challenge).</p>
+<p><strong>Nextcloud</strong> accessible over HTTPS with Let&#8217;s Encrypt certificates (renewed automatically using Certbot with DNS challenge).</p>
 </li>
 <li>
 <p><strong>Transmission</strong> BitTorent client that communicates only over a VPN connection.</p>
@@ -972,6 +980,9 @@ extra security and privacy.</p>
 </li>
 <li>
 <p><strong>Borg and Rclone</strong> for automatic encrypted incremental backups (both on-site and off-site).</p>
+</li>
+<li>
+<p><strong>Reverse proxy server</strong> with HTTPS (using wildcard certificate) and basic authentication to access internal services.</p>
 </li>
 <li>
 <p><strong>Monit</strong> for system monitoring and notifications.</p>
@@ -2383,6 +2394,18 @@ Web interface now can be accessed on the client pc at <code><a href="http://127.
 <pre class="nowrap">ssh -N silverbox-monit-ui-tunnel</pre>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+More convenient way of accessing Monit web interface and other internal services is described in the <a href="#reverse_proxy">Reverse Proxy</a> section.
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 <div class="sect3">
@@ -3372,7 +3395,7 @@ sudo chmod 700 /root/silverbox/containers/vpn-proxy/host-key</pre>
       <span class="na">context</span><span class="pi">:</span> <span class="s">/root/silverbox/containers/vpn-proxy</span>
       <span class="na">network</span><span class="pi">:</span> <span class="s">vpn</span>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.5-slim'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.6-slim'</span> <i class="conum" data-value="1"></i><b>(1)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:15</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -3397,7 +3420,7 @@ sudo chmod 700 /root/silverbox/containers/vpn-proxy/host-key</pre>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Replace <code>10.5-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).
+<td>Replace <code>10.6-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).
 Don&#8217;t use <code>latest</code> here as it makes setup non-deterministic and makes it harder to maintain and upgrade.</td>
 </tr>
 <tr>
@@ -4075,7 +4098,7 @@ sudo chmod 700 /root/silverbox/containers/dns-updater</pre>
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/dns-updater/Dockerfile</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> debian:10.5-slim </span><i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> debian:10.6-slim </span><i class="conum" data-value="1"></i><b>(1)</b>
 
 <span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> <span class="se">\
 </span>    apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nt">--no-install-recommends</span> python3 ca-certificates
@@ -4091,7 +4114,7 @@ sudo chmod 700 /root/silverbox/containers/dns-updater</pre>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Replace <code>10.5-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).</td>
+<td>Replace <code>10.6-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -4388,7 +4411,7 @@ For example, if your domain is <code>example.com</code>, the internal domain cou
 on your DHCP server for all the client devices that will be in the domain (or configure static IP addresses).</p>
 </div>
 <div class="sect3">
-<h4 id="_configuring_local_dns_zone">9.1.1. Configuring Local DNS Zone</h4>
+<h4 id="nfs_configuring_dns">9.1.1. Configuring Local DNS Zone</h4>
 <div class="paragraph">
 <p>To create local DNS zone for your internal domain,
 edit the <code>/etc/unbound/unbound.conf.d/dns-config.conf</code> file
@@ -5498,7 +5521,7 @@ sudo chmod 700 /root/silverbox/containers/transmission</pre>
       <span class="na">context</span><span class="pi">:</span> <span class="s">/root/silverbox/containers/transmission</span>
       <span class="na">network</span><span class="pi">:</span> <span class="s">vpn</span>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.5-slim'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.6-slim'</span> <i class="conum" data-value="1"></i><b>(1)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:15</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -5523,7 +5546,7 @@ sudo chmod 700 /root/silverbox/containers/transmission</pre>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Replace <code>10.5-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).
+<td>Replace <code>10.6-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).
 Note that this is not the Transmission version.</td>
 </tr>
 <tr>
@@ -6000,6 +6023,18 @@ Web interface now can be accessed on the client pc at <code><a href="http://127.
 <pre class="nowrap">ssh -N silverbox-transmission-ui-tunnel</pre>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+More convenient way of accessing Transmission web interface and other internal services is described in the <a href="#reverse_proxy">Reverse Proxy</a> section.
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 </div>
@@ -6111,7 +6146,7 @@ But more importantly, compromising or DoS-ing one container doesn&#8217;t compro
 </div>
 </div>
 <div class="sect2">
-<h3 id="_certificate">11.2. Certificate</h3>
+<h3 id="nextcloud_certificate">11.2. Certificate</h3>
 <div class="paragraph">
 <p>This section describes how to obtain and maintain publicly trusted SSL/TLS Certificate
 that will be used to setup HTTPS for the Nextcloud.</p>
@@ -6243,7 +6278,7 @@ done
 <span class="nv">ACME_SUBDOMAIN</span><span class="o">=</span><span class="s2">"_acme-challenge"</span>
 <span class="nv">DOMAIN</span><span class="o">=</span><span class="sb">`</span><span class="nb">awk</span> <span class="nt">-F</span> <span class="s1">'.'</span> <span class="s1">'{print $(NF-1)"."$NF}'</span> <span class="o">&lt;&lt;&lt;</span> <span class="s2">"</span><span class="nv">$CERTBOT_DOMAIN</span><span class="s2">"</span><span class="sb">`</span> <span class="o">||</span> <span class="nb">exit </span>1
 <span class="nv">NS</span><span class="o">=</span><span class="sb">`</span>dig <span class="s2">"</span><span class="nv">$DOMAIN</span><span class="s2">"</span> NS +short | <span class="nb">head</span> <span class="nt">-1</span><span class="sb">`</span> <span class="o">||</span> <span class="nb">exit </span>2
-<span class="nb">echo</span> <span class="s2">"Performing DNS Challenge Cleanup for domain: </span><span class="nv">$CERTBOT_DOMAIN</span><span class="s2"> in </span><span class="nv">$DOMAIN</span><span class="s2"> with authoritive NS </span><span class="nv">$NS</span><span class="s2">"</span>
+<span class="nb">echo</span> <span class="s2">"Performing DNS Challenge Cleanup for domain: </span><span class="nv">$CERTBOT_DOMAIN</span><span class="s2"> in </span><span class="nv">$DOMAIN</span><span class="s2"> with authoritative NS </span><span class="nv">$NS</span><span class="s2">"</span>
 docker run <span class="nt">--rm</span> <span class="nt">--network</span> common <span class="nt">--cpus</span><span class="o">=</span><span class="s2">"1"</span> <span class="nt">-v</span> /root/silverbox/namesilo:/secrets dns-updater <span class="nt">-k</span> /secrets/api-key <span class="nt">-a</span> update-txt <span class="nt">-d</span> <span class="s2">"</span><span class="nv">$ACME_SUBDOMAIN</span><span class="s2">.</span><span class="nv">$CERTBOT_DOMAIN</span><span class="s2">"</span> <span class="nt">-t</span> <span class="s2">"none"</span> <span class="o">||</span> <span class="nb">exit </span>3 <i class="conum" data-value="1"></i><b>(1)</b>
 <span class="nb">echo</span> <span class="s2">"Record cleaned up"</span></code></pre>
 </div>
@@ -6278,32 +6313,39 @@ and start it once new certificate is obtained.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Create the <code>/etc/letsencrypt/renewal-hooks/pre/nextcloud-web-stop.sh</code> file with the following content:</p>
+<p>Create the <code>/etc/letsencrypt/renewal-hooks/post/nextcloud-web-restart.sh</code> file with the following content:</p>
 </div>
 <div class="listingblock">
-<div class="title">/etc/letsencrypt/renewal-hooks/pre/nextcloud-web-stop.sh</div>
+<div class="title">/etc/letsencrypt/renewal-hooks/post/nextcloud-web-restart.sh</div>
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="bash"><span class="c">#!/bin/bash</span>
-docker-compose <span class="nt">-f</span> /root/silverbox/containers/nextcloud/docker-compose.yml stop nextcloud-web</code></pre>
+<span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$CERTBOT_DOMAIN</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"{NEXTCLOUD_DOMAIN}"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then <i class="conum" data-value="1"></i><b>(1)</b>
+    </span><span class="nb">echo</span> <span class="s2">"Restarting Nextcloud web server"</span>
+    docker-compose <span class="nt">-f</span> /root/silverbox/containers/nextcloud/docker-compose.yml restart nextcloud-web
+<span class="k">else
+    </span><span class="nb">echo</span> <span class="s2">"Skipping Nextcloud web server restart - different domain: </span><span class="nv">$CERTBOT_DOMAIN</span><span class="s2">"</span>
+<span class="k">fi</span></code></pre>
 </div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Replace <code>{NEXTCLOUD_DOMAIN}</code> with the actual domain name.</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
-<p>Create the <code>/etc/letsencrypt/renewal-hooks/post/nextcloud-web-start.sh</code> file with the following content:</p>
-</div>
-<div class="listingblock">
-<div class="title">/etc/letsencrypt/renewal-hooks/post/nextcloud-web-start.sh</div>
-<div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="bash"><span class="c">#!/bin/bash</span>
-docker-compose <span class="nt">-f</span> /root/silverbox/containers/nextcloud/docker-compose.yml start nextcloud-web</code></pre>
-</div>
+<p>This script will be executed automatically by Certbot during the renewal of a certificate,
+and if the renewal is for the Nextcloud certificate it will restart Nextcloud&#8217;s web server
+to use the new certificate.</p>
 </div>
 <div class="paragraph">
-<p>And assign the following permissions to these files:</p>
+<p>And assign the following permissions to this file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="nowrap">sudo chmod 770 /etc/letsencrypt/renewal-hooks/pre/nextcloud-web-stop.sh
-sudo chmod 770 /etc/letsencrypt/renewal-hooks/post/nextcloud-web-start.sh</pre>
+<pre class="nowrap">sudo chmod 770 /etc/letsencrypt/renewal-hooks/post/nextcloud-web-restart.sh</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6374,7 +6416,7 @@ This may take a while.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="nowrap">sudo certbot renew --test-cert --dry-run</pre>
+<pre class="nowrap">sudo certbot renew --test-cert --dry-run --cert-name {NEXTCLOUD_DOMAIN}</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -7622,14 +7664,597 @@ rm silverbox-git.pub</pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="backup">13. Backup</h2>
+<h2 id="reverse_proxy">13. Reverse Proxy</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are some services described in this guide (such as Monit Web UI or Transmission Web UI)
+that are internal and only intended to be accessible from inside the home (LAN) network.
+In addition, you may want to install some other services, not described in the guide, which should only be accessible from inside.
+As described in this guide, the suggested way of accessing such services securely (with authentication and encryption)
+is by establishing an SSH tunnel to each service first, and then accessing the service over the tunnel.</p>
+</div>
+<div class="paragraph">
+<p>While this approach works, it may become quite inconvenient to access internal services this way, especially for the larger number of services.
+This section describes an alternative approach: using internal reverse proxy to provide access to all internal services in secure way.</p>
+</div>
+<div class="sect2">
+<h3 id="_overview_3">13.1. Overview</h3>
+<div class="paragraph">
+<p>Below is a diagram with an overview how such reverse proxy could be deployed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">                                                       Silverbox Server
+                                                      --------------------------------------------
+                                                     |    --------                                |
+monit.home.example.com ------\                       |   | Apache |---&gt; Internal Monit Addr       |
+transmission.home.example.com--[HTTPS, Basic Auth]------&gt;| HTTP   |---&gt; Internal Transmission Addr|
+service-a.home.example.com --/                       |   | Server |---&gt; Internal Service A Addr   |
+                                                     |    --------                                |
+                                                     |        |                                   |
+                                                     |    {/certs}                                |
+                                                     |        |                                   |
+                                                     |        V                                   |
+                                                     | /etc/letsencrypt - *.home.example.com      |
+                                                      --------------------------------------------</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+In the diagram above, a path inside curly braces indicates a path as it seen inside Docker container,
+while path without curly braces indicates the real path on the host file system.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This diagram assumes you have domain for your home services <code>home.example.com</code> and three services:
+Monit, Transmission and some hypothetical Service A (DNS names for these services need to be configured in Unbound).</p>
+</div>
+<div class="paragraph">
+<p>Apache web server serves as HTTPS to HTTP reverse proxy, while also (optionally) performing Basic HTTP Authentication.
+Wildcard Let&#8217;s Encrypt certificate for <code>*.home.example.com</code> is used for HTTPS in this example, thus allowing easy addition of services without the need to get new certificates.</p>
+</div>
+<div class="paragraph">
+<p>This approach allows to have both authentication (using HTTP Basic Auth which is secure when used with HTTPS) and encryption (HTTPS).
+The basic auth can be turned off for some services if they offer strong built-in authentication.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, the reverse proxy enables HTTP2 and adds some common security headers.</p>
+</div>
+<div class="paragraph">
+<p>This section is completely optional, as for many people who may only have one or two services which they rarely use it maybe not worth the effort of initial configuration.
+But if you plan on running many selfhosted services it may be very convenient to have such reverse proxy with easily expandable rules to add additional services.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_certificate">13.2. Certificate</h3>
+<div class="paragraph">
+<p>This section describes how to obtain and maintain wildcard certificate that the reverse proxy will use to setup HTTPS for all services
+(hence the need for wildcard and not just regular certificate).</p>
+</div>
+<div class="paragraph">
+<p>The process is very similar to what was described in the <a href="#nextcloud_certificate">Certificate</a> section for Nextcloud and it relies on that section being done.</p>
+</div>
+<div class="sect3">
+<h4 id="_preparing_domain_name_2">13.2.1. Preparing Domain Name</h4>
+<div class="paragraph">
+<p>It&#8217;s assumed that the wildcard certificate will be obtained on your internal domain name <code>{INTERNAL_DOMAIN}</code>.
+If this is not the case, adjust instructions below accordingly.</p>
+</div>
+<div class="paragraph">
+<p>The individual services will be sub-domains of the <code>{INTERNAL_DOMAIN}</code>.
+For example, if your <code>{INTERNAL_DOMAIN}</code> is <code>home.example.com</code> then service addresses will look like <code>service-name.home.example.com</code>.</p>
+</div>
+<div class="paragraph">
+<p>Since it&#8217;s intended that the services will be only accessible from the internal network,
+there is no need to create any public A or CNAME records for the <code>{INTERNAL_DOMAIN}</code>.</p>
+</div>
+<div class="paragraph">
+<p>Only the TXT DNS record for the <code>_acme-challenge.{INTERNAL_DOMAIN}</code> with any value
+(the value is just a placeholder and will be replaced with the actual DNS ACME challenge during
+domain validation) needs to be created.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_preparing_certbot_scripts_2">13.2.2. Preparing Certbot Scripts</h4>
+<div class="paragraph">
+<p>Create the <code>/etc/letsencrypt/renewal-hooks/post/reverse-proxy-restart.sh</code> file with the following content:</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/letsencrypt/renewal-hooks/post/reverse-proxy-restart.sh</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="bash"><span class="c">#!/bin/bash</span>
+<span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$CERTBOT_DOMAIN</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"{INTERNAL_DOMAIN}"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then <i class="conum" data-value="1"></i><b>(1)</b>
+    </span><span class="nb">echo</span> <span class="s2">"Restarting reverse proxy server"</span>
+    docker-compose <span class="nt">-f</span> /root/silverbox/containers/reverse-proxy/docker-compose.yml restart proxy
+<span class="k">else
+    </span><span class="nb">echo</span> <span class="s2">"Skipping reverse proxy server restart - different domain: </span><span class="nv">$CERTBOT_DOMAIN</span><span class="s2">"</span>
+<span class="k">fi</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Replace <code>{INTERNAL_DOMAIN}</code> with the actual domain name.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This script will be executed automatically by Certbot during the renewal of a certificate,
+and if the renewal is for the reverse proxy certificate it will restart reverse proxy server
+to use the new certificate.</p>
+</div>
+<div class="paragraph">
+<p>And assign the following permissions to this file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo chmod 770 /etc/letsencrypt/renewal-hooks/post/reverse-proxy-restart.sh</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_test_certificate_2">13.2.3. Test Certificate</h4>
+<div class="paragraph">
+<p>To test that domain validation and certificate renewal works, it is possible to use Let&#8217;s Encrypt test server
+to generate test (not trusted) certificate.</p>
+</div>
+<div class="paragraph">
+<p>To get test certificate run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo certbot certonly --test-cert \
+    --agree-tos \
+    -m {YOUR_EMAIL_ADDR} \ <i class="conum" data-value="1"></i><b>(1)</b>
+    --manual \
+    --preferred-challenges=dns \
+    --manual-auth-hook /root/silverbox/certbot/dns-challenge-auth.sh \
+    --manual-cleanup-hook /root/silverbox/certbot/dns-challenge-cleanup.sh \
+    --must-staple \
+    -d *.{INTERNAL_DOMAIN} <i class="conum" data-value="2"></i><b>(2)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Replace <code>{YOUR_EMAIL_ADDR}</code> with the email address you wish to use for certificate generation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Replace <code>{INTERNAL_DOMAIN}</code> with the actual domain name. The <code>*.</code> before domain name is significant - it is needed to request wildcard certificate.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This may take a while.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>To view information about the generated certificate:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo certbot certificates</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To test certificate renewal:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo certbot renew --test-cert --dry-run --cert-name {INTERNAL_DOMAIN}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To revoke and delete the test certificate:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo certbot revoke --test-cert --cert-name {INTERNAL_DOMAIN}</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_getting_real_certificate_2">13.2.4. Getting Real Certificate</h4>
+<div class="paragraph">
+<p>To get the real certificate run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo certbot certonly \
+    --agree-tos \
+    -m {YOUR_EMAIL_ADDR} \ <i class="conum" data-value="1"></i><b>(1)</b>
+    --manual \
+    --preferred-challenges=dns \
+    --manual-auth-hook /root/silverbox/certbot/dns-challenge-auth.sh \
+    --manual-cleanup-hook /root/silverbox/certbot/dns-challenge-cleanup.sh \
+    --must-staple \
+    -d *.{INTERNAL_DOMAIN} <i class="conum" data-value="2"></i><b>(2)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Replace <code>{YOUR_EMAIL_ADDR}</code> with the email address you wish to use for certificate generation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Replace <code>{INTERNAL_DOMAIN}</code> with the actual domain name. The <code>*.</code> before domain name is significant - it is needed to request wildcard certificate.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_automatic_certificate_renewal_2">13.2.5. Automatic Certificate Renewal</h4>
+<div class="paragraph">
+<p>The certificate should be automatically renewed by the Certbot&#8217;s Systemd service.
+The service should run automatically triggered by the corresponding timer.
+To check the status of the timer:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">systemctl status certbot.timer</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_installation_5">13.3. Installation</h3>
+<div class="paragraph">
+<p>This section describes how to install and run the reverse proxy server.</p>
+</div>
+<div class="sect3">
+<h4 id="_preparing_container">13.3.1. Preparing Container</h4>
+<div class="paragraph">
+<p>Create a directory for the reverse proxy container files:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo mkdir /root/silverbox/containers/reverse-proxy
+sudo chmod 700 /root/silverbox/containers/reverse-proxy</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Inside it, create the <code>docker-compose.yml</code> file with the following content:</p>
+</div>
+<div class="listingblock">
+<div class="title">/root/silverbox/containers/reverse-proxy/docker-compose.yml</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3.5'</span>
+
+<span class="na">services</span><span class="pi">:</span>
+  <span class="na">proxy</span><span class="pi">:</span>
+    <span class="na">container_name</span><span class="pi">:</span> <span class="s">reverse-proxy</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s1">'</span><span class="s">httpd:2.4.46'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
+    <span class="na">network_mode</span><span class="pi">:</span> <span class="s">host</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="na">logging</span><span class="pi">:</span>
+      <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
+      <span class="na">options</span><span class="pi">:</span>
+        <span class="na">max-size</span><span class="pi">:</span> <span class="s">10mb</span>
+        <span class="na">max-file</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3'</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">/etc/letsencrypt/live/{INTERNAL_DOMAIN}:/certs/live/{INTERNAL_DOMAIN}:ro</span> <i class="conum" data-value="3"></i><b>(3)</b>
+      <span class="pi">-</span> <span class="s">/etc/letsencrypt/archive/{INTERNAL_DOMAIN}:/certs/archive/{INTERNAL_DOMAIN}:ro</span> <i class="conum" data-value="4"></i><b>(4)</b>
+      <span class="pi">-</span> <span class="s">./httpd.conf:/usr/local/apache2/conf/httpd.conf:ro</span>
+      <span class="pi">-</span> <span class="s">./htpasswd:/usr/local/apache2/.htpasswd:ro</span>
+    <span class="na">ports</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">443:443"</span> <i class="conum" data-value="5"></i><b>(5)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Replace <code>2.4.46</code> with the actual latest <code>httpd</code> (Debian based) image version (can be checked at the Docker Hub).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>This puts container on the host network, rather than creating bridge network.
+While it may be not perfect from the isolation standpoint, it makes it very easy to proxy traffic to different services,
+regardless of what interface they are listening on.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Replace <code>{INTERNAL_DOMAIN}</code> with the actual domain name.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Same as above.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>This puts the reverse proxy on default HTTPS port 443. Feel free to use different port if you need to.</td>
+</tr>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_configuring_httpd">Configuring HTTPD</h5>
+<div class="paragraph">
+<p>Create the <code>/root/silverbox/containers/reverse-proxy/httpd.conf</code> file with the following content:</p>
+</div>
+<div class="listingblock">
+<div class="title">/root/silverbox/containers/reverse-proxy/httpd.conf</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="apache"><span class="nc">Listen</span> 443
+
+<span class="nc">LoadModule</span> mpm_event_module modules/mod_mpm_event.so
+<span class="nc">LoadModule</span> authn_core_module modules/mod_authn_core.so
+<span class="nc">LoadModule</span> authz_core_module modules/mod_authz_core.so
+<span class="nc">LoadModule</span> authz_host_module modules/mod_authz_host.so
+<span class="nc">LoadModule</span> authz_user_module modules/mod_authz_user.so
+<span class="nc">LoadModule</span> auth_basic_module modules/mod_auth_basic.so
+<span class="nc">LoadModule</span> authn_file_module modules/mod_authn_file.so
+<span class="nc">LoadModule</span> mime_module modules/mod_mime.so
+<span class="nc">LoadModule</span> log_config_module modules/mod_log_config.so
+<span class="nc">LoadModule</span> env_module modules/mod_env.so
+<span class="nc">LoadModule</span> headers_module modules/mod_headers.so
+<span class="nc">LoadModule</span> proxy_module modules/mod_proxy.so
+<span class="nc">LoadModule</span> proxy_http_module modules/mod_proxy_http.so
+<span class="nc">LoadModule</span> unixd_module modules/mod_unixd.so
+<span class="nc">LoadModule</span> socache_shmcb_module modules/mod_socache_shmcb.so
+<span class="nc">LoadModule</span> ssl_module modules/mod_ssl.so
+<span class="nc">LoadModule</span> http2_module modules/mod_http2.so
+
+<span class="nc">User</span> www-data
+<span class="nc">Group</span> www-data
+
+<span class="nc">Protocols</span> h2 http/1.1
+
+<span class="nc">SSLEngine</span> <span class="ss">On</span>
+<span class="nc">SSLCipherSuite</span> EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
+<span class="nc">SSLHonorCipherOrder</span> <span class="ss">On</span>
+<span class="nc">SSLProtocol</span> -all +TLSv1.3 +TLSv1.2
+<span class="nc">SSLUseStapling</span> <span class="ss">on</span>
+<span class="nc">SSLStaplingCache</span> "shmcb:/usr/local/apache2/logs/ssl_stapling(128000)"
+<span class="nc">SSLSessionTickets</span> <span class="ss">Off</span>
+<span class="nc">SSLSessionCache</span> "shmcb:/usr/local/apache2/logs/ssl_scache(512000)"
+<span class="nc">SSLSessionCacheTimeout</span> 300
+<span class="nc">SSLCertificateFile</span> /certs/live/{INTERNAL_DOMAIN}/fullchain.pem <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="ss">SSLCertificateKeyFile</span> /certs/live/{INTERNAL_DOMAIN}/privkey.pem
+
+<span class="p">&lt;</span><span class="nl">Directory</span><span class="sr"> /</span><span class="p">&gt;
+</span>    <span class="nc">AllowOverride</span> <span class="ss">none</span>
+    <span class="nc">Require</span> <span class="ss">all</span> denied
+<span class="p">&lt;/</span><span class="nl">Directory</span><span class="p">&gt;
+</span>
+<span class="nc">DocumentRoot</span> "/usr/local/apache2/htdocs"
+
+<span class="nc">Header</span> <span class="ss">always</span> <span class="ss">set</span> Strict-Transport-Security "max-age=15552000; includeSubDomains; preload" <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="ss">Header</span> <span class="ss">always</span> <span class="ss">set</span> X-Frame-Options "DENY"
+<span class="nc">Header</span> <span class="ss">always</span> <span class="ss">set</span> X-Content-Type-Options "nosniff"
+<span class="nc">Header</span> <span class="ss">always</span> <span class="ss">set</span> X-XSS-Protection "1; mode=block"
+
+<span class="c"># Monit</span>
+<span class="p">&lt;</span><span class="nl">VirtualHost</span><span class="sr"> *:443</span><span class="p">&gt;
+</span>    <span class="nc">ServerName</span> monit.{INTERNAL_DOMAIN} <i class="conum" data-value="3"></i><b>(3)</b>
+    <span class="ss">ProxyPass</span>        "/" "http://127.0.0.1:{MONIT_PORT}/" <i class="conum" data-value="4"></i><b>(4)</b>
+    <span class="ss">ProxyPassReverse</span> "/" "http://127.0.0.1:{MONIT_PORT}/"
+    <span class="p">&lt;</span><span class="nl">Proxy</span><span class="sr"> *</span><span class="p">&gt;
+</span>        <span class="nc">Authtype</span> <span class="ss">Basic</span>
+        <span class="nc">Authname</span> "Authentication required"
+        <span class="nc">AuthUserFile</span> /usr/local/apache2/.htpasswd
+        <span class="nc">Require</span> valid-user
+    <span class="p">&lt;/</span><span class="nl">Proxy</span><span class="p">&gt;
+&lt;/</span><span class="nl">VirtualHost</span><span class="p">&gt;
+</span>
+<span class="c"># Transmission</span>
+<span class="p">&lt;</span><span class="nl">VirtualHost</span><span class="sr"> *:443</span><span class="p">&gt;
+</span>    <span class="nc">ServerName</span> transmission.{INTERNAL_DOMAIN} <i class="conum" data-value="5"></i><b>(5)</b>
+    <span class="ss">ProxyPass</span>        "/" "http://127.0.0.1:{TRANSMISSION_UI_PORT}/" <i class="conum" data-value="6"></i><b>(6)</b>
+    <span class="ss">ProxyPassReverse</span> "/" "http://127.0.0.1:{TRANSMISSION_UI_PORT}/"
+    <span class="p">&lt;</span><span class="nl">Proxy</span><span class="sr"> *</span><span class="p">&gt;
+</span>        <span class="nc">Authtype</span> <span class="ss">Basic</span>
+        <span class="nc">Authname</span> "Authentication required"
+        <span class="nc">AuthUserFile</span> /usr/local/apache2/.htpasswd
+        <span class="nc">Require</span> valid-user
+    <span class="p">&lt;/</span><span class="nl">Proxy</span><span class="p">&gt;
+&lt;/</span><span class="nl">VirtualHost</span><span class="p">&gt;
+</span>
+<span class="p">&lt;</span><span class="nl">Files</span><span class="sr"> ".ht*"</span><span class="p">&gt;
+</span>    <span class="nc">Require</span> <span class="ss">all</span> denied
+<span class="p">&lt;/</span><span class="nl">Files</span><span class="p">&gt;
+</span>
+<span class="nc">ErrorLog</span> /proc/self/fd/2
+<span class="nc">LogLevel</span> warn
+<span class="nc">LogFormat</span> "%h %l %u %t \"%r\" %&gt;s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+<span class="nc">LogFormat</span> "%h %l %u %t \"%r\" %&gt;s %b" common
+<span class="nc">CustomLog</span> /proc/self/fd/1 common env=!dont_log
+
+<span class="nc">Include</span> conf/extra/httpd-mpm.conf
+
+<span class="nc">ServerTokens</span> Prod
+<span class="nc">TraceEnable</span> <span class="ss">off</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Replace <code>{INTERNAL_DOMAIN}</code> in this and next line with the actual value.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>This and next three lines add some of the standard security-related headers for all proxied services.
+Feel free to customize this.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Replace <code>{INTERNAL_DOMAIN}</code> with the actual value.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Replace <code>{MONIT_PORT}</code> in this and next line with the actual port number you&#8217;ve chosen for Monit UI.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Replace <code>{INTERNAL_DOMAIN}</code> with the actual value.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Replace <code>{SB_TRANSMISSION_PORT}</code> in this and next line with the actual port number you&#8217;ve chosen for Transmission UI.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If you want to add additional services to the proxy, it can be done in the similar manner, by adding <code>VirtualHost</code> block for each service.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_adding_users">Adding Users</h5>
+<div class="paragraph">
+<p>Install the <code>apache2-utils</code> package that contains <code>htpasswd</code> utility that is needed to generate file containing users and hashed passwords:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo apt install apache2-utils</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Create the users database file, initially containing one user (you will be prompted for user&#8217;s password):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo htpasswd -B -c /root/silverbox/containers/reverse-proxy/htpasswd {USERNAME} <i class="conum" data-value="1"></i><b>(1)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Replace <code>{USERNAME}</code> with the actual desired username.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>To add more users, refer to <code>htpasswd</code> documentation <a href="#htpasswd">[19]</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_adding_firewall_rule_4">13.3.2. Adding Firewall Rule</h4>
+<div class="paragraph">
+<p>To add Firewall rule to allow accessing the reverse proxy:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo ufw allow proto tcp to any port 443 comment "Reverse proxy"</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_configuring_dns">13.3.3. Configuring DNS</h4>
+<div class="paragraph">
+<p>This part assumes you have configured local DNS zone as described in <a href="#nfs_configuring_dns">Configuring Local DNS Zone</a>.</p>
+</div>
+<div class="paragraph">
+<p>To add DNS records for the services that go through the reverse proxy edit the
+<code>/etc/unbound/unbound.conf.d/dns-config.conf</code> file and add <code>local-data</code> record
+pointing to the server IP <code>{SERVER_IP_ADDR}</code> for each service you want to proxy.</p>
+</div>
+<div class="paragraph">
+<p>Below are example records for Monit and Transmission:</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/unbound/unbound.conf.d/dns-config.conf</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">server</span><span class="pi">:</span>
+ <span class="na">local-data</span><span class="pi">:</span> <span class="s2">"</span><span class="s">monit.{INTERNAL_DOMAIN}.</span><span class="nv">        </span><span class="s">IN</span><span class="nv"> </span><span class="s">A</span><span class="nv"> </span><span class="s">{SERVER_IP_ADDR}"</span> <i class="conum" data-value="1"></i><b>(1)</b>
+ <span class="na">local-data</span><span class="pi">:</span> <span class="s2">"</span><span class="s">transmission.{INTERNAL_DOMAIN}.</span><span class="nv"> </span><span class="s">IN</span><span class="nv"> </span><span class="s">A</span><span class="nv"> </span><span class="s">{SERVER_IP_ADDR}"</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>In this and the next line replace <code>{INTERNAL_DOMAIN}</code> and <code>{SERVER_IP_ADDR}</code> with the actual values.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Restart the Unbound server to apply the changes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo systemctl restart unbound.service</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_running_reverse_proxy_server">13.3.4. Running Reverse Proxy Server</h4>
+<div class="paragraph">
+<p>To start the reverse proxy server do:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_monitoring_8">13.4. Monitoring</h3>
+<div class="paragraph">
+<p>To monitor the reverse proxy server with Monit create the <code>/etc/monit/conf.d/70-reverse-proxy</code> file with the following content:</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/monit/conf.d/70-reverse-proxy</div>
+<div class="content">
+<pre class="nowrap"># Container status
+check program reverse_proxy with path "/usr/local/etc/monit/scripts/container_status.sh reverse-proxy .State.Status running"
+  if status != 0 for 5 cycles then alert
+
+# HTTPS &amp; Certificate check
+check host reverse_proxy_monit with address monit.{INTERNAL_DOMAIN} every 5 cycles <i class="conum" data-value="1"></i><b>(1)</b>
+  if failed port 443 protocol https request / status = 401 and certificate valid &gt; 15 days for 2 cycles then alert <i class="conum" data-value="2"></i><b>(2)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Replace <code>{INTERNAL_DOMAIN}</code> with the actual value.
+In this example, Monit UI host is used to check the certificate.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Port 443 is used here, change it if you used different port for the proxy.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Restart Monit and verify that the reverse proxy monitoring is working.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="backup">14. Backup</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This section describes how to configure secure automatic backup of valuable files
 from the server to external drive and to the cloud.</p>
 </div>
 <div class="sect2">
-<h3 id="_overview_3">13.1. Overview</h3>
+<h3 id="_overview_4">14.1. Overview</h3>
 <div class="paragraph">
 <p>Below is a diagram that describes the general backup strategy for the server:</p>
 </div>
@@ -7683,7 +8308,7 @@ In the case of total failure of main and external drives simultaneously, the dat
 </div>
 </div>
 <div class="sect2">
-<h3 id="_disk_preparation">13.2. Disk Preparation</h3>
+<h3 id="_disk_preparation">14.2. Disk Preparation</h3>
 <div class="paragraph">
 <p>The first step is to partition and format the external drive in <code>ext4</code> filesystem.
 There are plenty of excellent guides available online so these steps are out of scope of this document.</p>
@@ -7702,7 +8327,7 @@ since backup files will be already encrypted. But you may still do it if you wan
 </table>
 </div>
 <div class="sect3">
-<h4 id="_automatic_disk_mount">13.2.1. Automatic Disk Mount</h4>
+<h4 id="_automatic_disk_mount">14.2.1. Automatic Disk Mount</h4>
 <div class="paragraph">
 <p>Once partitioned and formatted, connect the disk to the server.</p>
 </div>
@@ -7798,7 +8423,7 @@ The device name (i.e. <code>/dev/sda</code>) can be different after reboot.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_trim_2">13.2.2. TRIM</h4>
+<h4 id="_trim_2">14.2.2. TRIM</h4>
 <div class="paragraph">
 <p>While TRIM should automatically work on all mounted drives that support it (thanks to default <code>fstrim.service</code>),
 it most likely will not work on drives connected via USB due to issues with USB &lt;&gt; SATA commands translation.</p>
@@ -7819,17 +8444,17 @@ However, TRIM support is not critical for backup drive as maximum write performa
 </div>
 </div>
 <div class="sect2">
-<h3 id="_configuration_5">13.3. Configuration</h3>
+<h3 id="_configuration_5">14.3. Configuration</h3>
 <div class="paragraph">
 <p>This section describes how to install all the necessary software and configure backup to the external drive and to the cloud.</p>
 </div>
 <div class="sect3">
-<h4 id="_borg_backup">13.3.1. Borg Backup</h4>
+<h4 id="_borg_backup">14.3.1. Borg Backup</h4>
 <div class="paragraph">
 <p>Borg backup will be used to backup valuable files from the server to the external drive.</p>
 </div>
 <div class="sect4">
-<h5 id="_installation_5">Installation</h5>
+<h5 id="_installation_6">Installation</h5>
 <div class="paragraph">
 <p>Borg backup can be installed directly from the repositories:</p>
 </div>
@@ -8039,7 +8664,7 @@ sudo systemctl start borg-backup.timer</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_rclone">13.3.2. Rclone</h4>
+<h4 id="_rclone">14.3.2. Rclone</h4>
 <div class="paragraph">
 <p>Rclone is a tool that can synchronize local files with remote cloud storage.
 In this deployment it is used to sync backup files generated by Borg to remote cloud storage.</p>
@@ -8050,7 +8675,7 @@ I chose to use OVH object storage, but you can chose any storage that is support
 (list of supported storages available on Rclone website, see link in the references section).</p>
 </div>
 <div class="sect4">
-<h5 id="_installation_6">Installation</h5>
+<h5 id="_installation_7">Installation</h5>
 <div class="paragraph">
 <p>Rclone can be installed directly from the repositories:</p>
 </div>
@@ -8216,13 +8841,13 @@ sudo systemctl start sync-backup.timer</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_monitoring_8">13.4. Monitoring</h3>
+<h3 id="_monitoring_9">14.4. Monitoring</h3>
 <div class="paragraph">
 <p>The monitoring for backups consists of three parts: monitoring backup disk status (space use, temperature, health),
 monitoring Borg service status and monitoring Rclone service status.</p>
 </div>
 <div class="sect3">
-<h4 id="_backup_disk_monitoring">13.4.1. Backup Disk Monitoring</h4>
+<h4 id="_backup_disk_monitoring">14.4.1. Backup Disk Monitoring</h4>
 <div class="paragraph">
 <p>The backup disk monitoring can be done exactly the same way as the main disk monitoring,
 as described in <a href="#basic_system_monitoring">Basic System Monitoring</a> section (assuming your disk has temperature sensor).
@@ -8305,7 +8930,7 @@ Don&#8217;t forget to add extra parameters to <code>smartctl</code> command if n
 </div>
 </div>
 <div class="sect3">
-<h4 id="_borg_rclone_monitoring">13.4.2. Borg &amp; Rclone Monitoring</h4>
+<h4 id="_borg_rclone_monitoring">14.4.2. Borg &amp; Rclone Monitoring</h4>
 <div class="paragraph">
 <p>To monitor status of Borg and Rclone services,
 create the <code>/etc/monit/conf.d/80-backup</code> file with the following content:</p>
@@ -8326,7 +8951,7 @@ check program sync_backup with path "/usr/local/etc/monit/scripts/is_systemd_uni
 </div>
 </div>
 <div class="sect2">
-<h3 id="_restore_procedure">13.5. Restore Procedure</h3>
+<h3 id="_restore_procedure">14.5. Restore Procedure</h3>
 <div class="paragraph">
 <p>The exact restore procedures depend on the type of failure that occurred.</p>
 </div>
@@ -8342,7 +8967,7 @@ For more details, please refer to references section below.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_references">13.6. References</h3>
+<h3 id="_references">14.6. References</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -8369,7 +8994,7 @@ For more details, please refer to references section below.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_maintenance">14. Maintenance</h2>
+<h2 id="_maintenance">15. Maintenance</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This section describes some basic maintenance procedures that will hopefully help to keep the server up to date,
@@ -8377,12 +9002,12 @@ healthy and running.
 However, don&#8217;t consider this to be a complete checklist.</p>
 </div>
 <div class="sect2">
-<h3 id="_keeping_system_up_to_date">14.1. Keeping System Up to Date</h3>
+<h3 id="_keeping_system_up_to_date">15.1. Keeping System Up to Date</h3>
 <div class="paragraph">
 <p>This section describes how to keep the system and services running on it up-to-date.</p>
 </div>
 <div class="sect3">
-<h4 id="_ubuntu">14.1.1. Ubuntu</h4>
+<h4 id="_ubuntu">15.1.1. Ubuntu</h4>
 <div class="paragraph">
 <p>Ubuntu will install security updates automatically, but other updates have to be installed manually.</p>
 </div>
@@ -8418,7 +9043,7 @@ for example with <code>ls /var/run/reboot-required</code> command.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_docker_docker_compose">14.1.2. Docker &amp; Docker Compose</h4>
+<h4 id="_docker_docker_compose">15.1.2. Docker &amp; Docker Compose</h4>
 <div class="paragraph">
 <p>Docker engine will be updated as part of the regular Ubuntu packages update.</p>
 </div>
@@ -8443,7 +9068,7 @@ for example with <code>ls /var/run/reboot-required</code> command.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_docker_images">14.1.3. Docker Images</h4>
+<h4 id="_docker_images">15.1.3. Docker Images</h4>
 <div class="paragraph">
 <p>The first step is to check if newer Docker images (including base images) are available.
 Unfortunately, at the moment of writing Docker didn&#8217;t have such functionality out of the box.
@@ -8545,7 +9170,7 @@ and update the Debian image version in the build arguments:</p>
 <div class="title">/root/silverbox/containers/vpn-proxy/docker-compose.yaml</div>
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">args</span><span class="pi">:</span>
-  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.5-slim'</span></code></pre>
+  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.6-slim'</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -8570,7 +9195,7 @@ sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml 
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/dns-updater/Dockerfile</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="docker"><span class="k">FROM</span><span class="s"> debian:10.5-slim</span></code></pre>
+<pre class="rouge highlight nowrap"><code data-lang="docker"><span class="k">FROM</span><span class="s"> debian:10.6-slim</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -8596,7 +9221,7 @@ and update the Debian image version in the build arguments:</p>
 <div class="title">/root/silverbox/containers/transmission/docker-compose.yaml</div>
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">args</span><span class="pi">:</span>
-  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.5-slim'</span></code></pre>
+  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.6-slim'</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -8610,9 +9235,32 @@ sudo docker-compose -f /root/silverbox/containers/transmission/docker-compose.ya
 </div>
 </div>
 </div>
+<div class="sect4">
+<h5 id="_updating_reverse_proxy_image">Updating Reverse Proxy Image</h5>
+<div class="paragraph">
+<p>Edit the <code>/root/silverbox/containers/reverse-proxy/docker-compose.yml</code> file
+and update the Apache httpd image version:</p>
+</div>
+<div class="listingblock">
+<div class="title">/root/silverbox/containers/reverse-proxy/docker-compose.yml</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">image</span><span class="pi">:</span> <span class="s1">'</span><span class="s">httpd:2.4.46'</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Stop the container, pull the new image and start new container from the new image:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml down
+sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml pull
+sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d</pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect3">
-<h4 id="_nextcloud_2">14.1.4. Nextcloud</h4>
+<h4 id="_nextcloud_2">15.1.4. Nextcloud</h4>
 <div class="paragraph">
 <p>By default, Nextcloud will automatically show notification when new version is available.
 This can also be checked on the <em>Settings &#8594; Overview</em> page.</p>
@@ -8682,12 +9330,12 @@ If you see any warnings, consult Nextcloud admin guide on how to fix them.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_monitoring_9">14.2. Monitoring</h3>
+<h3 id="_monitoring_10">15.2. Monitoring</h3>
 <div class="paragraph">
 <p>This section gives some ideas on how to monitor system health and overall status.</p>
 </div>
 <div class="sect3">
-<h4 id="_monit_2">14.2.1. Monit</h4>
+<h4 id="_monit_2">15.2.1. Monit</h4>
 <div class="paragraph">
 <p>Monit has a lot of useful information about the system and running services,
 and it worth checking it from time to time.</p>
@@ -8697,7 +9345,7 @@ and it worth checking it from time to time.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_logs">14.2.2. Logs</h4>
+<h4 id="_logs">15.2.2. Logs</h4>
 <div class="paragraph">
 <p>Logs from the system and different services can provide a lot of useful information
 and should be checked periodically for anomalies and errors.</p>
@@ -8757,7 +9405,7 @@ Nextcloud maintains its own log that can be viewed on the <em>Settings &#8594; L
 </div>
 </div>
 <div class="sect3">
-<h4 id="_disk_health">14.2.3. Disk Health</h4>
+<h4 id="_disk_health">15.2.3. Disk Health</h4>
 <div class="paragraph">
 <p>Monitoring disk status and health is crucial in preventing data loss and diagnosing performance issues.
 It is especially important for SSDs since every SSD cell have limited number of times it can be erased and written.</p>
@@ -8855,13 +9503,13 @@ one service writing tons of logs non stop could be enough to wear the disk prema
 </div>
 </div>
 <div class="sect2">
-<h3 id="_keeping_system_clean">14.3. Keeping System Clean</h3>
+<h3 id="_keeping_system_clean">15.3. Keeping System Clean</h3>
 <div class="paragraph">
 <p>This section gives some ideas on how to keep the system clean
 and how to prevent accumulation of unnecessary or obsolete information.</p>
 </div>
 <div class="sect3">
-<h4 id="_cleaning_system_packages">14.3.1. Cleaning System Packages</h4>
+<h4 id="_cleaning_system_packages">15.3.1. Cleaning System Packages</h4>
 <div class="paragraph">
 <p>To remove no longer required packages do:</p>
 </div>
@@ -8872,7 +9520,7 @@ and how to prevent accumulation of unnecessary or obsolete information.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_cleaning_docker">14.3.2. Cleaning Docker</h4>
+<h4 id="_cleaning_docker">15.3.2. Cleaning Docker</h4>
 <div class="paragraph">
 <p>To view how much space is used by Docker:</p>
 </div>
@@ -8928,7 +9576,7 @@ This will generate errors and skip deletion of images that are currently in use.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_cleaning_and_minimizing_logs">14.3.3. Cleaning and Minimizing Logs</h4>
+<h4 id="_cleaning_and_minimizing_logs">15.3.3. Cleaning and Minimizing Logs</h4>
 <div class="sect4">
 <h5 id="_cleaning_old_system_logs">Cleaning Old System Logs</h5>
 <div class="paragraph">
@@ -8973,7 +9621,7 @@ so only increase it if the server is connected to reliable UPS and unexpected sh
 </div>
 </div>
 <div class="sect3">
-<h4 id="_disabling_motd_news">14.3.4. Disabling Motd-News</h4>
+<h4 id="_disabling_motd_news">15.3.4. Disabling Motd-News</h4>
 <div class="paragraph">
 <p>By default, Ubuntu will fetch news daily to show them in the message of the day (motd),
 which I find rather annoying and unnecessary flooding the logs.
@@ -9050,6 +9698,9 @@ sudo systemctl disable motd-news.timer</pre>
 <li>
 <p><a id="git_server"></a>[18] &#8220;Git Book: Git Server&#8221;: <a href="https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server" class="bare">https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server</a></p>
 </li>
+<li>
+<p><a id="htpasswd"></a>[19] &#8220;htpasswd&#8221;: <a href="https://httpd.apache.org/docs/2.4/programs/htpasswd.html" class="bare">https://httpd.apache.org/docs/2.4/programs/htpasswd.html</a></p>
+</li>
 </ul>
 </div>
 </div>
@@ -9069,7 +9720,7 @@ sudo systemctl disable motd-news.timer</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.2<br>
+Version 1.1.0<br>
 </div>
 </div>
 <style>
