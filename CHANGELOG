@@ -1,3 +1,11 @@
+## [1.1.0] - 2020-11-07
+
+- Added section on internal reverse proxy server setup [1d75b17]
+- Improve Nextcloud certificate instructions [2f7aa04]
+  This update includes some minor changes to renewal script for Nextcloud.
+  If you have Nextcloud deployed, the scripts should be manually updated to match the new document.
+- Fix spelling [8319a5f]
+
 ## [1.0.2] - 2020-10-10
 
 - Update Nextcloud to 19.0.4-fpm and Postgres to 13.0 [b53d512]
