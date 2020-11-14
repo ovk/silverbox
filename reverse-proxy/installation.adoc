@@ -98,6 +98,8 @@ Header always set X-Frame-Options "DENY"
 Header always set X-Content-Type-Options "nosniff"
 Header always set X-XSS-Protection "1; mode=block"
 
+RequestHeader set X-Forwarded-Proto "https"
+
 # Monit
 <VirtualHost *:443>
     ServerName monit.{SB_INTERNAL_DOMAIN} # <3>
