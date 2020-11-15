@@ -206,3 +206,29 @@ To start the reverse proxy server do:
 sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d
 ----
 
+==== Automatic Container Startup
+To start the reverse proxy container automatically on boot create the
+`/etc/systemd/system/reverse-proxy-start.service` file with the following content:
+
+./etc/systemd/system/reverse-proxy-start.service
+----
+[Unit]
+Description=Start Apache Reverse Proxy
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d
+
+[Install]
+WantedBy=multi-user.target
+----
+
+Enable the service, so that it will be started on system boot:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl enable reverse-proxy-start.service
+----
+
