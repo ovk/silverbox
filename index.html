@@ -444,8 +444,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">ovk</span><br>
 <span id="email" class="email"><a href="https://github.com/ovk">@ovk</a></span><br>
-<span id="revnumber">version 1.1.0,</span>
-<span id="revdate">November 7, 2020</span>
+<span id="revnumber">version 1.2.0,</span>
+<span id="revdate">November 15, 2020</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -550,21 +550,28 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_monitoring_8">13.4. Monitoring</a></li>
 </ul>
 </li>
-<li><a href="#backup">14. Backup</a>
+<li><a href="#_firefly_iii">14. Firefly III</a>
 <ul class="sectlevel2">
 <li><a href="#_overview_4">14.1. Overview</a></li>
-<li><a href="#_disk_preparation">14.2. Disk Preparation</a></li>
-<li><a href="#_configuration_5">14.3. Configuration</a></li>
-<li><a href="#_monitoring_9">14.4. Monitoring</a></li>
-<li><a href="#_restore_procedure">14.5. Restore Procedure</a></li>
-<li><a href="#_references">14.6. References</a></li>
+<li><a href="#_installation_6">14.2. Installation</a></li>
+<li><a href="#_monitoring_9">14.3. Monitoring</a></li>
 </ul>
 </li>
-<li><a href="#_maintenance">15. Maintenance</a>
+<li><a href="#backup">15. Backup</a>
 <ul class="sectlevel2">
-<li><a href="#_keeping_system_up_to_date">15.1. Keeping System Up to Date</a></li>
-<li><a href="#_monitoring_10">15.2. Monitoring</a></li>
-<li><a href="#_keeping_system_clean">15.3. Keeping System Clean</a></li>
+<li><a href="#_overview_5">15.1. Overview</a></li>
+<li><a href="#_disk_preparation">15.2. Disk Preparation</a></li>
+<li><a href="#_configuration_5">15.3. Configuration</a></li>
+<li><a href="#_monitoring_10">15.4. Monitoring</a></li>
+<li><a href="#_restore_procedure">15.5. Restore Procedure</a></li>
+<li><a href="#_references">15.6. References</a></li>
+</ul>
+</li>
+<li><a href="#_maintenance">16. Maintenance</a>
+<ul class="sectlevel2">
+<li><a href="#_keeping_system_up_to_date">16.1. Keeping System Up to Date</a></li>
+<li><a href="#_monitoring_11">16.2. Monitoring</a></li>
+<li><a href="#_keeping_system_clean">16.3. Keeping System Clean</a></li>
 </ul>
 </li>
 <li><a href="#_references_2">References</a></li>
@@ -983,6 +990,9 @@ extra security and privacy.</p>
 </li>
 <li>
 <p><strong>Reverse proxy server</strong> with HTTPS (using wildcard certificate) and basic authentication to access internal services.</p>
+</li>
+<li>
+<p><strong>Firefly III</strong> for personal finances management.</p>
 </li>
 <li>
 <p><strong>Monit</strong> for system monitoring and notifications.</p>
@@ -8043,6 +8053,8 @@ regardless of what interface they are listening on.</td>
 <span class="nc">Header</span> <span class="ss">always</span> <span class="ss">set</span> X-Content-Type-Options "nosniff"
 <span class="nc">Header</span> <span class="ss">always</span> <span class="ss">set</span> X-XSS-Protection "1; mode=block"
 
+<span class="nc">RequestHeader</span> <span class="ss">set</span> X-Forwarded-Proto "https"
+
 <span class="c"># Monit</span>
 <span class="p">&lt;</span><span class="nl">VirtualHost</span><span class="sr"> *:443</span><span class="p">&gt;
 </span>    <span class="nc">ServerName</span> monit.{INTERNAL_DOMAIN} <i class="conum" data-value="3"></i><b>(3)</b>
@@ -8209,6 +8221,38 @@ pointing to the server IP <code>{SERVER_IP_ADDR}</code> for each service you wan
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_automatic_container_startup_3">13.3.5. Automatic Container Startup</h4>
+<div class="paragraph">
+<p>To start the reverse proxy container automatically on boot create the
+<code>/etc/systemd/system/reverse-proxy-start.service</code> file with the following content:</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/systemd/system/reverse-proxy-start.service</div>
+<div class="content">
+<pre class="nowrap">[Unit]
+Description=Start Apache Reverse Proxy
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d
+
+[Install]
+WantedBy=multi-user.target</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Enable the service, so that it will be started on system boot:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo systemctl daemon-reload
+sudo systemctl enable reverse-proxy-start.service</pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_monitoring_8">13.4. Monitoring</h3>
@@ -8247,14 +8291,528 @@ In this example, Monit UI host is used to check the certificate.</td>
 </div>
 </div>
 <div class="sect1">
-<h2 id="backup">14. Backup</h2>
+<h2 id="_firefly_iii">14. Firefly III</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section describes how to install and configure Firefly III (open source personal finances manager) <a href="#firefly">[20]</a> on the server.</p>
+</div>
+<div class="paragraph">
+<p>This section depends on the following sections: <a href="#docker">Docker</a>, <a href="#domain_name">Domain Name</a>, <a href="#reverse_proxy">Reverse Proxy</a>.</p>
+</div>
+<div class="sect2">
+<h3 id="_overview_4">14.1. Overview</h3>
+<div class="paragraph">
+<p>The Firefly III will be deployed using Docker Compose with two Docker containers:
+one is the database (PostgreSQL) and the other is the official Firefly III container
+(which contains Apache web server and PHP application server).</p>
+</div>
+<div class="paragraph">
+<p>Below is a diagram that shows high level overview of the Firefly III deployment:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">firefly.home.example.com
+    |                        Firefly III Docker Network
+    |                      --------------------------------------------------------
+    |                     |            ------------             ------------       |
+    | HTTPS   ---------   |   HTTP    |            | 5432/tcp  |            |      |
+    \-------&gt;| Reverse |-------------&gt;| Firefly III|----------&gt;| PostgreSQL |      |
+             |  Proxy  |  |           |            |           |            |      |
+              ---------   |            ------------             ------------       |
+                          |                  |                       |             |
+                          |   {/var/www/html/storage/upload}         |             |
+                          |                  |          {/var/lib/postgresql/data} |
+                          |                  |                       |             |
+                          |                  v                       v             |
+                          |        /srv/firefly/uploads       /srv/firefly/db      |
+                          |                                                        |
+                           --------------------------------------------------------</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+In this diagram <code>home.example.com</code> is used as an example value for your <code>{INTERNAL_DOMAIN}</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+In the diagram above, a path inside curly braces indicates a path as it seen inside Docker container,
+while path without curly braces indicates the real path on the host file system.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Both containers are stateless (i.e. don&#8217;t contain any important data inside the container),
+since all user data is stored on the host file system and mounted inside containers.
+This way containers can be safely deleted and re-deployed, which makes upgrades very easy.</p>
+</div>
+<div class="paragraph">
+<p>In this setup, Firefly III will only be accessible from the internal network via the reverse proxy
+(as configured in <a href="#reverse_proxy">Reverse Proxy</a>).
+Not exposing Firefly III to the internet is a deliberate decision, partially due to security concerns,
+but also for simplicity of the setup and because it seems to me that having it publicly accessible doesn&#8217;t add to much of convenience.
+If you wish Firefly III to be accessible from the internet you can either implement similar setup as was done for Nextcloud,
+or rely on VPN/WireGuard to get access to the internal network from the internet.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_installation_6">14.2. Installation</h3>
+<div class="paragraph">
+<p>This section describes how to install and run Firefly III.</p>
+</div>
+<div class="sect3">
+<h4 id="_preparing_directory_structure_3">14.2.1. Preparing Directory Structure</h4>
+<div class="paragraph">
+<p>The very first step is to create directories that will be mapped inside the Docker containers:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo mkdir -p /srv/firefly/db
+sudo mkdir /srv/firefly/uploads
+sudo chown 33 /srv/firefly/uploads <i class="conum" data-value="1"></i><b>(1)</b>
+sudo chmod 750 -R /srv/firefly</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>33</code> is the UID of the <code>www-data</code> user inside the Firefly III container.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>All the Firefly III data (including database and uploaded files)
+will be stored under the <code>/srv/firefly</code> directory in the following way:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">db</dt>
+<dd>
+<p>The <code>db</code> subdirectory will store PostgreSQL database files.</p>
+</dd>
+<dt class="hdlist1">uploads</dt>
+<dd>
+<p>The <code>uploads</code> subdirectory will store uploaded files.</p>
+</dd>
+</dl>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+It is important to keep <code>/src/firefly</code> directory owned by the root and have restrictive permissions
+since some content inside it will be owned by the <code>www-data</code> (UID <code>33</code>) user from the Docker containers.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_preparing_images_2">14.2.2. Preparing Images</h4>
+<div class="paragraph">
+<p>Create a directory for Firefly III containers files:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo mkdir /root/silverbox/containers/firefly
+sudo chmod 700 /root/silverbox/containers/firefly</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Inside it, create the <code>docker-compose.yml</code> file with the following content:</p>
+</div>
+<div class="listingblock">
+<div class="title">/root/silverbox/containers/firefly/docker-compose.yml</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3.5'</span>
+
+<span class="na">networks</span><span class="pi">:</span>
+  <span class="na">default</span><span class="pi">:</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">firefly</span>
+    <span class="na">driver</span><span class="pi">:</span> <span class="s">bridge</span>
+    <span class="na">ipam</span><span class="pi">:</span>
+      <span class="na">config</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">subnet</span><span class="pi">:</span> <span class="pi">{</span><span class="nv">DOCKER_FIREFLY_NETWORK</span><span class="pi">}</span> <i class="conum" data-value="1"></i><b>(1)</b>
+
+<span class="na">services</span><span class="pi">:</span>
+  <span class="na">firefly-db</span><span class="pi">:</span>
+    <span class="na">container_name</span><span class="pi">:</span> <span class="s">firefly-db</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:13.0</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
+    <span class="na">shm_size</span><span class="pi">:</span> <span class="s">256mb</span>
+    <span class="na">logging</span><span class="pi">:</span>
+      <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
+      <span class="na">options</span><span class="pi">:</span>
+        <span class="na">max-size</span><span class="pi">:</span> <span class="s">10mb</span>
+        <span class="na">max-file</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3'</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">/srv/firefly/db:/var/lib/postgresql/data</span>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">POSTGRES_USER=firefly</span>
+      <span class="pi">-</span> <span class="s">POSTGRES_PASSWORD={POSTGRES_PASSWORD}</span> <i class="conum" data-value="3"></i><b>(3)</b>
+      <span class="pi">-</span> <span class="s">POSTGRES_DB=firefly</span>
+      <span class="pi">-</span> <span class="s">POSTGRES_INITDB_ARGS="--data-checksums"</span>
+
+  <span class="na">firefly-app</span><span class="pi">:</span>
+    <span class="na">container_name</span><span class="pi">:</span> <span class="s">firefly-app</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">jc5x/firefly-iii:version-5.4.6</span> <i class="conum" data-value="4"></i><b>(4)</b>
+    <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
+    <span class="na">logging</span><span class="pi">:</span>
+      <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
+      <span class="na">options</span><span class="pi">:</span>
+        <span class="na">max-size</span><span class="pi">:</span> <span class="s">10mb</span>
+        <span class="na">max-file</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3'</span>
+    <span class="na">depends_on</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">firefly-db</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">/srv/firefly/uploads:/var/www/html/storage/upload</span>
+    <span class="na">ports</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">127.0.0.1:{FIREFLY_UI_PORT}:8080/tcp</span> <i class="conum" data-value="5"></i><b>(5)</b>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">DB_HOST=firefly-db</span>
+      <span class="pi">-</span> <span class="s">DB_PORT=5432</span>
+      <span class="pi">-</span> <span class="s">DB_CONNECTION=pgsql</span>
+      <span class="pi">-</span> <span class="s">DB_DATABASE=firefly</span>
+      <span class="pi">-</span> <span class="s">DB_USERNAME=firefly</span>
+      <span class="pi">-</span> <span class="s">DB_PASSWORD={POSTGRES_PASSWORD}</span> <i class="conum" data-value="6"></i><b>(6)</b>
+      <span class="pi">-</span> <span class="s">APP_KEY={APP_KEY}</span> <i class="conum" data-value="7"></i><b>(7)</b>
+      <span class="pi">-</span> <span class="s">SITE_OWNER=mail@example.com</span> <i class="conum" data-value="8"></i><b>(8)</b>
+      <span class="pi">-</span> <span class="s">TZ=America/Toronto</span> <i class="conum" data-value="9"></i><b>(9)</b>
+      <span class="pi">-</span> <span class="s">TRUSTED_PROXIES=**</span>
+      <span class="pi">-</span> <span class="s">APP_URL=https://firefly.{INTERNAL_DOMAIN}</span> <i class="conum" data-value="10"></i><b>(10)</b>
+      <span class="pi">-</span> <span class="s">MAIL_MAILER=smtp</span> <i class="conum" data-value="11"></i><b>(11)</b>
+      <span class="pi">-</span> <span class="s">MAIL_HOST=smtp.example.com</span>
+      <span class="pi">-</span> <span class="s">MAIL_PORT=2525</span>
+      <span class="pi">-</span> <span class="s">MAIL_FROM=changeme@example.com</span>
+      <span class="pi">-</span> <span class="s">MAIL_USERNAME=foo</span>
+      <span class="pi">-</span> <span class="s">MAIL_PASSWORD=bar</span>
+      <span class="pi">-</span> <span class="s">MAIL_ENCRYPTION=tls</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Replace <code>{DOCKER_FIREFLY_NETWORK}</code> with the actual subnet you want to use for the Firefly III.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Replace <code>13.0</code> with the actual latest <code>postgres</code> (Debian based) image version (can be checked at the Docker Hub).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Replace <code>{POSTGRES_PASSWORD}</code> with some random password.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Replace <code>version-5.4.6</code> with the actual latest <code>jc5x/firefly-iii</code> image version (can be checked at the Docker Hub).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Replace <code>{FIREFLY_UI_PORT}</code> with the actual port number you chose for Firefly III.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Replace <code>{POSTGRES_PASSWORD}</code> with the same password as above.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Replace <code>{APP_KEY}</code> with random alphanumeric string exactly 32 characters long.
+Such string can be obtained by running the following command: <code>head /dev/urandom | LANG=C tr -dc 'A-Za-z0-9' | head -c 32</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Replace <code>mail@example.com</code> with your email address.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>Replace <code>America/Toronto</code> with your preferred timezone. To check system timezone run: <code>cat /etc/timezone</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>Replace <code>{INTERNAL_DOMAIN}</code> with the actual value.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td>This block of variables refers to email delivery configuration.
+Configure it accordingly to your email delivery settings.
+Refer to Firefly III documentation for more information.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_running_firefly_iii">14.2.3. Running Firefly III</h4>
+<div class="paragraph">
+<p>To start all the containers do:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml up -d</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify that all containers have started successfully and check logs for errors:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo docker ps
+sudo docker logs firefly-db
+sudo docker logs firefly-app</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_firefly_iii_cron">14.2.4. Firefly III Cron</h4>
+<div class="paragraph">
+<p>Firefly III container doesn&#8217;t include cron or anything else for running periodic jobs.
+Therefore a Systemd timer will be used to trigger periodic jobs for Firefly III.</p>
+</div>
+<div class="paragraph">
+<p>Create the <code>/etc/systemd/system/firefly-iii-cron.service</code> file with the following content:</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/systemd/system/firefly-iii-cron.service</div>
+<div class="content">
+<pre class="nowrap">[Unit]
+Description=Run Firefly III cron jobs
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker exec --user www-data firefly-app /usr/local/bin/php /var/www/html/artisan firefly-iii:cron</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can run the service once to verify that it runs successfully:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo systemctl daemon-reload
+sudo systemctl start firefly-iii-cron.service</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next, create the <code>/etc/systemd/system/firefly-iii-cron.timer</code> file with the following content:</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/systemd/system/firefly-iii-cron.timer</div>
+<div class="content">
+<pre class="nowrap">[Unit]
+Description=Run Firefly III cron jobs
+
+[Timer]
+OnBootSec=15min <i class="conum" data-value="1"></i><b>(1)</b>
+OnCalendar=daily <i class="conum" data-value="2"></i><b>(2)</b>
+
+[Install]
+WantedBy=timers.target</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>First time the timer runs 15 minutes after boot.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>After first run, the timer will run daily, as suggested in the Firefly III documentation.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Enable and start the timer:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo systemctl daemon-reload
+sudo systemctl enable firefly-iii-cron.timer
+sudo systemctl start firefly-iii-cron.timer</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can do <code>sudo systemctl list-timers</code> to verify that the timer appears in the output and to check the time till next activation.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_automatic_containers_startup_2">14.2.5. Automatic Containers Startup</h4>
+<div class="paragraph">
+<p>To start containers automatically (in the correct order)
+on boot create the <code>/etc/systemd/system/firefly-start.service</code> file with the following content:</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/systemd/system/firefly-start.service</div>
+<div class="content">
+<pre class="nowrap">[Unit]
+Description=Start Firefly III
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml up -d
+
+[Install]
+WantedBy=multi-user.target</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Enable the service, so that it will be started on system boot:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo systemctl daemon-reload
+sudo systemctl enable firefly-start.service</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_adding_dns_record">14.2.6. Adding DNS Record</h4>
+<div class="paragraph">
+<p>To add internal DNS record for the Firefly III edit the
+<code>/etc/unbound/unbound.conf.d/dns-config.conf</code> file and add <code>local-data</code> record
+pointing to the server IP <code>{SERVER_IP_ADDR}</code>:</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/unbound/unbound.conf.d/dns-config.conf</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">local-data</span><span class="pi">:</span> <span class="s2">"</span><span class="s">firefly.{INTERNAL_DOMAIN}.</span><span class="nv"> </span><span class="s">IN</span><span class="nv"> </span><span class="s">A</span><span class="nv"> </span><span class="s">{SERVER_IP_ADDR}"</span> <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>In this and the next line replace <code>{INTERNAL_DOMAIN}</code> and <code>{SERVER_IP_ADDR}</code> with the actual values.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Restart the Unbound server to apply the changes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo systemctl restart unbound.service</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_adding_reverse_proxy_configuration">14.2.7. Adding Reverse Proxy Configuration</h4>
+<div class="paragraph">
+<p>To add Firefly III to the reverse proxy configuration edit the <code>/root/silverbox/containers/reverse-proxy/httpd.conf</code> file
+and add the following <code>VirtualHost</code> section to it:</p>
+</div>
+<div class="listingblock">
+<div class="title">/root/silverbox/containers/reverse-proxy/httpd.conf</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="apache"><span class="c"># Firefly III</span>
+<span class="p">&lt;</span><span class="nl">VirtualHost</span><span class="sr"> *:443</span><span class="p">&gt;
+</span>    <span class="nc">ServerName</span> firefly.{INTERNAL_DOMAIN} <i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="ss">ProxyPass</span>        "/" "http://127.0.0.1:{FIREFLY_UI_PORT}/" <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="ss">ProxyPassReverse</span> "/" "http://127.0.0.1:{FIREFLY_UI_PORT}/"
+<span class="p">&lt;/</span><span class="nl">VirtualHost</span><span class="p">&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Replace <code>{INTERNAL_DOMAIN}</code> with the actual value.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Replace <code>{FIREFLY_UI_PORT}</code> in this and next line with the actual port number you&#8217;ve chosen for the Firefly III.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This <code>VirtualHost</code> section above doesn&#8217;t include basic authentication configuration.
+This is deliberate, as Firefly III has its own authentication.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Restart reverse proxy container to pick up new changes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">sudo docker restart reverse-proxy</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should now be able to access Firefly III at <code><a href="https://firefly.{INTERNAL_DOMAIN}" class="bare">https://firefly.{INTERNAL_DOMAIN}</a></code>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_monitoring_9">14.3. Monitoring</h3>
+<div class="paragraph">
+<p>To monitor Firefly III status with Monit create the <code>/etc/monit/conf.d/70-firefly</code> file with the following content:</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/monit/conf.d/70-firefly</div>
+<div class="content">
+<pre class="nowrap"># Containers status
+check program firefly_app with path "/usr/local/etc/monit/scripts/container_status.sh firefly-app .State.Status running"
+  if status != 0 for 5 cycles then alert
+
+check program firefly_db with path "/usr/local/etc/monit/scripts/container_status.sh firefly-db .State.Status running"
+  if status != 0 for 5 cycles then alert
+
+# HTTP
+check host firefly with address localhost every 5 cycles
+  if failed port {FIREFLY_UI_PORT} protocol http request / status = 302 for 2 cycles then alert <i class="conum" data-value="1"></i><b>(1)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Replace <code>{FIREFLY_UI_PORT}</code> with the actual value.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Restart Monit and verify that Firefly III monitoring is working.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="backup">15. Backup</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This section describes how to configure secure automatic backup of valuable files
 from the server to external drive and to the cloud.</p>
 </div>
 <div class="sect2">
-<h3 id="_overview_4">14.1. Overview</h3>
+<h3 id="_overview_5">15.1. Overview</h3>
 <div class="paragraph">
 <p>Below is a diagram that describes the general backup strategy for the server:</p>
 </div>
@@ -8308,7 +8866,7 @@ In the case of total failure of main and external drives simultaneously, the dat
 </div>
 </div>
 <div class="sect2">
-<h3 id="_disk_preparation">14.2. Disk Preparation</h3>
+<h3 id="_disk_preparation">15.2. Disk Preparation</h3>
 <div class="paragraph">
 <p>The first step is to partition and format the external drive in <code>ext4</code> filesystem.
 There are plenty of excellent guides available online so these steps are out of scope of this document.</p>
@@ -8327,7 +8885,7 @@ since backup files will be already encrypted. But you may still do it if you wan
 </table>
 </div>
 <div class="sect3">
-<h4 id="_automatic_disk_mount">14.2.1. Automatic Disk Mount</h4>
+<h4 id="_automatic_disk_mount">15.2.1. Automatic Disk Mount</h4>
 <div class="paragraph">
 <p>Once partitioned and formatted, connect the disk to the server.</p>
 </div>
@@ -8423,7 +8981,7 @@ The device name (i.e. <code>/dev/sda</code>) can be different after reboot.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_trim_2">14.2.2. TRIM</h4>
+<h4 id="_trim_2">15.2.2. TRIM</h4>
 <div class="paragraph">
 <p>While TRIM should automatically work on all mounted drives that support it (thanks to default <code>fstrim.service</code>),
 it most likely will not work on drives connected via USB due to issues with USB &lt;&gt; SATA commands translation.</p>
@@ -8444,17 +9002,17 @@ However, TRIM support is not critical for backup drive as maximum write performa
 </div>
 </div>
 <div class="sect2">
-<h3 id="_configuration_5">14.3. Configuration</h3>
+<h3 id="_configuration_5">15.3. Configuration</h3>
 <div class="paragraph">
 <p>This section describes how to install all the necessary software and configure backup to the external drive and to the cloud.</p>
 </div>
 <div class="sect3">
-<h4 id="_borg_backup">14.3.1. Borg Backup</h4>
+<h4 id="_borg_backup">15.3.1. Borg Backup</h4>
 <div class="paragraph">
 <p>Borg backup will be used to backup valuable files from the server to the external drive.</p>
 </div>
 <div class="sect4">
-<h5 id="_installation_6">Installation</h5>
+<h5 id="_installation_7">Installation</h5>
 <div class="paragraph">
 <p>Borg backup can be installed directly from the repositories:</p>
 </div>
@@ -8542,13 +9100,17 @@ borg create <span class="nt">-v</span> <span class="nt">--stats</span> /mnt/back
     /srv/nextcloud <span class="se">\</span>
     /srv/nfs <span class="se">\</span>
     /srv/git <span class="se">\</span>
+    /srv/firefly <span class="se">\</span>
     <span class="nt">--exclude</span> <span class="s1">'/srv/nfs/torrents'</span> <span class="se">\</span>
     <span class="nt">--exclude</span> <span class="s1">'/srv/nextcloud/html'</span> <span class="se">\</span>
     <span class="nt">--exclude</span> <span class="s1">'/srv/nextcloud/data/*.log'</span> <span class="se">\</span>
     <span class="nt">--exclude</span> <span class="s1">'/srv/nextcloud/data/*/preview'</span> <span class="se">\</span>
     <span class="nt">--exclude</span> <span class="s1">'/srv/nextcloud/db/*.pid'</span> <span class="se">\</span>
     <span class="nt">--exclude</span> <span class="s1">'/srv/nextcloud/db/*.opts'</span> <span class="se">\</span>
-    <span class="nt">--exclude</span> <span class="s1">'/srv/nextcloud/db/pg_stat_tmp'</span>
+    <span class="nt">--exclude</span> <span class="s1">'/srv/nextcloud/db/pg_stat_tmp'</span> <span class="se">\</span>
+    <span class="nt">--exclude</span> <span class="s1">'/srv/firefly/db/*.pid'</span> <span class="se">\</span>
+    <span class="nt">--exclude</span> <span class="s1">'/srv/firefly/db/*.opts'</span> <span class="se">\</span>
+    <span class="nt">--exclude</span> <span class="s1">'/srv/firefly/db/pg_stat_tmp'</span>
 
 <span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$?</span><span class="s2">"</span> <span class="nt">-ne</span> <span class="s2">"0"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
     </span><span class="nb">echo</span> <span class="s2">"borg create failed"</span>
@@ -8664,7 +9226,7 @@ sudo systemctl start borg-backup.timer</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_rclone">14.3.2. Rclone</h4>
+<h4 id="_rclone">15.3.2. Rclone</h4>
 <div class="paragraph">
 <p>Rclone is a tool that can synchronize local files with remote cloud storage.
 In this deployment it is used to sync backup files generated by Borg to remote cloud storage.</p>
@@ -8675,7 +9237,7 @@ I chose to use OVH object storage, but you can chose any storage that is support
 (list of supported storages available on Rclone website, see link in the references section).</p>
 </div>
 <div class="sect4">
-<h5 id="_installation_7">Installation</h5>
+<h5 id="_installation_8">Installation</h5>
 <div class="paragraph">
 <p>Rclone can be installed directly from the repositories:</p>
 </div>
@@ -8841,13 +9403,13 @@ sudo systemctl start sync-backup.timer</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_monitoring_9">14.4. Monitoring</h3>
+<h3 id="_monitoring_10">15.4. Monitoring</h3>
 <div class="paragraph">
 <p>The monitoring for backups consists of three parts: monitoring backup disk status (space use, temperature, health),
 monitoring Borg service status and monitoring Rclone service status.</p>
 </div>
 <div class="sect3">
-<h4 id="_backup_disk_monitoring">14.4.1. Backup Disk Monitoring</h4>
+<h4 id="_backup_disk_monitoring">15.4.1. Backup Disk Monitoring</h4>
 <div class="paragraph">
 <p>The backup disk monitoring can be done exactly the same way as the main disk monitoring,
 as described in <a href="#basic_system_monitoring">Basic System Monitoring</a> section (assuming your disk has temperature sensor).
@@ -8930,7 +9492,7 @@ Don&#8217;t forget to add extra parameters to <code>smartctl</code> command if n
 </div>
 </div>
 <div class="sect3">
-<h4 id="_borg_rclone_monitoring">14.4.2. Borg &amp; Rclone Monitoring</h4>
+<h4 id="_borg_rclone_monitoring">15.4.2. Borg &amp; Rclone Monitoring</h4>
 <div class="paragraph">
 <p>To monitor status of Borg and Rclone services,
 create the <code>/etc/monit/conf.d/80-backup</code> file with the following content:</p>
@@ -8951,7 +9513,7 @@ check program sync_backup with path "/usr/local/etc/monit/scripts/is_systemd_uni
 </div>
 </div>
 <div class="sect2">
-<h3 id="_restore_procedure">14.5. Restore Procedure</h3>
+<h3 id="_restore_procedure">15.5. Restore Procedure</h3>
 <div class="paragraph">
 <p>The exact restore procedures depend on the type of failure that occurred.</p>
 </div>
@@ -8967,7 +9529,7 @@ For more details, please refer to references section below.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_references">14.6. References</h3>
+<h3 id="_references">15.6. References</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -8994,7 +9556,7 @@ For more details, please refer to references section below.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_maintenance">15. Maintenance</h2>
+<h2 id="_maintenance">16. Maintenance</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This section describes some basic maintenance procedures that will hopefully help to keep the server up to date,
@@ -9002,12 +9564,12 @@ healthy and running.
 However, don&#8217;t consider this to be a complete checklist.</p>
 </div>
 <div class="sect2">
-<h3 id="_keeping_system_up_to_date">15.1. Keeping System Up to Date</h3>
+<h3 id="_keeping_system_up_to_date">16.1. Keeping System Up to Date</h3>
 <div class="paragraph">
 <p>This section describes how to keep the system and services running on it up-to-date.</p>
 </div>
 <div class="sect3">
-<h4 id="_ubuntu">15.1.1. Ubuntu</h4>
+<h4 id="_ubuntu">16.1.1. Ubuntu</h4>
 <div class="paragraph">
 <p>Ubuntu will install security updates automatically, but other updates have to be installed manually.</p>
 </div>
@@ -9043,7 +9605,7 @@ for example with <code>ls /var/run/reboot-required</code> command.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_docker_docker_compose">15.1.2. Docker &amp; Docker Compose</h4>
+<h4 id="_docker_docker_compose">16.1.2. Docker &amp; Docker Compose</h4>
 <div class="paragraph">
 <p>Docker engine will be updated as part of the regular Ubuntu packages update.</p>
 </div>
@@ -9068,7 +9630,7 @@ for example with <code>ls /var/run/reboot-required</code> command.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_docker_images">15.1.3. Docker Images</h4>
+<h4 id="_docker_images">16.1.3. Docker Images</h4>
 <div class="paragraph">
 <p>The first step is to check if newer Docker images (including base images) are available.
 Unfortunately, at the moment of writing Docker didn&#8217;t have such functionality out of the box.
@@ -9260,7 +9822,7 @@ sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.y
 </div>
 </div>
 <div class="sect3">
-<h4 id="_nextcloud_2">15.1.4. Nextcloud</h4>
+<h4 id="_nextcloud_2">16.1.4. Nextcloud</h4>
 <div class="paragraph">
 <p>By default, Nextcloud will automatically show notification when new version is available.
 This can also be checked on the <em>Settings &#8594; Overview</em> page.</p>
@@ -9330,12 +9892,12 @@ If you see any warnings, consult Nextcloud admin guide on how to fix them.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_monitoring_10">15.2. Monitoring</h3>
+<h3 id="_monitoring_11">16.2. Monitoring</h3>
 <div class="paragraph">
 <p>This section gives some ideas on how to monitor system health and overall status.</p>
 </div>
 <div class="sect3">
-<h4 id="_monit_2">15.2.1. Monit</h4>
+<h4 id="_monit_2">16.2.1. Monit</h4>
 <div class="paragraph">
 <p>Monit has a lot of useful information about the system and running services,
 and it worth checking it from time to time.</p>
@@ -9345,7 +9907,7 @@ and it worth checking it from time to time.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_logs">15.2.2. Logs</h4>
+<h4 id="_logs">16.2.2. Logs</h4>
 <div class="paragraph">
 <p>Logs from the system and different services can provide a lot of useful information
 and should be checked periodically for anomalies and errors.</p>
@@ -9405,7 +9967,7 @@ Nextcloud maintains its own log that can be viewed on the <em>Settings &#8594; L
 </div>
 </div>
 <div class="sect3">
-<h4 id="_disk_health">15.2.3. Disk Health</h4>
+<h4 id="_disk_health">16.2.3. Disk Health</h4>
 <div class="paragraph">
 <p>Monitoring disk status and health is crucial in preventing data loss and diagnosing performance issues.
 It is especially important for SSDs since every SSD cell have limited number of times it can be erased and written.</p>
@@ -9503,13 +10065,13 @@ one service writing tons of logs non stop could be enough to wear the disk prema
 </div>
 </div>
 <div class="sect2">
-<h3 id="_keeping_system_clean">15.3. Keeping System Clean</h3>
+<h3 id="_keeping_system_clean">16.3. Keeping System Clean</h3>
 <div class="paragraph">
 <p>This section gives some ideas on how to keep the system clean
 and how to prevent accumulation of unnecessary or obsolete information.</p>
 </div>
 <div class="sect3">
-<h4 id="_cleaning_system_packages">15.3.1. Cleaning System Packages</h4>
+<h4 id="_cleaning_system_packages">16.3.1. Cleaning System Packages</h4>
 <div class="paragraph">
 <p>To remove no longer required packages do:</p>
 </div>
@@ -9520,7 +10082,7 @@ and how to prevent accumulation of unnecessary or obsolete information.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_cleaning_docker">15.3.2. Cleaning Docker</h4>
+<h4 id="_cleaning_docker">16.3.2. Cleaning Docker</h4>
 <div class="paragraph">
 <p>To view how much space is used by Docker:</p>
 </div>
@@ -9576,7 +10138,7 @@ This will generate errors and skip deletion of images that are currently in use.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_cleaning_and_minimizing_logs">15.3.3. Cleaning and Minimizing Logs</h4>
+<h4 id="_cleaning_and_minimizing_logs">16.3.3. Cleaning and Minimizing Logs</h4>
 <div class="sect4">
 <h5 id="_cleaning_old_system_logs">Cleaning Old System Logs</h5>
 <div class="paragraph">
@@ -9621,7 +10183,7 @@ so only increase it if the server is connected to reliable UPS and unexpected sh
 </div>
 </div>
 <div class="sect3">
-<h4 id="_disabling_motd_news">15.3.4. Disabling Motd-News</h4>
+<h4 id="_disabling_motd_news">16.3.4. Disabling Motd-News</h4>
 <div class="paragraph">
 <p>By default, Ubuntu will fetch news daily to show them in the message of the day (motd),
 which I find rather annoying and unnecessary flooding the logs.
@@ -9701,6 +10263,9 @@ sudo systemctl disable motd-news.timer</pre>
 <li>
 <p><a id="htpasswd"></a>[19] &#8220;htpasswd&#8221;: <a href="https://httpd.apache.org/docs/2.4/programs/htpasswd.html" class="bare">https://httpd.apache.org/docs/2.4/programs/htpasswd.html</a></p>
 </li>
+<li>
+<p><a id="firefly"></a>[20] &#8220;Firefly III&#8221;: <a href="https://www.firefly-iii.org" class="bare">https://www.firefly-iii.org</a></p>
+</li>
 </ul>
 </div>
 </div>
@@ -9720,7 +10285,7 @@ sudo systemctl disable motd-news.timer</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.0<br>
+Version 1.2.0<br>
 </div>
 </div>
 <style>
