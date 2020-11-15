@@ -44,10 +44,14 @@
 :SB_GIT_GROUP: gitusers
 // Account that allows read/write access to Git repositories.
 :SB_GIT_USER: git
-// UID of the www-data user inside Apache httpd and Nextcloud FPM containers
+// UID of the www-data user inside Apache httpd, Nextcloud FPM and Firefly III containers
 :SB_WWW_DATA_UID: 33
-// GID of the www-data user inside Apache httpd and Nextcloud FPM containers
+// GID of the www-data user inside Apache httpd, Nextcloud FPM and Firefly III containers
 :SB_WWW_DATA_GID: 33
+// Firefly III Docker network. Example: 172.18.0.0/24
+:SB_FIREFLY_SUBNET: \{DOCKER_FIREFLY_NETWORK}
+// Port number on which Firefly III web UI will listen for connections. Example: 12345
+:SB_FIREFLY_PORT: \{FIREFLY_UI_PORT}
 
 // Attributes for latest Docker images versions (for convenience)
 
@@ -59,4 +63,6 @@
 :SB_NEXTCLOUD_FPM_VERSION: 19.0.4-fpm
 // HTTPD
 :SB_HTTPD_VERSION: 2.4.46
+// Firefly III
+:SB_FIREFLY_VERSION: version-5.4.6
 

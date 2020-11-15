@@ -1,0 +1,258 @@
+=== Installation
+This section describes how to install and run Firefly III.
+
+==== Preparing Directory Structure
+The very first step is to create directories that will be mapped inside the Docker containers:
+
+[subs="attributes+"]
+----
+sudo mkdir -p /srv/firefly/db
+sudo mkdir /srv/firefly/uploads
+sudo chown {SB_WWW_DATA_UID} /srv/firefly/uploads # <1>
+sudo chmod 750 -R /srv/firefly
+----
+<1> `{SB_WWW_DATA_UID}` is the UID of the `www-data` user inside the Firefly III container.
+
+All the Firefly III data (including database and uploaded files)
+will be stored under the `/srv/firefly` directory in the following way:
+
+db::
+The `db` subdirectory will store PostgreSQL database files.
+uploads::
+The `uploads` subdirectory will store uploaded files.
+
+NOTE: It is important to keep `/src/firefly` directory owned by the root and have restrictive permissions
+since some content inside it will be owned by the `www-data` (UID `{SB_WWW_DATA_UID}`) user from the Docker containers.
+
+==== Preparing Images
+Create a directory for Firefly III containers files:
+
+----
+sudo mkdir /root/silverbox/containers/firefly
+sudo chmod 700 /root/silverbox/containers/firefly
+----
+
+Inside it, create the `docker-compose.yml` file with the following content:
+
+./root/silverbox/containers/firefly/docker-compose.yml
+[source,yaml,subs="attributes+"]
+----
+version: '3.5'
+
+networks:
+  default:
+    name: firefly
+    driver: bridge
+    ipam:
+      config:
+        - subnet: {SB_FIREFLY_SUBNET} # <1>
+
+services:
+  firefly-db:
+    container_name: firefly-db
+    image: postgres:{SB_POSTGRES_VERSION} # <2>
+    restart: on-failure:5
+    shm_size: 256mb
+    logging:
+      driver: json-file
+      options:
+        max-size: 10mb
+        max-file: '3'
+    volumes:
+      - /srv/firefly/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=firefly
+      - POSTGRES_PASSWORD=\{POSTGRES_PASSWORD} # <3>
+      - POSTGRES_DB=firefly
+      - POSTGRES_INITDB_ARGS="--data-checksums"
+
+  firefly-app:
+    container_name: firefly-app
+    image: jc5x/firefly-iii:{SB_FIREFLY_VERSION} # <4>
+    restart: on-failure:5
+    logging:
+      driver: json-file
+      options:
+        max-size: 10mb
+        max-file: '3'
+    depends_on:
+      - firefly-db
+    volumes:
+      - /srv/firefly/uploads:/var/www/html/storage/upload
+    ports:
+      - 127.0.0.1:{SB_FIREFLY_PORT}:8080/tcp # <5>
+    environment:
+      - DB_HOST=firefly-db
+      - DB_PORT=5432
+      - DB_CONNECTION=pgsql
+      - DB_DATABASE=firefly
+      - DB_USERNAME=firefly
+      - DB_PASSWORD=\{POSTGRES_PASSWORD} # <6>
+      - APP_KEY=\{APP_KEY} # <7>
+      - SITE_OWNER=mail@example.com # <8>
+      - TZ=America/Toronto # <9>
+      - TRUSTED_PROXIES=**
+      - APP_URL=https://firefly.{SB_INTERNAL_DOMAIN} # <10>
+      - MAIL_MAILER=smtp # <11>
+      - MAIL_HOST=smtp.example.com
+      - MAIL_PORT=2525
+      - MAIL_FROM=changeme@example.com
+      - MAIL_USERNAME=foo
+      - MAIL_PASSWORD=bar
+      - MAIL_ENCRYPTION=tls
+----
+<1> Replace `{SB_FIREFLY_SUBNET}` with the actual subnet you want to use for the Firefly III.
+<2> Replace `{SB_POSTGRES_VERSION}` with the actual latest `postgres` (Debian based) image version (can be checked at the Docker Hub).
+<3> Replace `\{POSTGRES_PASSWORD}` with some random password.
+<4> Replace `{SB_FIREFLY_VERSION}` with the actual latest `jc5x/firefly-iii` image version (can be checked at the Docker Hub).
+<5> Replace `{SB_FIREFLY_PORT}` with the actual port number you chose for Firefly III.
+<6> Replace `\{POSTGRES_PASSWORD}` with the same password as above.
+<7> Replace `\{APP_KEY}` with random alphanumeric string exactly 32 characters long.
+Such string can be obtained by running the following command: `head /dev/urandom | LANG=C tr -dc 'A-Za-z0-9' | head -c 32`.
+<8> Replace `mail@example.com` with your email address.
+<9> Replace `America/Toronto` with your preferred timezone. To check system timezone run: `cat /etc/timezone`.
+<10> Replace `{SB_INTERNAL_DOMAIN}` with the actual value.
+<11> This block of variables refers to email delivery configuration.
+Configure it accordingly to your email delivery settings.
+Refer to Firefly III documentation for more information.
+
+==== Running Firefly III
+To start all the containers do:
+
+----
+sudo docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml up -d
+----
+
+Verify that all containers have started successfully and check logs for errors:
+
+----
+sudo docker ps
+sudo docker logs firefly-db
+sudo docker logs firefly-app
+----
+
+==== Firefly III Cron
+Firefly III container doesn't include cron or anything else for running periodic jobs.
+Therefore a Systemd timer will be used to trigger periodic jobs for Firefly III.
+
+Create the `/etc/systemd/system/firefly-iii-cron.service` file with the following content:
+
+./etc/systemd/system/firefly-iii-cron.service
+[subs="attributes+"]
+----
+[Unit]
+Description=Run Firefly III cron jobs
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker exec --user www-data firefly-app /usr/local/bin/php /var/www/html/artisan firefly-iii:cron
+----
+
+You can run the service once to verify that it runs successfully:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl start firefly-iii-cron.service
+----
+
+Next, create the `/etc/systemd/system/firefly-iii-cron.timer` file with the following content:
+
+./etc/systemd/system/firefly-iii-cron.timer
+----
+[Unit]
+Description=Run Firefly III cron jobs
+
+[Timer]
+OnBootSec=15min # <1>
+OnCalendar=daily # <2>
+
+[Install]
+WantedBy=timers.target
+----
+<1> First time the timer runs 15 minutes after boot.
+<2> After first run, the timer will run daily, as suggested in the Firefly III documentation.
+
+Enable and start the timer:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl enable firefly-iii-cron.timer
+sudo systemctl start firefly-iii-cron.timer
+----
+
+You can do `sudo systemctl list-timers` to verify that the timer appears in the output and to check the time till next activation.
+
+==== Automatic Containers Startup
+To start containers automatically (in the correct order)
+on boot create the `/etc/systemd/system/firefly-start.service` file with the following content:
+
+./etc/systemd/system/firefly-start.service
+----
+[Unit]
+Description=Start Firefly III
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml up -d
+
+[Install]
+WantedBy=multi-user.target
+----
+
+Enable the service, so that it will be started on system boot:
+
+----
+sudo systemctl daemon-reload
+sudo systemctl enable firefly-start.service
+----
+
+==== Adding DNS Record
+To add internal DNS record for the Firefly III edit the
+`/etc/unbound/unbound.conf.d/dns-config.conf` file and add `local-data` record
+pointing to the server IP `{SB_IP}`:
+
+./etc/unbound/unbound.conf.d/dns-config.conf
+[source,yaml,subs="attributes+"]
+----
+local-data: "firefly.{SB_INTERNAL_DOMAIN}. IN A {SB_IP}" # <1>
+----
+<1> In this and the next line replace `{SB_INTERNAL_DOMAIN}` and `{SB_IP}` with the actual values.
+
+Restart the Unbound server to apply the changes:
+
+----
+sudo systemctl restart unbound.service
+----
+
+==== Adding Reverse Proxy Configuration
+To add Firefly III to the reverse proxy configuration edit the `/root/silverbox/containers/reverse-proxy/httpd.conf` file
+and add the following `VirtualHost` section to it:
+
+./root/silverbox/containers/reverse-proxy/httpd.conf
+[source,apache,subs="attributes+"]
+----
+# Firefly III
+<VirtualHost *:443>
+    ServerName firefly.{SB_INTERNAL_DOMAIN} # <1>
+    ProxyPass        "/" "http://127.0.0.1:{SB_FIREFLY_PORT}/" # <2>
+    ProxyPassReverse "/" "http://127.0.0.1:{SB_FIREFLY_PORT}/"
+</VirtualHost>
+----
+<1> Replace `{SB_INTERNAL_DOMAIN}` with the actual value.
+<2> Replace `{SB_FIREFLY_PORT}` in this and next line with the actual port number you've chosen for the Firefly III.
+
+NOTE: This `VirtualHost` section above doesn't include basic authentication configuration.
+This is deliberate, as Firefly III has its own authentication.
+
+Restart reverse proxy container to pick up new changes:
+
+----
+sudo docker restart reverse-proxy
+----
+
+You should now be able to access Firefly III at `https://firefly.{SB_INTERNAL_DOMAIN}`.
+

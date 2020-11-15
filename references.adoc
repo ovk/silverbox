@@ -20,4 +20,5 @@
 - [[[watchtower, 17]]] "`Watchtower`": https://containrrr.github.io/watchtower
 - [[[git_server, 18]]] "`Git Book: Git Server`": https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server
 - [[[htpasswd, 19]]] "`htpasswd`": https://httpd.apache.org/docs/2.4/programs/htpasswd.html
+- [[[firefly, 20]]] "`Firefly III`": https://www.firefly-iii.org
 

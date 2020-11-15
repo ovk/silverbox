@@ -10,6 +10,7 @@ extra security and privacy.
 - *Git server* for hosting Git repositories.
 - *Borg and Rclone* for automatic encrypted incremental backups (both on-site and off-site).
 - *Reverse proxy server* with HTTPS (using wildcard certificate) and basic authentication to access internal services.
+- *Firefly III* for personal finances management.
 - *Monit* for system monitoring and notifications.
 - Script to automatically update DNS record pointing to server's public IP address (in case of dynamic IP).
 

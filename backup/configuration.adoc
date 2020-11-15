@@ -69,13 +69,17 @@ borg create -v --stats /mnt/backup/borgrepo::'{hostname}-{now:%Y-%m-%d}' \ # <2>
     /srv/nextcloud \
     /srv/nfs \
     /srv/git \
+    /srv/firefly \
     --exclude '/srv/nfs/torrents' \
     --exclude '/srv/nextcloud/html' \
     --exclude '/srv/nextcloud/data/*.log' \
     --exclude '/srv/nextcloud/data/*/preview' \
     --exclude '/srv/nextcloud/db/*.pid' \
     --exclude '/srv/nextcloud/db/*.opts' \
-    --exclude '/srv/nextcloud/db/pg_stat_tmp'
+    --exclude '/srv/nextcloud/db/pg_stat_tmp' \
+    --exclude '/srv/firefly/db/*.pid' \
+    --exclude '/srv/firefly/db/*.opts' \
+    --exclude '/srv/firefly/db/pg_stat_tmp'
 
 if [ "$?" -ne "0" ]; then
     echo "borg create failed"

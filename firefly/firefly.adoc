@@ -1,0 +1,11 @@
+== Firefly III
+This section describes how to install and configure Firefly III (open source personal finances manager) <<firefly>> on the server.
+
+This section depends on the following sections: <<docker>>, <<domain_name>>, <<reverse_proxy>>.
+
+include::overview.adoc[]
+
+include::installation.adoc[]
+
+include::monitoring.adoc[]
+

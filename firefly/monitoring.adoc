@@ -1,0 +1,21 @@
+=== Monitoring
+To monitor Firefly III status with Monit create the `/etc/monit/conf.d/70-firefly` file with the following content:
+
+./etc/monit/conf.d/70-firefly
+[subs="attributes+"]
+----
+# Containers status
+check program firefly_app with path "/usr/local/etc/monit/scripts/container_status.sh firefly-app .State.Status running"
+  if status != 0 for 5 cycles then alert
+
+check program firefly_db with path "/usr/local/etc/monit/scripts/container_status.sh firefly-db .State.Status running"
+  if status != 0 for 5 cycles then alert
+
+# HTTP
+check host firefly with address localhost every 5 cycles
+  if failed port {SB_FIREFLY_PORT} protocol http request / status = 302 for 2 cycles then alert # <1>
+----
+<1> Replace `{SB_FIREFLY_PORT}` with the actual value.
+
+Restart Monit and verify that Firefly III monitoring is working.
+

@@ -1,0 +1,42 @@
+=== Overview
+The Firefly III will be deployed using Docker Compose with two Docker containers:
+one is the database (PostgreSQL) and the other is the official Firefly III container
+(which contains Apache web server and PHP application server).
+
+Below is a diagram that shows high level overview of the Firefly III deployment:
+
+----
+firefly.home.example.com
+    |                        Firefly III Docker Network
+    |                      --------------------------------------------------------
+    |                     |            ------------             ------------       |
+    | HTTPS   ---------   |   HTTP    |            | 5432/tcp  |            |      |
+    \------->| Reverse |------------->| Firefly III|---------->| PostgreSQL |      |
+             |  Proxy  |  |           |            |           |            |      |
+              ---------   |            ------------             ------------       |
+                          |                  |                       |             |
+                          |   {/var/www/html/storage/upload}         |             |
+                          |                  |          {/var/lib/postgresql/data} |
+                          |                  |                       |             |
+                          |                  v                       v             |
+                          |        /srv/firefly/uploads       /srv/firefly/db      |
+                          |                                                        |
+                           --------------------------------------------------------
+----
+
+NOTE: In this diagram `home.example.com` is used as an example value for your `{SB_INTERNAL_DOMAIN}`.
+
+NOTE: In the diagram above, a path inside curly braces indicates a path as it seen inside Docker container,
+while path without curly braces indicates the real path on the host file system.
+
+Both containers are stateless (i.e. don't contain any important data inside the container),
+since all user data is stored on the host file system and mounted inside containers.
+This way containers can be safely deleted and re-deployed, which makes upgrades very easy.
+
+In this setup, Firefly III will only be accessible from the internal network via the reverse proxy
+(as configured in <<reverse_proxy>>).
+Not exposing Firefly III to the internet is a deliberate decision, partially due to security concerns,
+but also for simplicity of the setup and because it seems to me that having it publicly accessible doesn't add to much of convenience.
+If you wish Firefly III to be accessible from the internet you can either implement similar setup as was done for Nextcloud,
+or rely on VPN/WireGuard to get access to the internal network from the internet.
+
