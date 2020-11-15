@@ -1,3 +1,9 @@
+## [1.2.0] - 2020-11-15
+
+- Add missing auto startup for reverse proxy [e804daf]
+- Added Firefly III instructions [97b07b8]
+- Add X-Forwarded-Proto header to reverse proxy [057e8ea]
+
 ## [1.1.0] - 2020-11-07
 
 - Added section on internal reverse proxy server setup [1d75b17]
