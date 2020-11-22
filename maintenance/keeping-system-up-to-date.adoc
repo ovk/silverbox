@@ -234,3 +234,36 @@ Open the Nextcloud UI and upgrade prompt should appear. Upgrade can be initiated
 After upgrade, navigate to the _Settings -> Overview_ page and see if any new warnings have appeared.
 If you see any warnings, consult Nextcloud admin guide on how to fix them.
 
+==== Firefly III
+Checking for a new version can be done in the Web UI.
+Navigate to _Options -> Administration -> Check for updates_ page and click _Check Now!_ button under the _Check for updates now_ section.
+
+The upgrade instructions for Firefly III are described in the documentation
+(https://docs.firefly-iii.org/advanced-installation/upgrade).
+For Docker Compose deployment it is simply updating Docker images.
+
+Before upgrading, it is good idea to consult changelog (https://github.com/firefly-iii/firefly-iii/blob/main/changelog.md)
+to see what is new in the new release and check if any extra steps are required during an upgrade.
+
+To upgrade Firefly III, first tear down the existing containers:
+
+----
+sudo docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml down
+----
+
+Edit the `/root/silverbox/containers/firefly/docker-compose.yml` file
+and update Docker image version for `firefly-app`.
+You can also update image for the Postgres database (`firefly-db`), if newer image is available.
+
+Pull new images:
+
+----
+sudo docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml pull
+----
+
+Start Firefly III:
+
+----
+sudo docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml up -d
+----
+
