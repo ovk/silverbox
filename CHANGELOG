@@ -1,3 +1,8 @@
+## [1.2.1] - 2020-11-22
+
+- Added missing Firefly III update section [f227717]
+- Update Nextcloud and Postgres [d62c45e]
+
 ## [1.2.0] - 2020-11-15
 
 - Add missing auto startup for reverse proxy [e804daf]
