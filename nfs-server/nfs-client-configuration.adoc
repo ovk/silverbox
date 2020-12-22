@@ -138,6 +138,9 @@ silverbox.{SB_INTERNAL_DOMAIN}:/ /mnt/nfs nfs4 proto=tcp,port=2049,sec=krb5,lazy
 NOTE: The `x-gvfs-show` option will make NFS share to appear in Nautilus file manager panel automatically.
 If you are not using Nautilus you can remove this option.
 
+NOTE: If you prefer NFS share to be mounted only on first access, change `auto` parameter to `noauto`
+and add `x-systemd.automount` parameter (for additional options, refer to systemd.mount documentation).
+
 With this change in the `fstab`, the share will be mounted on boot using credentials from the `/etc/krb5.keytab` file.
 However, since this keytab only contains machine key, it won't allow any access to the content of the share.
 
@@ -145,6 +148,12 @@ The next step is to export your user's Kerberos key into a separate keytab file,
 and create a user Systemd service which will do `kinit` for your user automatically on login.
 Since this `kinit` will use key from the user's keytab file, no interaction (such as entering password)
 will be required.
+
+NOTE: Another (and, perhaps, a more convenient) way to automatically do Kerberos authentication on login
+is to use `pam-krb5` PAM module.
+If your Kerberos principal has the same password as your local user, you can install `pam-krb5`
+and add the following line (after line for regular auth) to appropriate configuration file
+under `/etc/pam.d` (depends on the distribution): `auth optional pam_krb5.so minimum_uid=1000 use_first_pass`.
 
 To export your principal's key, run the following commands on the server:
 
