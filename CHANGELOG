@@ -1,3 +1,8 @@
+## [1.2.4] - 2021-03-14
+
+- Update to Nextcloud 20.0.8, PostgreSQL 13.1 [193d520]
+- Remove port mapping from reverse proxy [14b21d2]
+
 ## [1.2.3] - 2021-02-11
 
 - Update to Nextcloud 20.0.7, Debian 10.8 [2519b3c]
