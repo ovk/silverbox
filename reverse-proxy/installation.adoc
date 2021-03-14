@@ -32,8 +32,6 @@ services:
       - /etc/letsencrypt/archive/{SB_INTERNAL_DOMAIN}:/certs/archive/{SB_INTERNAL_DOMAIN}:ro # <4>
       - ./httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
       - ./htpasswd:/usr/local/apache2/.htpasswd:ro
-    ports:
-      - "443:443" # <5>
 ----
 <1> Replace `{SB_HTTPD_VERSION}` with the actual latest `httpd` (Debian based) image version (can be checked at the Docker Hub).
 <2> This puts container on the host network, rather than creating bridge network.
@@ -41,7 +39,6 @@ While it may be not perfect from the isolation standpoint, it makes it very easy
 regardless of what interface they are listening on.
 <3> Replace `{SB_INTERNAL_DOMAIN}` with the actual domain name.
 <4> Same as above.
-<5> This puts the reverse proxy on default HTTPS port 443. Feel free to use different port if you need to.
 
 ===== Configuring HTTPD
 Create the `/root/silverbox/containers/reverse-proxy/httpd.conf` file with the following content:
