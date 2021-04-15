@@ -661,8 +661,8 @@ pre.rouge {
 <div class="details">
 <span id="author" class="author">ovk</span><br>
 <span id="email" class="email"><a href="https://github.com/ovk">@ovk</a></span><br>
-<span id="revnumber">version 1.2.4,</span>
-<span id="revdate">March 14, 2021</span>
+<span id="revnumber">version 1.2.5,</span>
+<span id="revdate">April 15, 2021</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3622,7 +3622,7 @@ sudo chmod 700 /root/silverbox/containers/vpn-proxy/host-key</pre>
       <span class="na">context</span><span class="pi">:</span> <span class="s">/root/silverbox/containers/vpn-proxy</span>
       <span class="na">network</span><span class="pi">:</span> <span class="s">vpn</span>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.8-slim'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.9-slim'</span> <i class="conum" data-value="1"></i><b>(1)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:15</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -3647,7 +3647,7 @@ sudo chmod 700 /root/silverbox/containers/vpn-proxy/host-key</pre>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Replace <code>10.8-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).
+<td>Replace <code>10.9-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).
 Don&#8217;t use <code>latest</code> here as it makes setup non-deterministic and makes it harder to maintain and upgrade.</td>
 </tr>
 <tr>
@@ -4325,7 +4325,7 @@ sudo chmod 700 /root/silverbox/containers/dns-updater</pre>
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/dns-updater/Dockerfile</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> debian:10.8-slim </span><i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="rouge highlight nowrap"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> debian:10.9-slim </span><i class="conum" data-value="1"></i><b>(1)</b>
 
 <span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> <span class="se">\
 </span>    apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nt">--no-install-recommends</span> python3 ca-certificates
@@ -4341,7 +4341,7 @@ sudo chmod 700 /root/silverbox/containers/dns-updater</pre>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Replace <code>10.8-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).</td>
+<td>Replace <code>10.9-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -5777,7 +5777,7 @@ sudo chmod 700 /root/silverbox/containers/transmission</pre>
       <span class="na">context</span><span class="pi">:</span> <span class="s">/root/silverbox/containers/transmission</span>
       <span class="na">network</span><span class="pi">:</span> <span class="s">vpn</span>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.8-slim'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.9-slim'</span> <i class="conum" data-value="1"></i><b>(1)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:15</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -5802,7 +5802,7 @@ sudo chmod 700 /root/silverbox/containers/transmission</pre>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Replace <code>10.8-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).
+<td>Replace <code>10.9-slim</code> with the actual latest <code>debian</code> image version (can be checked at the Docker Hub).
 Note that this is not the Transmission version.</td>
 </tr>
 <tr>
@@ -6830,7 +6830,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
       <span class="na">context</span><span class="pi">:</span> <span class="s">./nextcloud-fpm</span>
       <span class="na">network</span><span class="pi">:</span> <span class="s">common</span> <i class="conum" data-value="4"></i><b>(4)</b>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">20.0.8-fpm'</span> <i class="conum" data-value="5"></i><b>(5)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">21.0.1-fpm'</span> <i class="conum" data-value="5"></i><b>(5)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -6896,7 +6896,7 @@ If you skipped over <a href="#domain_name">Domain Name</a> section where this ne
 </tr>
 <tr>
 <td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Replace <code>20.0.8-fpm</code> with the actual latest <code>nextcloud-fpm</code> (Debian based) image version (can be checked at the Docker Hub).</td>
+<td>Replace <code>21.0.1-fpm</code> with the actual latest <code>nextcloud-fpm</code> (Debian based) image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="6"></i><b>6</b></td>
@@ -7364,7 +7364,8 @@ sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml e
 'default_language' =&gt; 'en',
 'default_locale' =&gt; 'en_CA',
 'knowledgebaseenabled' =&gt; false, <i class="conum" data-value="4"></i><b>(4)</b>
-'token_auth_enforced' =&gt; true <i class="conum" data-value="5"></i><b>(5)</b></pre>
+'token_auth_enforced' =&gt; true, <i class="conum" data-value="5"></i><b>(5)</b>
+'default_phone_region' =&gt; 'CA' <i class="conum" data-value="6"></i><b>(6)</b></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -7389,6 +7390,10 @@ More info: <a href="https://docs.nextcloud.com/server/stable/admin_manual/instal
 <tr>
 <td><i class="conum" data-value="5"></i><b>5</b></td>
 <td>Enforces token authentication for API clients for better security (will block requests using the user password).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Set to your country code (more in the Nextcloud documentation).</td>
 </tr>
 </table>
 </div>
@@ -9972,7 +9977,7 @@ and update the Debian image version in the build arguments:</p>
 <div class="title">/root/silverbox/containers/vpn-proxy/docker-compose.yaml</div>
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">args</span><span class="pi">:</span>
-  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.8-slim'</span></code></pre>
+  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.9-slim'</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -9997,7 +10002,7 @@ sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml 
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/dns-updater/Dockerfile</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="docker"><span class="k">FROM</span><span class="s"> debian:10.8-slim</span></code></pre>
+<pre class="rouge highlight nowrap"><code data-lang="docker"><span class="k">FROM</span><span class="s"> debian:10.9-slim</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -10023,7 +10028,7 @@ and update the Debian image version in the build arguments:</p>
 <div class="title">/root/silverbox/containers/transmission/docker-compose.yaml</div>
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">args</span><span class="pi">:</span>
-  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.8-slim'</span></code></pre>
+  <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">10.9-slim'</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -10570,7 +10575,7 @@ sudo systemctl disable motd-news.timer</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.4<br>
+Version 1.2.5<br>
 </div>
 </div>
 </body>
