@@ -1,3 +1,7 @@
+## [1.2.5] - 2021-04-15
+
+- Update: Nextcloud 21.0.1, Debian 10.9 [f1d35a1]
+
 ## [1.2.4] - 2021-03-14
 
 - Update to Nextcloud 20.0.8, PostgreSQL 13.1 [193d520]
