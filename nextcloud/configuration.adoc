@@ -30,7 +30,8 @@ Edit the `/srv/nextcloud/html/config/config.php` file and add/modify the followi
 'default_language' => 'en',
 'default_locale' => 'en_CA',
 'knowledgebaseenabled' => false, # <4>
-'token_auth_enforced' => true # <5>
+'token_auth_enforced' => true, # <5>
+'default_phone_region' => 'CA' # <6>
 ----
 <1> Sets log level to _info_.
 <2> This and the next line will enable pretty URLs (essentially eliminating `index.php` from the URLs).
@@ -38,6 +39,7 @@ More info: https://docs.nextcloud.com/server/stable/admin_manual/installation/so
 <3> Same as above.
 <4> This line disables arguably useless knowledge base page.
 <5> Enforces token authentication for API clients for better security (will block requests using the user password).
+<6> Set to your country code (more in the Nextcloud documentation).
 
 Next, run the following command:
 
