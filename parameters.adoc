@@ -64,5 +64,5 @@
 // HTTPD
 :SB_HTTPD_VERSION: 2.4.46
 // Firefly III
-:SB_FIREFLY_VERSION: version-5.4.6
+:SB_FIREFLY_VERSION: version-5.5.11
 
