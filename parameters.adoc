@@ -58,7 +58,7 @@
 // Debian Linux (slim)
 :SB_DEBIAN_VERSION: 10.9-slim
 // PostgreSQL
-:SB_POSTGRES_VERSION: 13.2
+:SB_POSTGRES_VERSION: 13.3
 // Nextcloud FPM
 :SB_NEXTCLOUD_FPM_VERSION: 21.0.1-fpm
 // HTTPD
