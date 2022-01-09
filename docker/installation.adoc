@@ -17,26 +17,30 @@ the latest binary from the GitHub releases page.
 The downside is that there won't be any automatic upgrades and newer versions of Docker Compose will
 have to be installed manually.
 
+NOTE: This guide has been updated to use Docker Compose v2
+(complete rewrite of the Docker Compose in Golang).
+If you have older Docker Compose version, make sure you remove it and install the version 2.
+
 To find the latest Docker Compose version number, visit the GitHub releases page at:
 https://github.com/docker/compose/releases.
 
 Next, download the `docker-compose` binary:
 
 ----
-sudo curl -L "https://github.com/docker/compose/releases/download/{COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose # <1>
+sudo curl -L "https://github.com/docker/compose/releases/download/{COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/libexec/docker/cli-plugins/docker-compose # <1>
 ----
 <1> Replace `\{COMPOSE_VERSION}` with the actual latest Docker Compose version.
 
 And mark it as executable:
 
 ----
-sudo chmod +x /usr/local/bin/docker-compose
+sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 ----
 
 Verify that Docker Compose works by doing:
 
 ----
-docker-compose version
+docker compose version
 ----
 
 NOTE: If you see an error similar to this:

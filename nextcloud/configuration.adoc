@@ -9,9 +9,9 @@ Most likely you'll see at least one warning here: `Some columns in the database 
 To fix it, run the following commands:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ maintenance:mode --on
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ db:convert-filecache-bigint --no-interaction
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ maintenance:mode --off
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ maintenance:mode --on
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ db:convert-filecache-bigint --no-interaction
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ maintenance:mode --off
 ----
 
 Verify that warning disappeared.
@@ -44,13 +44,13 @@ More info: https://docs.nextcloud.com/server/stable/admin_manual/installation/so
 Next, run the following command:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ maintenance:update:htaccess
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ maintenance:update:htaccess
 ----
 
 And restart Nextcloud:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml restart
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml restart
 ----
 
 Refresh the Nextcloud page and verify that pretty URLs work.
@@ -89,9 +89,9 @@ nextcloud-fpm:
 To apply changes do:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml stop
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml kill nextcloud-fpm
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml up -d
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml stop
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml kill nextcloud-fpm
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml up -d
 ----
 
 To add these directories to Nextcloud navigate to _Settings -> External Storages_ and add two
@@ -128,7 +128,7 @@ sudo find /srv/nfs -user $USER -group $USER -exec chgrp {SB_NFS_GROUP} {} \; -ex
 IMPORTANT: When creating files from outside of the Nextcloud (e.g. over NFS), the files won't be immediately visible
 in the Nextcloud. Similarly, the changed permissions on such files won't be immediately noticed by the Nextcloud.
 To force Nextcloud to rescan the files use the following command:
-`sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ files:scan admin`
+`sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml exec --user www-data nextcloud-fpm php occ files:scan admin`
 
 If desired, the permission correction can be automated with `inotify-tools` or similar tools
 

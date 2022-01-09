@@ -5,7 +5,7 @@ This section describes how to run the container from the Transmission image.
 To build the image and run the container do:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/transmission/docker-compose.yaml up -d
+sudo docker compose -f /root/silverbox/containers/transmission/docker-compose.yaml up -d
 ----
 
 ==== Automatic Container Startup

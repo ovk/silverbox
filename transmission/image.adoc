@@ -51,7 +51,7 @@ Inside the `transmission` directory, create a file named `docker-compose.yaml` w
 ./root/silverbox/containers/transmission/docker-compose.yaml
 [source,yaml,subs="attributes+"]
 ----
-version: '3.7'
+version: '3.8'
 
 networks:
   default:

@@ -37,7 +37,7 @@ Inside it, create the `docker-compose.yml` file with the following content:
 ./root/silverbox/containers/firefly/docker-compose.yml
 [source,yaml,subs="attributes+"]
 ----
-version: '3.5'
+version: '3.8'
 
 networks:
   default:
@@ -120,7 +120,7 @@ Refer to Firefly III documentation for more information.
 To start all the containers do:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml up -d
+sudo docker compose -f /root/silverbox/containers/firefly/docker-compose.yml up -d
 ----
 
 Verify that all containers have started successfully and check logs for errors:
@@ -197,7 +197,7 @@ After=docker.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml up -d
+ExecStart=/usr/bin/docker compose -f /root/silverbox/containers/firefly/docker-compose.yml up -d
 
 [Install]
 WantedBy=multi-user.target

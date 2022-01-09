@@ -14,7 +14,7 @@ Inside it, create the `docker-compose.yml` file with the following content:
 ./root/silverbox/containers/reverse-proxy/docker-compose.yml
 [source,yaml,subs="attributes+"]
 ----
-version: '3.5'
+version: '3.8'
 
 services:
   proxy:
@@ -200,7 +200,7 @@ sudo systemctl restart unbound.service
 To start the reverse proxy server do:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d
+sudo docker compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d
 ----
 
 ==== Automatic Container Startup
@@ -216,7 +216,7 @@ After=docker.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d
+ExecStart=/usr/bin/docker compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d
 
 [Install]
 WantedBy=multi-user.target

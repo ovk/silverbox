@@ -26,7 +26,7 @@ Docker engine will be updated as part of the regular Ubuntu packages update.
 To update Docker Compose, first check what is the current installed version:
 
 ----
-docker-compose -v
+docker compose version
 ----
 
 Next, check what is the latest release version:
@@ -127,9 +127,9 @@ args:
 Stop the container, rebuild the image and start new container from the new image:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml down
-sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml build --pull
-sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml up -d
+sudo docker compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml down
+sudo docker compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml build --pull
+sudo docker compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml up -d
 ----
 
 Since the SSH host identity key is stored outside of the container on disk, proxy should reconnect seamlessly.
@@ -166,9 +166,9 @@ args:
 Stop the container, rebuild the image and start new container from the new image:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/transmission/docker-compose.yaml down
-sudo docker-compose -f /root/silverbox/containers/transmission/docker-compose.yaml build --pull
-sudo docker-compose -f /root/silverbox/containers/transmission/docker-compose.yaml up -d
+sudo docker compose -f /root/silverbox/containers/transmission/docker-compose.yaml down
+sudo docker compose -f /root/silverbox/containers/transmission/docker-compose.yaml build --pull
+sudo docker compose -f /root/silverbox/containers/transmission/docker-compose.yaml up -d
 ----
 
 ===== Updating Reverse Proxy Image
@@ -184,9 +184,9 @@ image: 'httpd:{SB_HTTPD_VERSION}'
 Stop the container, pull the new image and start new container from the new image:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml down
-sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml pull
-sudo docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d
+sudo docker compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml down
+sudo docker compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml pull
+sudo docker compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml up -d
 ----
 
 ==== Nextcloud
@@ -206,7 +206,7 @@ to see what is new in the new release and check if any extra steps are required 
 To upgrade Nextcloud, first tear down the existing containers:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml down
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml down
 ----
 
 Edit the `/root/silverbox/containers/nextcloud/docker-compose.yml` file
@@ -219,14 +219,14 @@ and check the Postgres documentation to see if any extra upgrade steps are requi
 Pull and build new images:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml pull
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml build --pull
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml pull
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml build --pull
 ----
 
 Start Nextcloud:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml up -d
+sudo docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml up -d
 ----
 
 Open the Nextcloud UI and upgrade prompt should appear. Upgrade can be initiated from this prompt.
@@ -248,7 +248,7 @@ to see what is new in the new release and check if any extra steps are required 
 To upgrade Firefly III, first tear down the existing containers:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml down
+sudo docker compose -f /root/silverbox/containers/firefly/docker-compose.yml down
 ----
 
 Edit the `/root/silverbox/containers/firefly/docker-compose.yml` file
@@ -258,12 +258,12 @@ You can also update image for the Postgres database (`firefly-db`), if newer ima
 Pull new images:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml pull
+sudo docker compose -f /root/silverbox/containers/firefly/docker-compose.yml pull
 ----
 
 Start Firefly III:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/firefly/docker-compose.yml up -d
+sudo docker compose -f /root/silverbox/containers/firefly/docker-compose.yml up -d
 ----
 

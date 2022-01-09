@@ -5,7 +5,7 @@ This section describes how to run the VPN proxy container.
 To build the image and run the container do:
 
 ----
-sudo docker-compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml up -d
+sudo docker compose -f /root/silverbox/containers/vpn-proxy/docker-compose.yaml up -d
 ----
 
 NOTE: When you run container that exposes some ports to the host interface,

@@ -128,7 +128,7 @@ Create the `/etc/letsencrypt/renewal-hooks/post/nextcloud-web-restart.sh` file w
 #!/bin/bash
 if [ "$CERTBOT_DOMAIN" = "{SB_NEXTCLOUD_DOMAIN}" ]; then # <1>
     echo "Restarting Nextcloud web server"
-    docker-compose -f /root/silverbox/containers/nextcloud/docker-compose.yml restart nextcloud-web
+    docker compose -f /root/silverbox/containers/nextcloud/docker-compose.yml restart nextcloud-web
 else
     echo "Skipping Nextcloud web server restart - different domain: $CERTBOT_DOMAIN"
 fi

@@ -27,7 +27,7 @@ Create the `/etc/letsencrypt/renewal-hooks/post/reverse-proxy-restart.sh` file w
 #!/bin/bash
 if [ "$CERTBOT_DOMAIN" = "{SB_INTERNAL_DOMAIN}" ]; then # <1>
     echo "Restarting reverse proxy server"
-    docker-compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml restart proxy
+    docker compose -f /root/silverbox/containers/reverse-proxy/docker-compose.yml restart proxy
 else
     echo "Skipping reverse proxy server restart - different domain: $CERTBOT_DOMAIN"
 fi

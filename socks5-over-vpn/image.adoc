@@ -99,7 +99,7 @@ Inside the `vpn-proxy` directory, create a file named `docker-compose.yaml` with
 ./root/silverbox/containers/vpn-proxy/docker-compose.yaml
 [source,yaml,subs="attributes+"]
 ----
-version: '3.7'
+version: '3.8'
 
 networks:
   default:
