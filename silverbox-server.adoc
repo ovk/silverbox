@@ -1,6 +1,6 @@
 = Silverbox: GNU/Linux Home Server
 ovk <https://github.com/ovk[@ovk]>
-v1.2.5, April 15, 2021
+v1.3.0, January 9, 2021
 :homepage: https://github.com/ovk/silverbox
 :doctype: article
 :reproducible:

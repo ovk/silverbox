@@ -1,3 +1,40 @@
+## [1.3.0] - 2022-01-09
+
+- Update Docker images [0a92490]
+    - Update Nextcloud to 23.0.0 and PostgreSQL to 14.1
+    Note that due to major version upgrade for PostgreSQL manual DB conversion is required:
+        - Stop Nextcloud completely and backup its database by making a copy of /src/nextcloud/db directory.
+        - Start nextcloud-db container and create a DB dump:
+        $ sudo docker exec -i nextcloud-db pg_dumpall --username nextcloud --clean > nextcloud_db.sql
+        - Stop nextcloud-db container, edit Nextcloud Docker Compose file and update the DB image to 14.1
+        - Delete everythin inside /srv/nextcloud/db directory
+        - Start the new nextcloud-db container using Docker Compose
+        - Restore the DB from the dump:
+        $ sudo docker exec -i nextcloud-db psql --username nextcloud nextcloud < nextcloud_db.sql
+        - After the restore completes, stop the nextcloud-db container and replace host auth method back to md5 by editing /srv/nextcloud/db/pg_hba.conf file:
+            host all all all md5
+        - Start all Nextcloud containers
+
+    - Update Firefly III to 5.5.13 and PostgreSQL to 14.1
+    Note that due to major version upgrade for PostgreSQL manual DB conversion is required:
+        - Stop firefly-app and firefly-db containers and backup the database by making a copy of /srv/firefly/db directory.
+        - Start firefly-db container and create a DB dump:
+        $ sudo docker exec -i firefly-db pg_dumpall --username firefly --clean > firefly_db.sql
+        - Stop firefly-db container, edit Firefly Docker Compose file and update the DB image to 14.1
+        - Delete everythin inside /srv/firefly/db directory
+        - Start the new firefly-db container using Docker Compose
+        - Restore the DB from the dump:
+        $ sudo docker exec -i firefly-db psql --username firefly firefly < firefly_db.sql
+        - After the restore completes, stop the firefly-db container and replace host auth method back to md5 by editing /srv/firefly/db/pg_hba.conf file:
+            host all all all md5
+        - Start all Firefly containers
+
+- Update to Docker Compose v2 [7323225]
+  Note that Docker compose v2 command is 'docker compose' as opposed to 'docker-compose'.
+  There are few places in the document where 'docker-compose' needs to be manually replaced with the 'docker compose'
+  (for example, in systemctl units for starting up containers).
+  The easiest way to find these places is to search for the 'docker compose' string.
+
 ## [1.2.5] - 2021-04-15
 
 - Update: Nextcloud 21.0.1, Debian 10.9 [f1d35a1]
