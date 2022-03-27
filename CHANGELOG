@@ -1,3 +1,10 @@
+## [1.3.1] - 2022-03-27
+
+- Update images [899175e]
+  Note that newer versions of Docker use BuildKit by default, which may fail to build compose files that use custom networks.
+  If you see an error message similar to this: "network mode "common" not supported by buildkit. You can define a custom network for your builder using the network driver-opt in buildx create."
+  try disabling BuildKit by settings environment variable DOCKER_BUILDKIT=0.
+
 ## [1.3.0] - 2022-01-09
 
 - Update Docker images [0a92490]
