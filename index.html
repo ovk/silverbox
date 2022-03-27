@@ -659,8 +659,8 @@ pre.rouge {
 <div class="details">
 <span id="author" class="author">ovk</span><br>
 <span id="email" class="email"><a href="https://github.com/ovk">@ovk</a></span><br>
-<span id="revnumber">version 1.3.0,</span>
-<span id="revdate">January 9, 2021</span>
+<span id="revnumber">version 1.3.1,</span>
+<span id="revdate">March 27, 2022</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -6820,7 +6820,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
 <span class="na">services</span><span class="pi">:</span>
   <span class="na">nextcloud-db</span><span class="pi">:</span>
     <span class="na">container_name</span><span class="pi">:</span> <span class="s">nextcloud-db</span>
-    <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:14.1</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:14.2</span> <i class="conum" data-value="2"></i><b>(2)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">shm_size</span><span class="pi">:</span> <span class="s">256mb</span>
     <span class="na">logging</span><span class="pi">:</span>
@@ -6842,7 +6842,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
       <span class="na">context</span><span class="pi">:</span> <span class="s">./nextcloud-fpm</span>
       <span class="na">network</span><span class="pi">:</span> <span class="s">common</span> <i class="conum" data-value="4"></i><b>(4)</b>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">23.0.0-fpm'</span> <i class="conum" data-value="5"></i><b>(5)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">23.0.3-fpm'</span> <i class="conum" data-value="5"></i><b>(5)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -6869,7 +6869,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
       <span class="na">context</span><span class="pi">:</span> <span class="s">./httpd</span>
       <span class="na">network</span><span class="pi">:</span> <span class="s">common</span>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2.4.52'</span> <i class="conum" data-value="8"></i><b>(8)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2.4.53'</span> <i class="conum" data-value="8"></i><b>(8)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -6894,7 +6894,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Replace <code>14.1</code> with the actual latest <code>postgres</code> (Debian based) image version (can be checked at the Docker Hub).
+<td>Replace <code>14.2</code> with the actual latest <code>postgres</code> (Debian based) image version (can be checked at the Docker Hub).
 You can double check if this version is supported by the Nextcloud in the Nextcloud documentation.</td>
 </tr>
 <tr>
@@ -6908,7 +6908,7 @@ If you skipped over <a href="#domain_name">Domain Name</a> section where this ne
 </tr>
 <tr>
 <td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Replace <code>23.0.0-fpm</code> with the actual latest <code>nextcloud-fpm</code> (Debian based) image version (can be checked at the Docker Hub).</td>
+<td>Replace <code>23.0.3-fpm</code> with the actual latest <code>nextcloud-fpm</code> (Debian based) image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="6"></i><b>6</b></td>
@@ -6922,7 +6922,7 @@ If you skipped over <a href="#domain_name">Domain Name</a> section where this ne
 </tr>
 <tr>
 <td><i class="conum" data-value="8"></i><b>8</b></td>
-<td>Replace <code>2.4.52</code> with the actual latest <code>httpd</code> (Debian based) image version (can be checked at the Docker Hub).</td>
+<td>Replace <code>2.4.53</code> with the actual latest <code>httpd</code> (Debian based) image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="9"></i><b>9</b></td>
@@ -8216,7 +8216,7 @@ sudo chmod 700 /root/silverbox/containers/reverse-proxy</pre>
 <span class="na">services</span><span class="pi">:</span>
   <span class="na">proxy</span><span class="pi">:</span>
     <span class="na">container_name</span><span class="pi">:</span> <span class="s">reverse-proxy</span>
-    <span class="na">image</span><span class="pi">:</span> <span class="s1">'</span><span class="s">httpd:2.4.52'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="na">image</span><span class="pi">:</span> <span class="s1">'</span><span class="s">httpd:2.4.53'</span> <i class="conum" data-value="1"></i><b>(1)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">network_mode</span><span class="pi">:</span> <span class="s">host</span> <i class="conum" data-value="2"></i><b>(2)</b>
     <span class="na">logging</span><span class="pi">:</span>
@@ -8235,7 +8235,7 @@ sudo chmod 700 /root/silverbox/containers/reverse-proxy</pre>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Replace <code>2.4.52</code> with the actual latest <code>httpd</code> (Debian based) image version (can be checked at the Docker Hub).</td>
+<td>Replace <code>2.4.53</code> with the actual latest <code>httpd</code> (Debian based) image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -8711,7 +8711,7 @@ sudo chmod 700 /root/silverbox/containers/firefly</pre>
 <span class="na">services</span><span class="pi">:</span>
   <span class="na">firefly-db</span><span class="pi">:</span>
     <span class="na">container_name</span><span class="pi">:</span> <span class="s">firefly-db</span>
-    <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:14.1</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:14.2</span> <i class="conum" data-value="2"></i><b>(2)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">shm_size</span><span class="pi">:</span> <span class="s">256mb</span>
     <span class="na">logging</span><span class="pi">:</span>
@@ -8771,7 +8771,7 @@ sudo chmod 700 /root/silverbox/containers/firefly</pre>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Replace <code>14.1</code> with the actual latest <code>postgres</code> (Debian based) image version (can be checked at the Docker Hub).</td>
+<td>Replace <code>14.2</code> with the actual latest <code>postgres</code> (Debian based) image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
@@ -10063,7 +10063,7 @@ and update the Apache httpd image version:</p>
 <div class="listingblock">
 <div class="title">/root/silverbox/containers/reverse-proxy/docker-compose.yml</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">image</span><span class="pi">:</span> <span class="s1">'</span><span class="s">httpd:2.4.52'</span></code></pre>
+<pre class="rouge highlight nowrap"><code data-lang="yaml"><span class="na">image</span><span class="pi">:</span> <span class="s1">'</span><span class="s">httpd:2.4.53'</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -10587,7 +10587,7 @@ sudo systemctl disable motd-news.timer</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.0<br>
+Version 1.3.1<br>
 </div>
 </div>
 </body>
