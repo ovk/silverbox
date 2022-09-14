@@ -73,7 +73,6 @@ services:
     container_name: nextcloud-fpm
     build:
       context: ./nextcloud-fpm
-      network: common # <4>
       args:
         version: '{SB_NEXTCLOUD_FPM_VERSION}' # <5>
     restart: on-failure:5
@@ -100,7 +99,6 @@ services:
     container_name: nextcloud-web
     build:
       context: ./httpd
-      network: common
       args:
         version: '{SB_HTTPD_VERSION}' # <8>
     restart: on-failure:5
@@ -122,17 +120,15 @@ services:
 <2> Replace `{SB_POSTGRES_VERSION}` with the actual latest `postgres` (Debian based) image version (can be checked at the Docker Hub).
 You can double check if this version is supported by the Nextcloud in the Nextcloud documentation.
 <3> Replace `\{POSTGRES_PASSWORD}` with some random password.
-<4> To build `nextcloud-fpm` image (same as for `nextcloud-web` image), `common` docker network is used.
-If you skipped over <<domain_name>> section where this network is created, create it now as described in that section.
-<5> Replace `{SB_NEXTCLOUD_FPM_VERSION}` with the actual latest `nextcloud-fpm` (Debian based) image version (can be checked at the Docker Hub).
-<6> Replace `\{POSTGRES_PASSWORD}` with the same password as above.
-<7> Replace `{SB_NEXTCLOUD_DOMAIN}` with your Nextcloud domain name and
+<4> Replace `{SB_NEXTCLOUD_FPM_VERSION}` with the actual latest `nextcloud-fpm` (Debian based) image version (can be checked at the Docker Hub).
+<5> Replace `\{POSTGRES_PASSWORD}` with the same password as above.
+<6> Replace `{SB_NEXTCLOUD_DOMAIN}` with your Nextcloud domain name and
 `{SB_NEXTCLOUD_PORT}` with the port number you chose to use for the Nextcloud
 (the Nextcloud web server will listen on this port).
-<8> Replace `{SB_HTTPD_VERSION}` with the actual latest `httpd` (Debian based) image version (can be checked at the Docker Hub).
-<9> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual domain name for the Nextcloud.
-<10> Same as above.
-<11> Replace `{SB_IP}` and `{SB_NEXTCLOUD_PORT}` with the actual values.
+<7> Replace `{SB_HTTPD_VERSION}` with the actual latest `httpd` (Debian based) image version (can be checked at the Docker Hub).
+<8> Replace `{SB_NEXTCLOUD_DOMAIN}` with the actual domain name for the Nextcloud.
+<9> Same as above.
+<10> Replace `{SB_IP}` and `{SB_NEXTCLOUD_PORT}` with the actual values.
 
 [[nextcloud_httpd_config]]
 ===== HTTPD

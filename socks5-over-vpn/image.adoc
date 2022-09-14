@@ -112,7 +112,6 @@ services:
     init: true
     build:
       context: /root/silverbox/containers/vpn-proxy
-      network: vpn
       args:
         version: '{SB_DEBIAN_VERSION}' # <1>
     restart: on-failure:15
