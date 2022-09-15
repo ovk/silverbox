@@ -56,13 +56,13 @@
 // Attributes for latest Docker images versions (for convenience)
 
 // Debian Linux (slim)
-:SB_DEBIAN_VERSION: 11.3-slim
+:SB_DEBIAN_VERSION: 11.5-slim
 // PostgreSQL
-:SB_POSTGRES_VERSION: 14.3
+:SB_POSTGRES_VERSION: 14.5
 // Nextcloud FPM
-:SB_NEXTCLOUD_FPM_VERSION: 24.0.1-fpm
+:SB_NEXTCLOUD_FPM_VERSION: 24.0.5-fpm
 // HTTPD
-:SB_HTTPD_VERSION: 2.4.53
+:SB_HTTPD_VERSION: 2.4.54
 // Firefly III
 :SB_FIREFLY_VERSION: version-5.5.13
 
