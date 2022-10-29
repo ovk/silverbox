@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.17">
+<meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="ovk">
 <title>Silverbox: GNU/Linux Home Server</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
@@ -85,10 +85,10 @@ code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;
 ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
 ul,ol{margin-left:1.5em}
 ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
-ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
-ul.square{list-style-type:square}
 ul.circle{list-style-type:circle}
 ul.disc{list-style-type:disc}
+ul.square{list-style-type:square}
+ul.circle ul:not([class]),ul.disc ul:not([class]),ul.square ul:not([class]){list-style:inherit}
 ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
 dl dt{margin-bottom:.3125em;font-weight:bold}
 dl dd{margin-bottom:1.25em}
@@ -659,8 +659,8 @@ pre.rouge {
 <div class="details">
 <span id="author" class="author">ovk</span><br>
 <span id="email" class="email"><a href="https://github.com/ovk">@ovk</a></span><br>
-<span id="revnumber">version 1.3.3,</span>
-<span id="revdate">September 14, 2022</span>
+<span id="revnumber">version 1.3.4,</span>
+<span id="revdate">October 29, 2022</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -6839,7 +6839,7 @@ sudo chmod 700 /root/silverbox/containers/nextcloud</pre>
     <span class="na">build</span><span class="pi">:</span>
       <span class="na">context</span><span class="pi">:</span> <span class="s">./nextcloud-fpm</span>
       <span class="na">args</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">24.0.5-fpm'</span> <i class="conum" data-value="4"></i><b>(4)</b>
+        <span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">24.0.6-fpm'</span> <i class="conum" data-value="4"></i><b>(4)</b>
     <span class="na">restart</span><span class="pi">:</span> <span class="s">on-failure:5</span>
     <span class="na">logging</span><span class="pi">:</span>
       <span class="na">driver</span><span class="pi">:</span> <span class="s">json-file</span>
@@ -6899,7 +6899,7 @@ You can double check if this version is supported by the Nextcloud in the Nextcl
 </tr>
 <tr>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>Replace <code>24.0.5-fpm</code> with the actual latest <code>nextcloud-fpm</code> (Debian based) image version (can be checked at the Docker Hub).</td>
+<td>Replace <code>24.0.6-fpm</code> with the actual latest <code>nextcloud-fpm</code> (Debian based) image version (can be checked at the Docker Hub).</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="5"></i><b>5</b></td>
@@ -10578,7 +10578,7 @@ sudo systemctl disable motd-news.timer</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.3<br>
+Version 1.3.4<br>
 </div>
 </div>
 </body>
